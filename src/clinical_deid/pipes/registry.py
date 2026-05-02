@@ -192,7 +192,7 @@ _CATALOG: list[PipeCatalogEntry] = [
     ),
     PipeCatalogEntry(
         name="llm_ner",
-        description="LLM-prompted PHI detection via OpenAI-compatible chat API",
+        description="LLM-prompted PHI detection via OpenAI Responses API (text-based extraction)",
         role="detector",
         extra="llm",
         install_hint="pip install '.[llm]'",
