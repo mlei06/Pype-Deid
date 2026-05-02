@@ -1,0 +1,73 @@
+# US state and territory two-letter postal codes.
+#
+# WARNING: do NOT enable this list as a global whitelist for clinical text.
+# The whitelist matcher is case-insensitive with word boundaries, so these
+# codes will fire on common words and clinical abbreviations:
+#   OR -> operating room / "or" (conjunction)
+#   MD -> Doctor of Medicine ("John Smith, MD")
+#   MI -> myocardial infarction
+#   MS -> multiple sclerosis / "Ms."
+#   CA -> carcinoma ("stage IV CA")
+#   PA -> physician assistant / pascal
+#   VA -> Veterans Affairs
+#   IN, AS, ME, HI, OK, ID, OH, OR -> common English words
+#   DE, AL, AR, AK, CO -> common foreign-language tokens / fragments
+#
+# Use only with surrounding-context regex (e.g. "lives in ___",
+# "City, ST ZIP") rather than as a bare gazetteer.
+AL
+AK
+AZ
+AR
+CA
+CO
+CT
+DE
+FL
+GA
+HI
+ID
+IL
+IN
+IA
+KS
+KY
+LA
+ME
+MD
+MA
+MI
+MN
+MS
+MO
+MT
+NE
+NV
+NH
+NJ
+NM
+NY
+NC
+ND
+OH
+OK
+OR
+PA
+RI
+SC
+SD
+TN
+TX
+UT
+VT
+VA
+WA
+WV
+WI
+WY
+DC
+PR
+GU
+VI
+AS
+MP

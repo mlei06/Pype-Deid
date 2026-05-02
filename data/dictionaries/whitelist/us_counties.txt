@@ -1,0 +1,200 @@
+# Largest / most-populous US counties.
+# Entries deliberately include the trailing "County" / "Parish" / "Borough" word
+# to anchor word-boundary matching and avoid collisions with single-word
+# surnames already present in last_names.txt (Cook, King, Jefferson, etc.).
+Los Angeles County
+Cook County
+Harris County
+Maricopa County
+San Diego County
+Orange County
+Miami-Dade County
+Dallas County
+Kings County
+Riverside County
+Queens County
+Clark County
+King County
+San Bernardino County
+Tarrant County
+Bexar County
+Broward County
+Santa Clara County
+Wayne County
+Alameda County
+New York County
+Middlesex County
+Philadelphia County
+Suffolk County
+Sacramento County
+Bronx County
+Hillsborough County
+Orange County
+Franklin County
+Hennepin County
+Fairfax County
+Oakland County
+Cuyahoga County
+Allegheny County
+Mecklenburg County
+Pima County
+Honolulu County
+Salt Lake County
+Contra Costa County
+Travis County
+Montgomery County
+St. Louis County
+Fulton County
+Marion County
+Pinellas County
+Westchester County
+Bergen County
+Worcester County
+DuPage County
+Erie County
+Hartford County
+Milwaukee County
+Bronx County
+Shelby County
+Multnomah County
+Davidson County
+Macomb County
+El Paso County
+Essex County
+Nassau County
+Wake County
+Pierce County
+Snohomish County
+DeKalb County
+Gwinnett County
+Cobb County
+Hidalgo County
+Collin County
+Denton County
+Fort Bend County
+Williamson County
+Montgomery County
+Loudoun County
+Prince George's County
+Prince William County
+Anne Arundel County
+Baltimore County
+Howard County
+Frederick County
+Charles County
+Calvert County
+St. Mary's County
+Albany County
+Onondaga County
+Monroe County
+Niagara County
+Oneida County
+Saratoga County
+Rensselaer County
+Schenectady County
+Ulster County
+Dutchess County
+Orange County
+Putnam County
+Rockland County
+Cayuga County
+Tompkins County
+Chautauqua County
+Cumberland County
+York County
+Lancaster County
+Berks County
+Bucks County
+Chester County
+Delaware County
+Dauphin County
+Northampton County
+Lehigh County
+Luzerne County
+Lackawanna County
+Schuylkill County
+Westmoreland County
+Washington County
+Beaver County
+Butler County
+Mercer County
+Lawrence County
+Crawford County
+Lycoming County
+Centre County
+Blair County
+Cambria County
+Clearfield County
+Indiana County
+Armstrong County
+Somerset County
+Bedford County
+Franklin County
+Adams County
+Cumberland County
+Lebanon County
+Schuylkill County
+Carbon County
+Monroe County
+Pike County
+Wayne County
+Bradford County
+Tioga County
+Susquehanna County
+Wyoming County
+Sullivan County
+Columbia County
+Montour County
+Northumberland County
+Snyder County
+Union County
+Mifflin County
+Juniata County
+Perry County
+Huntingdon County
+Fulton County
+Fayette County
+Greene County
+Washington County
+Forest County
+Warren County
+McKean County
+Elk County
+Cameron County
+Potter County
+Clinton County
+Lycoming County
+Clarion County
+Jefferson County
+Venango County
+Erie County
+East Baton Rouge Parish
+Jefferson Parish
+Orleans Parish
+St. Tammany Parish
+Lafayette Parish
+Caddo Parish
+Calcasieu Parish
+Bossier Parish
+Tangipahoa Parish
+Rapides Parish
+Ouachita Parish
+Livingston Parish
+Ascension Parish
+St. Landry Parish
+Terrebonne Parish
+Lafourche Parish
+Iberia Parish
+Vermilion Parish
+St. Charles Parish
+Plaquemines Parish
+St. Bernard Parish
+Anchorage Borough
+Fairbanks North Star Borough
+Matanuska-Susitna Borough
+Kenai Peninsula Borough
+Juneau Borough
+Sitka Borough
+Ketchikan Gateway Borough
+North Slope Borough
+Northwest Arctic Borough

@@ -1,51 +1,193 @@
-Anderson tube
-Anderson tubes
-Barrett esophagitis 
-Barrett's esophagitis 
+# Multi-word and eponymous medical phrases that detectors often mistake for
+# person names or organizations. Suited for `whole_span` or `overlap_document`
+# matching; safe for `any_token` since most entries are multi-word.
+#
+# Eponymous diseases / syndromes
+Addison's disease
+Alport syndrome
+Alzheimer's disease
+Alzheimer disease
+Asperger syndrome
+Asperger's syndrome
+Barrett esophagitis
+Barrett's esophagitis
+Barrett's esophagus
 Bell palsy
 Bell's palsy
-bi-pap
-Cosgrove anuloplasty band 
-DOUGLAS POUCH
+Bence Jones protein
+Berger's disease
+Bouchard's nodes
+Buerger disease
+Buerger's disease
+Charcot-Marie-Tooth
+Charcot foot
+Charcot joint
+Crohn disease
+Crohn's disease
+Cushing disease
+Cushing syndrome
+Cushing's disease
+Cushing's syndrome
+de Quervain tenosynovitis
+de Quervain's tenosynovitis
+Down syndrome
 Down's Syndrome
 Down Syndrome
-Dressler's syndrome 
-Dressler syndrome 
+Dressler syndrome
+Dressler's syndrome
+Dupuytren contracture
+Dupuytren's contracture
+Ehlers-Danlos syndrome
 Fournier gangrene
 Fournier's gangrene
+Gilbert syndrome
+Gilbert's syndrome
+Goodpasture syndrome
+Graves disease
+Graves' disease
+Guillain-Barre syndrome
+Guillain-Barré syndrome
+Hashimoto thyroiditis
+Hashimoto's thyroiditis
+Heberden's nodes
+Henoch-Schonlein purpura
+Hodgkin disease
+Hodgkin lymphoma
+Hodgkin's disease
+Hodgkin's lymphoma
+Horner syndrome
+Horner's syndrome
+Huntington disease
+Huntington's disease
+Kawasaki disease
+Klinefelter syndrome
 Lambert-Eaton syndrome
-Morison pouch. 
+Legg-Calve-Perthes disease
+Lou Gehrig's disease
+Marfan syndrome
+Meniere disease
+Meniere's disease
+Morris syndrome
+Munchausen syndrome
+Munchausen's syndrome
+Paget disease
+Paget's disease
+Parkinson disease
+Parkinson's disease
+Peyronie disease
+Peyronie's disease
+Pickwickian syndrome
+Pott disease
+Pott's disease
+Prader-Willi syndrome
+Raynaud phenomenon
+Raynaud's phenomenon
+Reye syndrome
+Reye's syndrome
+Sjogren syndrome
+Sjogren's syndrome
+Sturge-Weber syndrome
+Tay-Sachs disease
+Tourette syndrome
+Tourette's syndrome
+Turner syndrome
+Waldenstrom macroglobulinemia
+Wegener granulomatosis
+Wegener's granulomatosis
+West Nile Virus
+Wilson disease
+Wilson's disease
+Wolff-Parkinson-White syndrome
+#
+# Eponymous anatomical structures
+Achilles tendon
+Adam's apple
+Bachmann's bundle
+Bowman's capsule
+Brodmann area
+Bundle of His
+circle of Willis
+Cooper's ligament
+Douglas pouch
+Douglas' pouch
+Eustachian tube
+Fallopian tube
+Gimbernat's ligament
+Haversian canal
+Hesselbach's triangle
+Houston's valve
+Kerckring folds
+Krause's gland
+Langerhans islet
+Loop of Henle
+McBurney's point
+Meckel's diverticulum
+Morison pouch
 Morison's pouch
-morris' syndrome
+Pacinian corpuscle
+Peyer patches
+Peyer's patches
+Purkinje fibers
+Schwann cell
+Shenton line
+Stensen's duct
+Tenon's capsule
+Treitz ligament
+Virchow-Robin space
+Volkmann canal
+Wharton's duct
+Willis circle
+Willis' circle
+Wirsung duct
+#
+# Eponymous procedures, devices, and signs
+Anderson tube
+Anderson tubes
+bi-pap
+BiPAP
+CPAP
+Cosgrove anuloplasty band
+Fogarty embolectomy catheter
+Foley catheter
+Hason technique
+Jackson-Pratt drain
+Mayfield head holder
+McConnell sign
+Murphy's sign
 Riker scale
+Simpson's biplane
 St. Jude's valve
 St. Jude valve
-swan ganz 
+Swan-Ganz catheter
+swan ganz
 swan placement
-West Nile Virus
-Wilson's disease
+Tinel sign
+Trendelenburg position
 x ray
 x-ray
-Simpson's biplane
-McConnell Sign
-FRCPC
+#
+# Clinical roles and credentials (often near person names)
+Attending Physician
+Charge Nurse
+Chief Resident
+Fellow Physician
+Junior Resident
+Medical Student
+Nurse Practitioner
+Physician Assistant
+Resident Physician
+Senior Resident
+Social Worker
+Staff Physician
+Treating Physician
+#
+# Common single-token clinical abbreviations / artifacts that trigger NER
+# false positives. Use carefully under `any_token` mode.
 ABDO
-LAA
+AKI
 angiogram
 angiography
+DOUGLAS POUCH
+FRCPC
+LAA
 tree-in-bud
-Baker's cyst
-circle of willis
-willis' circle
-douglas' pouch
-virchow-robin space
-AKI
-Junior Resident
-Senior Resident
-Medical Student
-Attending Physician
-Shenton line
-Mayfield head holder
-Jackson-Pratt drain
-Hason technique
-Fogarty embolectomy catheter

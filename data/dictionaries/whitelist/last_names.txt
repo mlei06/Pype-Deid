@@ -1,7 +1,6 @@
 Chung
 Chen
 Melton
-Hill
 Puckett
 Song
 Hamilton
@@ -10,14 +9,12 @@ Wagner
 McLaughlin
 McNamara
 Raynor
-Moon
 Woodard
 Desai
 Wallace
 Lawrence
 Griffin
 Dougherty
-Powers
 May
 Steele
 Teague
@@ -36,25 +33,20 @@ Weeks
 Wilkerson
 Barton
 Walton
-Hall
 Ross
-Woods
 Mangum
 Joseph
 Rosenthal
 Bowden
 Underwood
 Jones
-Baker
 Merritt
 Cross
 Cooper
 Holmes
-Sharpe
 Morgan
 Hoyle
 Allen
-Rich
 Grant
 Proctor
 Diaz
@@ -84,7 +76,6 @@ Sutton
 Sinclair
 Bowman
 Olsen
-Love
 McLean
 Christian
 Lamb
@@ -139,7 +130,6 @@ O'Donnell
 Goldman
 McKenna
 Starr
-Stone
 McClure
 Watson
 Abbott
@@ -158,7 +148,6 @@ Conner
 Waters
 Becker
 Rollins
-Black
 Fox
 Hatcher
 Wu
@@ -183,7 +172,6 @@ Harvey
 Stevenson
 Houston
 Dunn
-West
 Barr
 Snyder
 Cain
@@ -197,7 +185,6 @@ Terrell
 Burch
 Parrott
 Henry
-Gray
 Chang
 Siegel
 Garrett
@@ -206,7 +193,6 @@ Shaffer
 Choi
 Carver
 Shelton
-House
 Lyons
 Moser
 Dickinson
@@ -228,7 +214,6 @@ McMahon
 Miles
 Kramer
 Bowles
-Brown
 Bolton
 Craven
 Hendrix
@@ -268,7 +253,6 @@ Haynes
 Harmon
 Dawson
 Barefoot
-Pope
 Schwartz
 Singleton
 Ballard
@@ -279,7 +263,6 @@ Berger
 McCall
 Pollard
 Garcia
-Crane
 Wolf
 Dalton
 Currin
@@ -293,7 +276,6 @@ Lanier
 Harris
 Parsons
 Vaughn
-Banks
 Oakley
 Rubin
 Maynard
@@ -352,7 +334,6 @@ Eaton
 Lowe
 Fuller
 Simmons
-Knight
 Gold
 Hensley
 French
@@ -367,13 +348,11 @@ Durham
 Guthrie
 Freedman
 Wiggins
-Best
 Crawford
 Drake
 Curtis
 Walter
 Jenkins
-Hood
 Jiang
 Johnson
 Craig
@@ -398,7 +377,6 @@ Sims
 Henderson
 Rao
 Bray
-Ford
 Blum
 Kenney
 Gordon
@@ -430,7 +408,6 @@ Swanson
 Huffman
 Gibson
 Wrenn
-Green
 Hayes
 Koch
 Harrell
@@ -467,13 +444,11 @@ Hardison
 Caldwell
 Mann
 McLeod
-Park
 Phillips
 Pitts
 Gould
 Shapiro
 Vincent
-Fisher
 McPherson
 McFarland
 Holden
@@ -492,7 +467,6 @@ Pugh
 Fernandez
 Arnold
 Stanley
-Field
 Farmer
 Jernigan
 Bowers
@@ -508,7 +482,6 @@ Elmore
 Harper
 Chu
 Mitchell
-Sharp
 Martin
 Lowry
 Cooke
@@ -539,7 +512,6 @@ Grimes
 Godwin
 Townsend
 Lin
-Long
 Norton
 O'Connell
 Lawson
@@ -572,17 +544,14 @@ Greenberg
 High
 Copeland
 Beck
-King
 Benton
 Boyette
 Byers
-Cook
 Mayo
 Marks
 Ball
 Kirk
 Tyson
-Payne
 Roth
 Coble
 Langley
@@ -620,7 +589,6 @@ Connor
 Herbert
 Aycock
 Barry
-Bishop
 Bailey
 Riddle
 Gilbert
@@ -682,7 +650,6 @@ Hsu
 Hoffman
 Hampton
 Frost
-Prince
 Faulkner
 Decker
 Tucker
@@ -694,19 +661,15 @@ Burns
 Kessler
 Gentry
 Armstrong
-Wood
 Howard
 Doyle
 Kumar
-Shepherd
 Shore
-Day
 Hwang
 Tuttle
 Hahn
 Randall
 Oliver
-Miller
 Parrish
 Taylor
 Medlin
@@ -750,7 +713,6 @@ Fowler
 Barnett
 Reddy
 Spears
-Hunter
 Herman
 Stewart
 Flowers
@@ -766,7 +728,6 @@ Peck
 Adams
 Womble
 Alford
-White
 Block
 Cummings
 Stafford
@@ -795,8 +756,6 @@ Gupta
 Bridges
 Bush
 Bernstein
-Bond
-Small
 Flynn
 Phelps
 Kirkland
@@ -834,12 +793,10 @@ Morton
 Forbes
 Rankin
 Norris
-Ward
 Mercer
 Logan
 Hopkins
 McCoy
-Bell
 Terry
 Han
 Nicholson
@@ -864,7 +821,6 @@ Sigmon
 Bynum
 Atkinson
 Andrews
-Brooks
 Griffith
 Ingram
 Jacobs
@@ -889,12 +845,10 @@ Giles
 Kuhn
 Moody
 Epstein
-Short
 Ryan
 Parker
 Clark
 Boone
-Fields
 Willard
 Bryant
 Morrison
@@ -911,15 +865,12 @@ Fitzgerald
 Buchanan
 Price
 Webster
-Page
 Elliott
 Lim
-Noble
 Ferguson
 Finley
 Beard
 Hancock
-Wise
 Cheng
 Carr
 Rhodes
@@ -941,7 +892,6 @@ Merrill
 Patterson
 Woodruff
 Pace
-Mason
 Stokes
 Gorman
 Melvin
@@ -954,9 +904,7 @@ Cameron
 Duncan
 Oh
 Pratt
-Gates
 Ho
-Carpenter
 Camp
 Barbee
 Ennis
@@ -967,7 +915,6 @@ Ivey
 Wilkins
 Meyers
 Weaver
-Marshall
 Swain
 Harrison
 Sun
@@ -980,7 +927,6 @@ George
 McDowell
 Sanford
 Shields
-Tanner
 Frank
 Schwarz
 Austin
@@ -993,7 +939,6 @@ Stallings
 Covington
 Blanton
 Greene
-Young
 Hogan
 Carson
 Wilder

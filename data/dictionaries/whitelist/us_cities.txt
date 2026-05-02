@@ -114,12 +114,10 @@ Salt Lake City
 Frisco
 Yonkers
 Amarillo
-Glendale
 Huntington Beach
 McKinney
 Montgomery
 Augusta
-Aurora
 Akron
 Little Rock
 Tempe
@@ -159,9 +157,7 @@ Lancaster
 Salinas
 Palmdale
 Hollywood
-Springfield
 Macon
-Kansas City
 Sunnyvale
 Pomona
 Killeen
@@ -176,7 +172,6 @@ Paterson
 Savannah
 Bridgeport
 McAllen
-Surprise
 Roseville
 Sterling Heights
 Denton
@@ -188,7 +183,6 @@ Thousand Oaks
 Cedar Rapids
 Olathe
 Columbia
-Birmingham
 Concord
 Elizabeth
 Topeka
@@ -203,7 +197,6 @@ Miramar
 Coral Springs
 College Station
 Lakeland
-Columbia
 Thornton
 Victorville
 Santa Clara
@@ -216,8 +209,6 @@ Arvada
 Palm Bay
 Green Bay
 Torrance
-Rochester
-Independence
 Stamford
 Clarksville
 Centennial
@@ -234,7 +225,6 @@ Pompano Beach
 Carlsbad
 Sunrise
 Miami Gardens
-Westminster
 Temecula
 Norman
 Elgin
@@ -266,10 +256,8 @@ Antioch
 Palm Coast
 Lowell
 Menifee
-Peoria
 Provo
 Erie
-Springfield
 Odessa
 South Gate
 Berkeley
@@ -277,17 +265,14 @@ Lansing
 Downey
 San Marcos
 Tuscaloosa
-League City
 Tracy
 Santa Maria
 Sugar Land
 Sioux City
 Largo
 Daly City
-Bend
 Buckeye
 Fishers
-Edinburg
 South Jordan
 Suffolk
 San Leandro
@@ -301,7 +286,6 @@ Chico
 Asheville
 Longmont
 Goodyear
-Edinburg
 Redding
 Nampa
 Boulder
@@ -370,13 +354,11 @@ Eau Claire
 Lafayette
 Oshkosh
 Janesville
-Tyler
 Danbury
 Bloomington
 San Angelo
 Jonesboro
 Billings
-Tuscaloosa
 Champaign
 Temple
 Decatur
@@ -385,7 +367,6 @@ Texarkana
 Harrisburg
 Gastonia
 Longview
-Newark
 Kokomo
 Terre Haute
 Anderson
@@ -408,9 +389,7 @@ Bozeman
 Helena
 Pocatello
 Twin Falls
-Medford
 Corvallis
-Kennewick
 Richland
 Olympia
 Bellingham
@@ -419,93 +398,41 @@ Juneau
 Fairbanks
 Kailua
 Hilo
-Portland
 Lewiston
 Bangor
-Augusta
 Montpelier
-Burlington
-Concord
 Dover
 Trenton
-Harrisburg
 Annapolis
-Charleston
 Frankfort
 Pierre
-Bismarck
-Salem
-Boise
 Carson City
 Santa Fe
 Jefferson City
-Topeka
-Lincoln
-Tallahassee
-Montgomery
-Jackson
-Baton Rouge
-Little Rock
-Oklahoma City
-Sacramento
-Richmond
-Raleigh
-Columbia
-Lansing
-Springfield
-Madison
 St. Paul
-Des Moines
-Trenton
-Olympia
-Hartford
-Providence
-Atlanta
-Honolulu
-Denver
-Austin
-Nashville
-Albany
-Columbus
 Chesterfield
-Chesapeake
-Henderson
-Paradise
 Spring Valley
-Enterprise
 Sunrise Manor
 Whitney
 Summerlin South
-Tempe
-Gilbert
-Chandler
-Glendale
-Peoria
-Surprise
-Goodyear
 Avondale
-Buckeye
 Queen Creek
 Maricopa
 Casa Grande
 San Tan Valley
-Florence
 Coolidge
 Eloy
 Sahuarita
 Oro Valley
-Marana
 Prescott
 Prescott Valley
 Sedona
-Flagstaff
 Kingman
 Bullhead City
 Lake Havasu City
 Sierra Vista
 Douglas
 Nogales
-Yuma
 Somerville
 Cambridge
 Quincy
@@ -531,25 +458,18 @@ Revere
 Chelsea
 Everett
 Malden
-Medford
-Somerville
-Arlington
 Watertown
 Belmont
-Lexington
 Winchester
 Woburn
 Stoneham
 Melrose
 Wakefield
-Reading
-Wilmington
 Tewksbury
 Billerica
 Chelmsford
 Westford
 Acton
-Concord
 Sudbury
 Wayland
 Natick
@@ -568,7 +488,6 @@ Marshfield
 Scituate
 Hingham
 Cohasset
-Hull
 Norwell
 Rockland
 Abington
@@ -577,7 +496,6 @@ Middleboro
 Wareham
 Marion
 Mattapoisett
-Rochester
 Fairhaven
 Dartmouth
 Westport
@@ -598,7 +516,6 @@ Dighton
 Plainville
 Wrentham
 Franklin
-Bellingham
 Milford
 Hopedale
 Mendon
@@ -615,15 +532,12 @@ Holliston
 Medway
 Millis
 Sherborn
-Dover
 Norwood
 Walpole
 Sharon
 Foxborough
 Medfield
-Norfolk
 Columbia Falls
-Missoula
 Kalispell
 Whitefish
 Butte
@@ -642,22 +556,16 @@ Dillon
 Deer Lodge
 Livingston
 Red Lodge
-Columbus
 Hardin
 Laurel
-Billings
-Rapid City
 Sturgis
 Spearfish
 Deadwood
-Lead
 Hot Springs
 Custer
 Hill City
 Keystone
-Pierre
 Brookings
-Watertown
 Huron
 Mitchell
 Yankton
@@ -666,13 +574,8 @@ Aberdeen
 Mobridge
 Winner
 Chamberlain
-Madison
-Sioux Falls
-Fargo
 West Fargo
 Moorhead
-Grand Forks
-Minot
 Williston
 Dickinson
 Jamestown
@@ -680,7 +583,6 @@ Mandan
 Valley City
 Wahpeton
 Devils Lake
-Grafton
 Rugby
 Bottineau
 Cavalier
@@ -696,7 +598,6 @@ Beulah
 Hazen
 Hettinger
 Bowman
-Beach
 Watford City
 New Town
 Parshall

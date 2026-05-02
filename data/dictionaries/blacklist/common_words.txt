@@ -1,5 +1,3 @@
-﻿
-a
 aardvark
 aardvark's
 abacus
@@ -1267,7 +1265,6 @@ amazingly
 ambassador
 ambassadors
 ambassador's
-amber
 amber's
 ambidextrous
 ambience's
@@ -1945,7 +1942,6 @@ approximation's
 apricot
 apricots
 apricot's
-April
 Aprils
 April's
 apron
@@ -2169,7 +2165,6 @@ arsenic
 arsenic's
 arson
 arson's
-art
 arterial
 arteries
 artery
@@ -2627,12 +2622,9 @@ augment
 augmented
 augmenting
 augments
-august
-August
 auguster
 augustest
 augusts
-Augusts
 August's
 aunt
 aunts
@@ -2720,7 +2712,6 @@ autopsying
 autopsy's
 autos
 auto's
-autumn
 autumnal
 autumns
 autumn's
@@ -2854,7 +2845,6 @@ azalea's
 azure
 azures
 azure's
-B
 babble
 babbled
 babbles
@@ -3906,7 +3896,6 @@ bile
 bile's
 bilingual
 bilinguals
-bill
 billboard
 billboards
 billboard's
@@ -4443,7 +4432,6 @@ boated
 boating
 boats
 boat's
-bob
 bobbed
 bobbin
 bobbing
@@ -5201,7 +5189,6 @@ browbeaten
 browbeating
 browbeats
 brown
-Brown
 browned
 browner
 brownest
@@ -5214,7 +5201,6 @@ browning
 browning's
 browns
 brown's
-Brown's
 brows
 brow's
 browse
@@ -5702,7 +5688,6 @@ byte's
 byway
 byways
 byway's
-C
 cab
 cabaret
 cabarets
@@ -6200,7 +6185,6 @@ carnivore
 carnivores
 carnivore's
 carnivorous
-carol
 caroled
 caroling
 carols
@@ -6433,12 +6417,10 @@ cathedrals
 cathedral's
 catheter
 catholic
-Catholic
 Catholicism
 Catholicisms
 Catholicism's
 catholics
-Catholics
 catnap
 catnapped
 catnapping
@@ -6518,7 +6500,6 @@ cawed
 cawing
 caws
 caw's
-cc
 cease
 ceased
 ceasefire
@@ -6821,7 +6802,6 @@ charismatics
 charitable
 charitably
 charities
-charity
 charity's
 charlatan
 charlatans
@@ -6975,7 +6955,6 @@ cherished
 cherishes
 cherishing
 cherries
-cherry
 cherry's
 cherub
 cherubim
@@ -7081,7 +7060,6 @@ chinning
 chins
 chintz
 chintz's
-chip
 chipmunk
 chipmunks
 chipmunk's
@@ -7195,7 +7173,6 @@ christening
 christenings
 christening's
 christens
-Christian
 Christianities
 Christianity
 Christianity's
@@ -7800,7 +7777,6 @@ clutter
 cluttered
 cluttering
 clutters
-CO
 coach
 coached
 coaches
@@ -8845,13 +8821,11 @@ congregation
 congregations
 congregation's
 congress
-Congress
 congresses
 congressman
 congressman's
 congressmen
 congress's
-Congress's
 congresswoman
 congresswoman's
 congresswomen
@@ -10361,7 +10335,6 @@ crypt
 cryptic
 crypts
 crypt's
-crystal
 crystallization
 crystallization's
 crystallize
@@ -10371,7 +10344,6 @@ crystallizing
 crystals
 crystal's
 cs
-Cs
 C's
 cs's
 cub
@@ -10644,7 +10616,6 @@ cyst's
 czar
 czars
 czar's
-D
 dab
 dabbed
 dabbing
@@ -10685,7 +10656,6 @@ dais
 daises
 daisies
 dais's
-daisy
 daisy's
 dallied
 dallies
@@ -10828,7 +10798,6 @@ dawdle
 dawdled
 dawdles
 dawdling
-dawn
 dawned
 dawning
 dawns
@@ -10855,7 +10824,6 @@ dazzle
 dazzled
 dazzles
 dazzling
-DC
 DDT
 deacon
 deacons
@@ -10894,7 +10862,6 @@ dealings
 dealing's
 deals
 dealt
-dean
 deaned
 deaning
 deans
@@ -11767,7 +11734,6 @@ destined
 destines
 destinies
 destining
-destiny
 destiny's
 destitute
 destitution
@@ -13020,7 +12986,6 @@ dizziness's
 dizzy
 dizzying
 DNA
-do
 docile
 dock
 docked
@@ -13028,7 +12993,6 @@ docking
 docks
 dock's
 doctor
-Doctor
 doctorate
 doctorate's
 doctored
@@ -13147,7 +13111,6 @@ dominion's
 domino
 dominoes
 domino's
-don
 donate
 donated
 donates
@@ -13291,7 +13254,6 @@ dozen
 dozens
 dozes
 dozing
-Dr
 drab
 drabber
 drabbest
@@ -13614,7 +13576,6 @@ dug
 dugout
 dugouts
 dugout's
-duke
 duked
 dukes
 duke's
@@ -13778,7 +13739,6 @@ dysentery
 dysentery's
 dyslexia
 dyslexia's
-E
 each
 eager
 eagerer
@@ -13797,7 +13757,6 @@ earache's
 eardrum
 eardrums
 eardrum's
-earl
 earlier
 earliest
 earls
@@ -15822,7 +15781,6 @@ eyewitness
 eyewitnesses
 eyewitness's
 eying
-F
 fable
 fables
 fable's
@@ -15931,7 +15889,6 @@ fairness's
 fairs
 fairy
 fairy's
-faith
 faithed
 faithful
 faithfully
@@ -17728,7 +17685,6 @@ franchise's
 franchising
 francs
 franc's
-frank
 franked
 franker
 frankest
@@ -17803,7 +17759,6 @@ freighting
 freights
 freight's
 french
-French
 French's
 frenzied
 frenzies
@@ -18179,7 +18134,6 @@ fuzziest
 fuzzing
 fuzz's
 fuzzy
-G
 gab
 gabbed
 gabbing
@@ -18489,7 +18443,6 @@ gem's
 gender
 genders
 gender's
-gene
 genealogical
 genealogies
 genealogy
@@ -18652,7 +18605,6 @@ ghost's
 ghoul
 ghouls
 ghoul's
-GI
 giant
 giants
 giant's
@@ -18991,7 +18943,6 @@ goblin's
 gobs
 gob's
 god
-God
 godchild
 godchildren
 godchild's
@@ -19014,7 +18965,6 @@ godparents
 godparent's
 gods
 god's
-God's
 godsend
 godsends
 godsend's
@@ -19167,7 +19117,6 @@ grabbed
 grabber
 grabbing
 grabs
-grace
 graced
 graceful
 gracefuller
@@ -19828,7 +19777,6 @@ guttering
 gutters
 gutter's
 gutting
-guy
 guyed
 guying
 guys
@@ -19863,7 +19811,6 @@ gyration's
 gyroscope
 gyroscopes
 gyroscope's
-H
 ha
 habit
 habitable
@@ -20225,7 +20172,6 @@ harrow
 harrowed
 harrowing
 harrows
-harry
 harrying
 harsh
 harsher
@@ -20335,7 +20281,6 @@ hazards
 hazard's
 haze
 hazed
-hazel
 hazels
 hazel's
 hazes
@@ -20344,7 +20289,6 @@ hazier
 haziest
 hazing
 hazy
-he
 head
 headache
 headaches
@@ -20461,11 +20405,9 @@ heatedly
 heater
 heaters
 heater's
-heath
 heathen
 heathens
 heathen's
-heather
 heather's
 heath's
 heating
@@ -20713,7 +20655,6 @@ hey
 heyday
 heydays
 heyday's
-hi
 hiatus
 hiatuses
 hiatus's
@@ -20987,7 +20928,6 @@ hollower
 hollowest
 hollowing
 hollows
-holly
 holly's
 holocaust
 holocausts
@@ -21134,7 +21074,6 @@ hoot's
 hooves
 hooves's
 hop
-hope
 hoped
 hopeful
 hopefully
@@ -21638,7 +21577,6 @@ hysteric
 hysterical
 hysterically
 hysterics
-I
 ice
 iceberg
 icebergs
@@ -21661,8 +21599,6 @@ icon
 icons
 icon's
 icy
-id
-ID
 idea
 ideal
 idealist
@@ -22142,7 +22078,6 @@ impurest
 impurities
 impurity
 impurity's
-in
 inabilities
 inability
 inability's
@@ -23622,7 +23557,6 @@ iridescence
 iridescence's
 iridescent
 iring
-iris
 irises
 iris's
 irk
@@ -23764,7 +23698,6 @@ ivies
 ivories
 ivory
 ivory's
-ivy
 ivy's
 jab
 jabbed
@@ -23774,7 +23707,6 @@ jabbering
 jabbers
 jabbing
 jabs
-jack
 jackal
 jackals
 jackal's
@@ -23799,7 +23731,6 @@ jackpots
 jackpot's
 jacks
 jack's
-jade
 jaded
 jades
 jade's
@@ -23953,7 +23884,6 @@ jettisons
 jetty
 jetty's
 Jew
-jewel
 jeweled
 jeweler
 jewelers
@@ -24023,7 +23953,6 @@ joggers
 jogger's
 jogging
 jogs
-John
 John's
 join
 joined
@@ -24076,7 +24005,6 @@ journeys
 journey's
 jovial
 jovially
-joy
 joyed
 joyful
 joyfuller
@@ -24163,7 +24091,6 @@ junction's
 juncture
 junctures
 juncture's
-June
 Junes
 June's
 jungle
@@ -24231,7 +24158,6 @@ juxtaposing
 juxtaposition
 juxtapositions
 juxtaposition's
-K
 kaleidoscope
 kaleidoscopes
 kaleidoscope's
@@ -24413,7 +24339,6 @@ kindness's
 kindred
 kinds
 kinfolk
-king
 kingdom
 kingdoms
 kingdom's
@@ -25421,7 +25346,6 @@ lilted
 lilting
 lilts
 lilt's
-lily
 lily's
 limb
 limber
@@ -26129,9 +26053,6 @@ lyre's
 lyric
 lyrical
 lyrics
-m
-ma
-MA
 ma'am
 macabre
 macaroni
@@ -26578,12 +26499,10 @@ marbles
 marble's
 marbling
 march
-March
 marched
 marcher
 marcher's
 marches
-Marches
 marching
 March's
 mare
@@ -26618,7 +26537,6 @@ marionettes
 marionette's
 marital
 maritime
-mark
 marked
 markedly
 marker
@@ -26907,8 +26825,6 @@ maxim's
 maximum
 maximums
 maximum's
-may
-May
 maybe
 maybes
 mayhem
@@ -26923,8 +26839,6 @@ May's
 maze
 mazes
 maze's
-MD
-me
 meadow
 meadows
 meadow's
@@ -27317,7 +27231,6 @@ mews
 mezzanine
 mezzanines
 mezzanine's
-MI
 mice
 mice's
 microbe
@@ -27407,7 +27320,6 @@ migration
 migrations
 migration's
 migratory
-mike
 miked
 mikes
 mike's
@@ -27856,7 +27768,6 @@ mixture's
 mnemonic
 mnemonics
 mnemonics's
-MO
 moan
 moaned
 moaning
@@ -28392,12 +28303,7 @@ mowers
 mower's
 mowing
 mows
-Mr
-Mrs
 Mr's
-ms
-Ms
-MS
 mu
 much
 muck
@@ -28679,7 +28585,6 @@ mythology
 mythology's
 myths
 myth's
-N
 nab
 nabbed
 nabbing
@@ -28857,7 +28762,6 @@ nay's
 Nazi
 Nazis
 Nazi's
-NE
 near
 nearby
 neared
@@ -29574,7 +29478,6 @@ nylon's
 nymph
 nymphs
 nymph's
-O
 oaf
 oafs
 oaf's
@@ -29871,7 +29774,6 @@ ogling
 ogre
 ogres
 ogre's
-oh
 ohm
 ohms
 ohm's
@@ -29887,7 +29789,6 @@ oily
 ointment
 ointments
 ointment's
-OK
 okay
 okays
 okra
@@ -29902,7 +29803,6 @@ oldens
 older
 oldest
 olfactory
-olive
 olives
 olive's
 omega
@@ -30099,8 +29999,6 @@ opulent
 opus
 opuses
 opus's
-or
-OR
 oracle
 oracled
 oracles
@@ -30769,9 +30667,6 @@ oysters
 oyster's
 ozone
 ozone's
-P
-pa
-PA
 pace
 paced
 pacemaker
@@ -31418,7 +31313,6 @@ path's
 pathway
 pathways
 pathway's
-patience
 patience's
 patient
 patienter
@@ -31563,7 +31457,6 @@ peanut
 peanuts
 peanut's
 pear
-pearl
 pearled
 pearling
 pearls
@@ -31744,7 +31637,6 @@ penned
 pennies
 penniless
 penning
-penny
 penny's
 pens
 pen's
@@ -34348,7 +34240,6 @@ proteins
 protein's
 protest
 protestant
-Protestant
 Protestants
 Protestant's
 protested
@@ -34503,7 +34394,6 @@ psychotherapy
 psychotherapy's
 psychotic
 psychs
-pt
 pub
 puberty
 puberty's
@@ -35469,7 +35359,6 @@ ravishing
 raw
 rawer
 rawest
-ray
 rayon
 rayon's
 rays
@@ -35953,7 +35842,6 @@ redundancies
 redundancy
 redundancy's
 redundant
-reed
 reeds
 reed's
 reef
@@ -37529,7 +37417,6 @@ robe
 robed
 robes
 robe's
-robin
 robing
 robins
 robin's
@@ -37650,7 +37537,6 @@ roping
 rosaries
 rosary
 rosary's
-rose
 rosemary
 rosemary's
 roses
@@ -37803,7 +37689,6 @@ rubiest
 rubric
 rubric's
 rubs
-ruby
 rubying
 ruby's
 rucksack
@@ -37973,7 +37858,6 @@ rutted
 rutting
 rye
 rye's
-S
 Sabbath
 Sabbaths
 Sabbath's
@@ -38065,7 +37949,6 @@ sag
 saga
 sagas
 saga's
-sage
 sagebrush
 sagebrush's
 sager
@@ -38235,7 +38118,6 @@ sandwiched
 sandwiches
 sandwiching
 sandwich's
-sandy
 sane
 saned
 saner
@@ -38417,7 +38299,6 @@ sayings
 saying's
 says
 says's
-SC
 scab
 scabbed
 scabbing
@@ -38511,7 +38392,6 @@ scarf's
 scarier
 scariest
 scaring
-scarlet
 scarleted
 scarleting
 scarlets
@@ -38652,7 +38532,6 @@ scorpion
 scorpions
 scorpion's
 scotch
-Scotch
 Scotches
 scotchs
 scotch's
@@ -40316,7 +40195,6 @@ skunked
 skunking
 skunks
 skunk's
-sky
 skying
 skylight
 skylights
@@ -41783,7 +41661,6 @@ spriest
 sprig
 sprigs
 sprig's
-spring
 springboard
 springboards
 springboard's
@@ -43233,7 +43110,6 @@ summarizing
 summary
 summary's
 summed
-summer
 summered
 summering
 summers
@@ -43293,7 +43169,6 @@ sunnier
 sunnies
 sunniest
 sunning
-sunny
 sunrise
 sunrises
 sunrise's
@@ -43837,7 +43712,6 @@ systematically
 systematics
 systems
 system's
-T
 tab
 tabbed
 tabbies
@@ -44194,7 +44068,6 @@ taxpayer
 taxpayers
 taxpayer's
 tax's
-TB
 tea
 teach
 teacher
@@ -46425,7 +46298,6 @@ tyranny's
 tyrant
 tyrants
 tyrant's
-U
 ubiquitous
 udder
 udders
@@ -47323,8 +47195,6 @@ utterest
 uttering
 utterly
 utters
-V
-VA
 vacancies
 vacancy
 vacancy's
@@ -47769,7 +47639,6 @@ victimizes
 victimizing
 victims
 victim's
-victor
 victories
 victorious
 victors
@@ -48097,7 +47966,6 @@ vulture
 vultures
 vulture's
 vying
-W
 wad
 wadded
 wadding
@@ -48914,7 +48782,6 @@ wildness's
 wilds
 wilier
 wiliest
-will
 willed
 willful
 willfully
@@ -49456,7 +49323,6 @@ Xmas's
 xylophone
 xylophones
 xylophone's
-Y
 yacht
 yachted
 yachting

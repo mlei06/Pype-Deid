@@ -1,0 +1,119 @@
+# EHR / dictation boilerplate phrases that frequently get flagged as person
+# names, organizations, or addresses by general-purpose NER. Best matched
+# with `whole_span` or `overlap_document` modes.
+#
+# Authorship / sign-off
+Authenticated by
+Co-signed by
+Co-signer
+Cosigned by
+Dictated and signed by
+Dictated but not read
+Dictated by
+Edited by
+Electronically authenticated
+Electronically signed by
+Electronic signature on file
+Entered by
+Faxed to
+Finalized by
+Note authored by
+Pended by
+Performed by
+Read and approved by
+Read by
+Recorded by
+Reported by
+Reviewed and signed by
+Reviewed by
+Signed by
+This note has been
+Transcribed by
+Typed by
+Verified by
+#
+# Document metadata phrases
+Care provided by
+Clinical contact
+Copy to
+Final report
+Final results
+Has been notified
+In attendance
+Notification sent to
+On behalf of
+Patient seen and examined
+Patient was seen
+Preliminary report
+Primary author
+Provider notified
+Results communicated to
+Results reported to
+This is to certify that
+Time of dictation
+Time of report
+Was discussed with
+Was notified
+#
+# Disposition / handoff
+Admitted by
+Admitted from
+Admitted to the service of
+Care transferred to
+Discussed with
+Followed by
+Following up with
+Handed off to
+Handoff to
+On call provider
+Patient discharged to
+Pending follow up with
+Plan to follow up with
+Reviewed with
+Service of
+Signing out to
+To follow up with
+Transferred to
+Under the care of
+#
+# Communication artifacts
+As above
+As described above
+As discussed
+As noted above
+As per above
+Continue current management
+Continue current medications
+Discussed with patient
+Initial visit
+No acute changes
+No changes
+No further questions
+Otherwise unremarkable
+Per protocol
+Per the patient
+Plan as discussed
+See above
+See attached
+See below
+Stable on exam
+Stable overnight
+Status post
+Unchanged from prior
+Unremarkable
+Will continue
+Will discuss
+Will follow
+Will monitor
+#
+# Counseling / consent
+Agreed with the plan
+All questions answered
+Consent obtained
+Patient agrees
+Patient consented
+Patient declined
+Patient verbalized understanding
+Risks and benefits discussed
+Risks benefits and alternatives
+Verbalized understanding

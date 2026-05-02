@@ -1,0 +1,134 @@
+# Measurement units, ranges, and unit-bearing tokens commonly mistaken for
+# IDs, MRNs, dates, or codes by regex / NER. Designed for `any_token` mode.
+#
+# IMPORTANT: single-letter unit symbols (g, L, m, W, J, C, F, K) are
+# intentionally omitted — they collide with name initials. If you need them,
+# match with `whole_span` only.
+#
+# Mass / weight
+gm
+gms
+kg
+mcg
+mg
+ng
+pg
+ug
+lb
+lbs
+oz
+#
+# Volume
+cc
+dL
+gal
+mL
+pt
+qt
+tsp
+tbsp
+#
+# Concentration / dose
+gtt
+gtts
+IU
+mEq
+mmol
+mol
+nmol
+pmol
+umol
+mosm
+#
+# Pressure
+atm
+cmH2O
+kPa
+mmHg
+mbar
+mPa
+psi
+torr
+#
+# Length
+cm
+ft
+km
+mm
+nm
+um
+yd
+#
+# Temperature
+celsius
+fahrenheit
+kelvin
+degC
+degF
+#
+# Energy / frequency
+cal
+kcal
+Hz
+kHz
+kJ
+MHz
+mW
+#
+# Time
+hr
+hrs
+min
+mins
+sec
+secs
+ms
+yr
+yrs
+#
+# Per-X qualifiers
+bpm
+cpm
+ppm
+rpm
+#
+# Compound / clinical
+mg/dL
+mg/dl
+mg/kg
+mg/L
+mEq/L
+mmol/L
+mmol/l
+ng/dL
+ng/mL
+mcg/mL
+mcg/dL
+pg/mL
+U/L
+U/mL
+IU/L
+IU/mL
+mIU/L
+mm/hr
+m/s
+mL/hr
+mL/min
+L/min
+mEq/kg
+mg/m2
+g/dL
+g/L
+mosm/kg
+#
+# Counts / cell concentrations
+cells/mL
+cells/uL
+WBC/mm3
+RBC/mm3
+/mm3
+/uL
+/mL
+/dL
+/hpf
+/lpf

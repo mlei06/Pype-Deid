@@ -1,13 +1,11 @@
 Ajax
 Alderwood
 Amesbury
-Annex
 Aurora
 Baby Point
 Bathurst Manor
 Bayview Village
 Bayview Woods
-Beaches
 Beaumond Heights
 Bedford Park
 Bendale
@@ -17,7 +15,6 @@ Bloor West
 Brampton
 Briar Hill
 Broadview North
-Brock
 Brookhaven
 Burlington
 Cabbagetown
@@ -144,6 +141,5 @@ Willowdale
 Woburn
 Woodbine Corridor
 Wychwood Park
-York
 York University Heights
 Yorkville

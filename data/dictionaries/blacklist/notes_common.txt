@@ -1,3 +1,10 @@
+# Common clinical-note tokens that NER models occasionally promote to PHI.
+# Single-token entries — designed for `any_token` mode.
+# IMPORTANT: do not add ambiguous title abbreviations (DR, MR, MS, PT) here:
+# they are also valid name initials / role abbreviations and would suppress
+# legitimate person spans.
+#
+# English stop words / pronouns / determiners
 A
 AGAIN
 ALSO
@@ -8,19 +15,11 @@ AS
 AT
 BE
 CAN
-CANCER
-CARDIOLOGIST
-CARDIOLOGY
-CONTIN
 COULD
-DISEASE
 DO
 DOES
 DOESN
 DON
-DR
-DTR
-ELECTROPHYSIOLOGY
 FOR
 FROM
 HAS
@@ -30,38 +29,69 @@ HER
 HERE
 HOW
 IN
-INFEROLATERAL
 IS
-LIVER
 ME
-MM
-MR
-NEUROSURGERICAL
 NOT
 OF
 OFF
 ON
 OR
 OTHER
-OUTPATIENT
-PATIENT
-PSYCHIATRY
-PT
-PULMONARY
-PULMONOLOGY
 SHE
 SHOULD
-SUCTIONING
-SURGERY
 THE
 THERE
 TO
-TRACH
-TRAUMA
 WAS
 WERE
 WHERE
 WHICH
 WITH
 YOU
+#
+# Generic clinical descriptors
+CANCER
+DISEASE
+LIVER
+PATIENT
+OUTPATIENT
+INPATIENT
+SURGERY
+TRAUMA
+SUCTIONING
+CONTIN
 MODIFIED
+INFEROLATERAL
+#
+# Specialties / departments (single-token; multi-token equivalents live in
+# clinical_section_headers.txt and medical_phrases.txt)
+CARDIOLOGY
+CARDIOLOGIST
+ELECTROPHYSIOLOGY
+NEUROSURGICAL
+NEUROSURGERY
+NEUROLOGY
+NEUROLOGIST
+ONCOLOGY
+ONCOLOGIST
+PSYCHIATRY
+PSYCHIATRIST
+PULMONARY
+PULMONOLOGY
+RADIOLOGY
+HEMATOLOGY
+ENDOCRINOLOGY
+GASTROENTEROLOGY
+NEPHROLOGY
+DERMATOLOGY
+RHEUMATOLOGY
+ANESTHESIOLOGY
+PATHOLOGY
+PEDIATRICS
+OBSTETRICS
+GYNECOLOGY
+#
+# Generic clinical roles / titles (caution: these appear next to names but
+# are not themselves PHI). Multi-word equivalents in medical_phrases.txt.
+DTR
+TRACH

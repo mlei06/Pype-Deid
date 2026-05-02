@@ -1,0 +1,81 @@
+Aetna
+Anthem
+Blue Cross
+Blue Shield
+Blue Cross Blue Shield
+BCBS
+Cigna
+Humana
+Kaiser Permanente
+UnitedHealthcare
+United Healthcare
+UnitedHealth
+Wellcare
+Centene
+Molina Healthcare
+Tricare
+Medicaid
+Medicare
+Medicare Advantage
+Highmark
+Independence Blue Cross
+Horizon Blue Cross Blue Shield
+CareFirst
+Premera Blue Cross
+Regence
+Health Net
+HealthPartners
+EmblemHealth
+Oscar Health
+Bright Health
+Florida Blue
+Empire BlueCross BlueShield
+Geisinger Health Plan
+Priority Health
+Tufts Health Plan
+Harvard Pilgrim Health Care
+AmeriHealth
+WellPoint
+Magellan Health
+Optum
+EnvisionRx
+Express Scripts
+CVS Caremark
+OptumRx
+MVP Health Care
+Fallon Health
+Capital BlueCross
+Independence Health Group
+GuideWell
+Triple-S
+SelectHealth
+Providence Health Plan
+Sharp Health Plan
+Group Health Cooperative
+L.A. Care Health Plan
+Inland Empire Health Plan
+CountyCare
+Meridian Health Plan
+AmeriHealth Caritas
+Buckeye Health Plan
+Peach State Health Plan
+Sunshine Health
+Superior HealthPlan
+Iowa Total Care
+Coordinated Care
+PacificSource
+SCAN Health Plan
+SilverScript
+WellMed
+Devoted Health
+Clover Health
+Alignment Health Plan
+ConnectiCare
+Excellus BlueCross BlueShield
+Fidelis Care
+MetroPlusHealth
+Healthfirst
+VA Health Care
+CHAMPVA
+IHS
+Indian Health Service
