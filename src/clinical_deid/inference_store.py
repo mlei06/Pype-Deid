@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+import secrets
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -49,7 +50,8 @@ def save_inference_run(
     _ensure_dir(inference_runs_dir)
     ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     pipeline = _slug_pipeline(str(payload.get("pipeline_name", "unknown")))
-    run_id = f"{pipeline}_{ts}"
+    # Random suffix prevents collisions when multiple runs land in the same second.
+    run_id = f"{pipeline}_{ts}_{secrets.token_hex(3)}"
     path = inference_runs_dir / f"{run_id}.json"
 
     record = {
