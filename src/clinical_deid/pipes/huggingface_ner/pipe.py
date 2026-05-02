@@ -269,7 +269,12 @@ def _resolve_segmentation_mode(
 def _load_pipeline(model_path: Path, device_index: int) -> Any:
     """Build a Transformers token-classification pipeline."""
     try:
-        from transformers import AutoConfig, AutoTokenizer, pipeline as hf_pipeline
+        from transformers import (
+            AutoConfig,
+            AutoTokenizer,
+            PreTrainedTokenizerFast,
+            pipeline as hf_pipeline,
+        )
     except ImportError as exc:
         raise ImportError(
             "transformers is required for huggingface_ner. "
@@ -281,7 +286,23 @@ def _load_pipeline(model_path: Path, device_index: int) -> Any:
     # Pin the tokenizer to the model's actual ``max_position_embeddings``.
     config = AutoConfig.from_pretrained(str(model_path))
     max_len = int(getattr(config, "max_position_embeddings", 512) or 512)
-    tokenizer = AutoTokenizer.from_pretrained(str(model_path), model_max_length=max_len)
+    try:
+        tokenizer = AutoTokenizer.from_pretrained(str(model_path), model_max_length=max_len)
+    except ValueError as exc:
+        # Some models (e.g. saved by transformers 5.x dev builds) write a
+        # ``tokenizer_class`` AutoTokenizer can't resolve in this version.
+        # Fall back to the fast tokenizer driven by ``tokenizer.json``.
+        if not (model_path / "tokenizer.json").exists():
+            raise
+        logger.warning(
+            "huggingface_ner: AutoTokenizer rejected %s (%s); falling back to "
+            "PreTrainedTokenizerFast via tokenizer.json. Consider fixing the "
+            "model's tokenizer_config.json.",
+            model_path.name, exc,
+        )
+        tokenizer = PreTrainedTokenizerFast.from_pretrained(
+            str(model_path), model_max_length=max_len
+        )
     return hf_pipeline(
         "token-classification",
         model=str(model_path),
