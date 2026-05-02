@@ -64,7 +64,7 @@ export default function RedactionDashboard({ redaction }: RedactionDashboardProp
             {redaction.gold_phi_count}
           </div>
           <div className="mt-1 text-[10px] text-gray-400">
-            unique (text, label) pairs
+            gold span occurrences
           </div>
         </div>
 

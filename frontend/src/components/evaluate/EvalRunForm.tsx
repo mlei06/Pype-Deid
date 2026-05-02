@@ -27,7 +27,6 @@ export default function EvalRunForm({ onResult }: EvalRunFormProps) {
   const [seedText, setSeedText] = useState('');
   const [saveSample, setSaveSample] = useState(false);
   const [saveSampleName, setSaveSampleName] = useState('');
-  const [includeDetailedSpanBreakdown, setIncludeDetailedSpanBreakdown] = useState(false);
   const [tempPredLabelRemap, setTempPredLabelRemap] = useState<Record<string, string>>({});
   const [splitsMenuOpen, setSplitsMenuOpen] = useState(false);
   const splitsMenuRef = useRef<HTMLDivElement | null>(null);
@@ -178,9 +177,9 @@ export default function EvalRunForm({ onResult }: EvalRunFormProps) {
               : {}),
           }
         : {};
-    const perDocPayload: Partial<EvalRunRequest> = includeDetailedSpanBreakdown
-      ? { include_per_document_spans: true }
-      : {};
+    // Per-doc spans are always returned — the Per-document tab in Results
+    // depends on this payload to render worst-doc breakdowns.
+    const perDocPayload: Partial<EvalRunRequest> = { include_per_document_spans: true };
     const normalizedRemap = Object.fromEntries(
       Object.entries(tempPredLabelRemap)
         .map(([k, v]) => [k.trim(), v.trim()] as const)
@@ -494,28 +493,6 @@ export default function EvalRunForm({ onResult }: EvalRunFormProps) {
         </p>
       )}
 
-      <div className="flex flex-wrap items-start gap-4 rounded-md border border-gray-100 bg-white px-3 py-2 text-xs">
-        <span className="font-medium text-gray-500">Per-document inspection</span>
-        <label className="flex items-center gap-1.5 text-gray-700">
-          <input
-            type="checkbox"
-            checked={includeDetailedSpanBreakdown}
-            onChange={(e) => setIncludeDetailedSpanBreakdown(e.target.checked)}
-            className="h-3.5 w-3.5"
-          />
-          Include detailed document span breakdown
-        </label>
-        {includeDetailedSpanBreakdown && (
-          <span className="text-[11px] text-amber-700">
-            Response will carry raw document text — admin session only.
-          </span>
-        )}
-        <span className="text-[11px] text-gray-500">
-          Available only for the run you just triggered; reloading from history does not
-          re-fetch per-doc data.
-        </span>
-      </div>
-
       <EvalLabelAlignment
         sourceMode={sourceMode}
         datasetName={datasetName}
@@ -523,6 +500,7 @@ export default function EvalRunForm({ onResult }: EvalRunFormProps) {
         pipelineName={pipeline}
         tempPredLabelRemap={tempPredLabelRemap}
         onTempPredLabelRemapChange={setTempPredLabelRemap}
+        autoHide
       />
     </div>
   );

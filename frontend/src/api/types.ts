@@ -222,9 +222,24 @@ export interface RedactionMetrics {
   leaked_spans: LeakedSpan[];
 }
 
+export interface MacroAverage {
+  precision: number;
+  recall: number;
+  f1: number;
+  label_count: number;
+}
+
+export interface MacroMetrics {
+  strict: MacroAverage;
+  partial_overlap: MacroAverage;
+  token_level: MacroAverage;
+}
+
 export interface EvalRunDetail extends EvalRunSummary {
   metrics: {
     overall: Record<string, MatchMetrics>;
+    /** Unweighted mean of per-label P/R/F1. Absent on older eval runs. */
+    macro?: MacroMetrics;
     per_label: Record<string, LabelMetricsDetail>;
     risk_weighted_recall: number;
     label_confusion: Record<string, Record<string, number>>;
@@ -239,13 +254,6 @@ export interface EvalRunDetail extends EvalRunSummary {
     /** Echoes eval-time mapping when eval_pred_label_remap was provided. */
     eval_pred_label_remap?: Record<string, string>;
   };
-}
-
-export interface EvalCompareResponse {
-  run_a: EvalRunDetail;
-  run_b: EvalRunDetail;
-  delta_strict_f1: number;
-  delta_risk_weighted_recall: number;
 }
 
 // Deploy config

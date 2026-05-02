@@ -1,8 +1,10 @@
-import type { MatchMetrics } from '../../api/types';
+import type { MacroMetrics, MatchMetrics } from '../../api/types';
 
 interface MetricsCardsProps {
   metrics: Record<string, MatchMetrics>;
   riskWeightedRecall: number;
+  /** Macro averages, when present on the run. Absent on legacy runs. */
+  macro?: MacroMetrics;
 }
 
 function MetricCard({
@@ -52,7 +54,7 @@ function Stat({
   );
 }
 
-export default function MetricsCards({ metrics, riskWeightedRecall }: MetricsCardsProps) {
+export default function MetricsCards({ metrics, riskWeightedRecall, macro }: MetricsCardsProps) {
   const modes = ['strict', 'exact_boundary', 'partial_overlap', 'token_level'] as const;
 
   return (
@@ -75,6 +77,22 @@ export default function MetricsCards({ metrics, riskWeightedRecall }: MetricsCar
           {(riskWeightedRecall * 100).toFixed(1)}%
         </div>
       </div>
+      {macro && (
+        <div className="rounded-lg border border-gray-200 bg-white p-4">
+          <div className="mb-2 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+            Macro F1 (strict)
+          </div>
+          <div className="flex gap-4">
+            <Stat label="Precision" value={macro.strict.precision} />
+            <Stat label="Recall" value={macro.strict.recall} />
+            <Stat label="F1" value={macro.strict.f1} highlight />
+          </div>
+          <div className="mt-2 text-[10px] text-gray-400">
+            unweighted mean across {macro.strict.label_count} label
+            {macro.strict.label_count === 1 ? '' : 's'}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

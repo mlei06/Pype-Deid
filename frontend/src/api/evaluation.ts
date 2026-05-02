@@ -1,10 +1,5 @@
 import { apiFetch } from './client';
-import type {
-  EvalRunRequest,
-  EvalRunSummary,
-  EvalRunDetail,
-  EvalCompareResponse,
-} from './types';
+import type { EvalRunRequest, EvalRunSummary, EvalRunDetail } from './types';
 
 export function runEvaluation(req: EvalRunRequest): Promise<EvalRunDetail> {
   return apiFetch('/eval/run', { method: 'POST', body: JSON.stringify(req) });
@@ -25,14 +20,4 @@ export function listEvalRuns(params?: {
 
 export function getEvalRun(id: string): Promise<EvalRunDetail> {
   return apiFetch(`/eval/runs/${encodeURIComponent(id)}`);
-}
-
-export function compareEvalRuns(
-  runIdA: string,
-  runIdB: string,
-): Promise<EvalCompareResponse> {
-  return apiFetch('/eval/compare', {
-    method: 'POST',
-    body: JSON.stringify({ run_id_a: runIdA, run_id_b: runIdB }),
-  });
 }

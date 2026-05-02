@@ -32,8 +32,3 @@ export function useRunEvaluation() {
   });
 }
 
-export function useCompareEvalRuns() {
-  return useMutation({
-    mutationFn: ({ a, b }: { a: string; b: string }) => api.compareEvalRuns(a, b),
-  });
-}

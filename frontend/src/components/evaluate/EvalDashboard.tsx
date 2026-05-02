@@ -1,16 +1,18 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { clsx } from 'clsx';
-import { Search, Shield, Database } from 'lucide-react';
+import { BarChart3, Grid3x3, FileText, Shield } from 'lucide-react';
 import MetricsCards from './MetricsCards';
 import PerLabelTable from './PerLabelTable';
 import ConfusionMatrix from './ConfusionMatrix';
 import RedactionDashboard from './RedactionDashboard';
 import EvalPerDocumentPanel from './EvalPerDocumentPanel';
+import ResultsRibbon from './ResultsRibbon';
 import type {
   EvalPerDocumentItem,
   EvalRunDetail,
   LabelMetricsDetail,
+  MacroMetrics,
   MatchMetrics,
   RedactionMetrics,
 } from '../../api/types';
@@ -19,7 +21,11 @@ interface EvalDashboardProps {
   run: EvalRunDetail;
 }
 
-type EvalTab = 'detection' | 'redaction';
+type DashboardTab = 'overview' | 'confusion' | 'perdoc' | 'redaction';
+
+function parseTab(value: string | null, allowed: DashboardTab[]): DashboardTab {
+  return allowed.includes(value as DashboardTab) ? (value as DashboardTab) : allowed[0];
+}
 
 export default function EvalDashboard({ run }: EvalDashboardProps) {
   const metrics = run.metrics ?? {};
@@ -39,138 +45,141 @@ export default function EvalDashboard({ run }: EvalDashboardProps) {
     metrics.label_confusion && typeof metrics.label_confusion === 'object'
       ? (metrics.label_confusion as Record<string, Record<string, number>>)
       : undefined;
+  const macro =
+    metrics.macro && typeof metrics.macro === 'object'
+      ? (metrics.macro as MacroMetrics)
+      : undefined;
 
   const hasOverallMetrics = Object.keys(overall).length > 0;
-  const hasRedaction = !!metrics.has_redaction && !!metrics.redaction;
-  const redaction = metrics.redaction as RedactionMetrics | undefined;
-  const sample = metrics.sample;
+  const hasConfusion = !!labelConfusion && Object.keys(labelConfusion).length > 0;
   const perDocItems = Array.isArray(metrics.document_level)
     ? (metrics.document_level as EvalPerDocumentItem[])
     : undefined;
-  const evalPredLabelRemap =
-    metrics.eval_pred_label_remap && typeof metrics.eval_pred_label_remap === 'object'
-      ? (metrics.eval_pred_label_remap as Record<string, string>)
-      : undefined;
+  const hasPerDoc = !!perDocItems && perDocItems.length > 0;
+  const hasRedaction = !!metrics.has_redaction && !!metrics.redaction;
+  const redaction = metrics.redaction as RedactionMetrics | undefined;
 
-  const [activeTab, setActiveTab] = useState<EvalTab>(hasRedaction ? 'redaction' : 'detection');
+  const availableTabs = useMemo<DashboardTab[]>(() => {
+    const tabs: DashboardTab[] = ['overview'];
+    if (hasConfusion) tabs.push('confusion');
+    if (hasPerDoc) tabs.push('perdoc');
+    if (hasRedaction) tabs.push('redaction');
+    return tabs;
+  }, [hasConfusion, hasPerDoc, hasRedaction]);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = parseTab(searchParams.get('tab'), availableTabs);
+  const setActiveTab = (next: DashboardTab) => {
+    setSearchParams(
+      (prev) => {
+        const params = new URLSearchParams(prev);
+        params.set('tab', next);
+        return params;
+      },
+      { replace: true },
+    );
+  };
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Run metadata */}
-      <div className="flex flex-wrap gap-3 text-xs text-gray-500">
-        <span>
-          Pipeline: <span className="font-medium text-gray-700">{run.pipeline_name}</span>
-        </span>
-        <span>
-          Dataset: <span className="font-medium text-gray-700">{run.dataset_source}</span>
-        </span>
-        <span>
-          Documents: <span className="font-medium text-gray-700">{run.document_count}</span>
-        </span>
-        <span>
-          Created: <span className="font-medium text-gray-700">{new Date(run.created_at).toLocaleString()}</span>
-        </span>
+      <ResultsRibbon run={run} />
+
+      <div className="flex w-fit overflow-hidden rounded-lg border border-gray-200 bg-white">
+        <DashboardTabButton
+          id="overview"
+          activeTab={activeTab}
+          onSelect={setActiveTab}
+          label="Overview"
+          icon={<BarChart3 size={14} />}
+        />
+        {hasConfusion && (
+          <DashboardTabButton
+            id="confusion"
+            activeTab={activeTab}
+            onSelect={setActiveTab}
+            label="Confusion"
+            icon={<Grid3x3 size={14} />}
+          />
+        )}
+        {hasPerDoc && (
+          <DashboardTabButton
+            id="perdoc"
+            activeTab={activeTab}
+            onSelect={setActiveTab}
+            label="Per-document"
+            icon={<FileText size={14} />}
+          />
+        )}
+        {hasRedaction && (
+          <DashboardTabButton
+            id="redaction"
+            activeTab={activeTab}
+            onSelect={setActiveTab}
+            label="Redaction"
+            icon={<Shield size={14} />}
+          />
+        )}
       </div>
-      {sample && (
-        <div className="flex flex-wrap items-center gap-2 rounded-md border border-indigo-100 bg-indigo-50/50 px-3 py-1.5 text-xs text-indigo-900">
-          <span className="rounded bg-indigo-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
-            Sampled
-          </span>
-          <span>
-            {sample.sample_size} of {sample.sample_of_total} documents
-          </span>
-          <span className="text-indigo-700/80">·</span>
-          <span>
-            seed <code className="rounded bg-white/80 px-1 font-mono">{sample.sample_seed_used}</code>
-          </span>
-          {sample.saved_dataset_name && (
-            <>
-              <span className="text-indigo-700/80">·</span>
-              <span className="text-indigo-800">saved as</span>
-              <Link
-                to="/datasets"
-                className="inline-flex items-center gap-1 rounded bg-white px-1.5 py-0.5 font-mono text-[11px] text-indigo-900 ring-1 ring-indigo-200 hover:bg-indigo-50"
-              >
-                <Database size={11} className="opacity-70" />
-                {sample.saved_dataset_name}
-              </Link>
-            </>
-          )}
-        </div>
-      )}
-      {evalPredLabelRemap && Object.keys(evalPredLabelRemap).length > 0 && (
-        <div className="flex flex-wrap items-start gap-2 rounded-md border border-indigo-100 bg-indigo-50/60 px-3 py-2 text-xs text-indigo-950">
-          <span className="font-semibold">Eval remap applied</span>
-          {Object.entries(evalPredLabelRemap)
-            .sort(([a], [b]) => a.localeCompare(b))
-            .map(([source, target]) => (
-              <code key={source} className="rounded bg-white/80 px-1 py-0.5 font-mono text-[11px]">
-                {source} -&gt; {target}
-              </code>
-            ))}
-        </div>
-      )}
 
-      {/* Tab toggle — only show when redaction metrics exist */}
-      {hasRedaction && (
-        <div className="flex rounded-lg border border-gray-200 bg-white overflow-hidden w-fit">
-          <button
-            onClick={() => setActiveTab('detection')}
-            className={clsx(
-              'flex items-center gap-1.5 px-4 py-2 text-sm font-medium transition-colors',
-              activeTab === 'detection'
-                ? 'bg-gray-900 text-white'
-                : 'text-gray-600 hover:bg-gray-50',
-            )}
-          >
-            <Search size={14} />
-            Detection
-          </button>
-          <button
-            onClick={() => setActiveTab('redaction')}
-            className={clsx(
-              'flex items-center gap-1.5 px-4 py-2 text-sm font-medium transition-colors',
-              activeTab === 'redaction'
-                ? 'bg-gray-900 text-white'
-                : 'text-gray-600 hover:bg-gray-50',
-            )}
-          >
-            <Shield size={14} />
-            Redaction
-          </button>
-        </div>
-      )}
-
-      {/* Detection tab */}
-      {activeTab === 'detection' && (
-        <>
+      {activeTab === 'overview' && (
+        <div className="flex flex-col gap-4">
           {!hasOverallMetrics && (
             <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
-              No overall metrics in this run file (older or incomplete format). Summary scores may still
-              appear in the list view.
+              No overall metrics in this run file (older or incomplete format). Summary scores may
+              still appear in the list view.
             </div>
           )}
-
-          <MetricsCards metrics={overall} riskWeightedRecall={riskWeightedRecall} />
+          <MetricsCards
+            metrics={overall}
+            riskWeightedRecall={riskWeightedRecall}
+            macro={macro}
+          />
           <PerLabelTable perLabel={perLabel} />
-          {labelConfusion && Object.keys(labelConfusion).length > 0 && (
-            <ConfusionMatrix confusion={labelConfusion} />
-          )}
-          {perDocItems && perDocItems.length > 0 && (
-            <EvalPerDocumentPanel
-              items={perDocItems}
-              truncated={!!metrics.document_level_truncated}
-              total={metrics.document_level_total ?? perDocItems.length}
-              includesSpans={!!metrics.document_level_includes_spans}
-            />
-          )}
-        </>
+        </div>
       )}
 
-      {/* Redaction tab */}
-      {activeTab === 'redaction' && redaction && (
-        <RedactionDashboard redaction={redaction} />
+      {activeTab === 'confusion' && labelConfusion && (
+        <ConfusionMatrix confusion={labelConfusion} />
       )}
+
+      {activeTab === 'perdoc' && perDocItems && (
+        <EvalPerDocumentPanel
+          items={perDocItems}
+          truncated={!!metrics.document_level_truncated}
+          total={metrics.document_level_total ?? perDocItems.length}
+          includesSpans={!!metrics.document_level_includes_spans}
+        />
+      )}
+
+      {activeTab === 'redaction' && redaction && <RedactionDashboard redaction={redaction} />}
     </div>
+  );
+}
+
+function DashboardTabButton({
+  id,
+  activeTab,
+  onSelect,
+  label,
+  icon,
+}: {
+  id: DashboardTab;
+  activeTab: DashboardTab;
+  onSelect: (tab: DashboardTab) => void;
+  label: string;
+  icon: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(id)}
+      className={clsx(
+        'flex items-center gap-1.5 px-4 py-2 text-sm font-medium transition-colors',
+        activeTab === id ? 'bg-gray-900 text-white' : 'text-gray-600 hover:bg-gray-50',
+      )}
+    >
+      {icon}
+      {label}
+    </button>
   );
 }

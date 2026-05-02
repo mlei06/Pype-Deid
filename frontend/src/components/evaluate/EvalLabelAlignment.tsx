@@ -105,6 +105,13 @@ interface EvalLabelAlignmentProps {
   pipelineName: string;
   tempPredLabelRemap?: Record<string, string>;
   onTempPredLabelRemapChange?: (mapping: Record<string, string>) => void;
+  /**
+   * When true, render nothing unless we detect a real misalignment between gold
+   * and pipeline label sets. Loading / empty / error placeholders are
+   * suppressed too — the widget only "pops up" when the user has something to
+   * fix.
+   */
+  autoHide?: boolean;
 }
 
 function GoldPipelineDiff({
@@ -115,6 +122,7 @@ function GoldPipelineDiff({
   pipelineQuery,
   tempPredLabelRemap,
   onTempPredLabelRemapChange,
+  autoHide,
 }: {
   goldLabels: string[];
   goldSubtitle?: string;
@@ -123,6 +131,7 @@ function GoldPipelineDiff({
   pipelineQuery: UseQueryResult<PipelineDetail, Error>;
   tempPredLabelRemap?: Record<string, string>;
   onTempPredLabelRemapChange?: (mapping: Record<string, string>) => void;
+  autoHide?: boolean;
 }) {
   const p = pipelineQuery.data;
   const outSpace = p?.config?.output_label_space;
@@ -150,6 +159,7 @@ function GoldPipelineDiff({
   }, [currentRemap, goldLabels, onlyB, onTempPredLabelRemapChange, p]);
 
   if (pipelineQuery.isLoading) {
+    if (autoHide) return null;
     return (
       <p className="text-xs text-gray-400" aria-live="polite">
         Loading pipeline…
@@ -157,6 +167,7 @@ function GoldPipelineDiff({
     );
   }
   if (pipelineQuery.isError) {
+    if (autoHide) return null;
     return (
       <p className="text-xs text-red-600">
         Could not load pipeline: {(pipelineQuery.error as Error).message}
@@ -167,6 +178,7 @@ function GoldPipelineDiff({
 
   const mismatch = onlyA.length > 0 || onlyB.length > 0;
   const missingOutput = pipelineLabels.length === 0;
+  if (autoHide && !mismatch && !missingOutput) return null;
   const loadHref = `/create?load=${encodeURIComponent(pipelineName.trim())}`;
   const hasRemapEditor = typeof onTempPredLabelRemapChange === 'function' && onlyB.length > 0;
   const normalizedGoldLabels = goldLabels.slice().sort((a, b) => a.localeCompare(b));
@@ -332,6 +344,7 @@ export default function EvalLabelAlignment({
   pipelineName,
   tempPredLabelRemap,
   onTempPredLabelRemapChange,
+  autoHide,
 }: EvalLabelAlignmentProps) {
   const { data: health } = useHealth();
   const [debouncedPath, setDebouncedPath] = useState('');
@@ -358,6 +371,7 @@ export default function EvalLabelAlignment({
       return null;
     }
     if (!datasetPath.trim()) {
+      if (autoHide) return null;
       return (
         <p className="text-xs text-gray-500">
           Enter a <code className="rounded bg-gray-100 px-0.5">.jsonl</code> path under the server corpora root to
@@ -366,6 +380,7 @@ export default function EvalLabelAlignment({
       );
     }
     if (!pathLooksJsonl) {
+      if (autoHide) return null;
       return (
         <p className="text-xs text-amber-800">
           Path should end in <code className="rounded bg-amber-100 px-0.5">.jsonl</code> (same as eval). Example:{' '}
@@ -374,9 +389,11 @@ export default function EvalLabelAlignment({
       );
     }
     if (previewQuery.isLoading) {
+      if (autoHide) return null;
       return <p className="text-xs text-gray-400">Scanning gold labels from JSONL…</p>;
     }
     if (previewQuery.isError) {
+      if (autoHide) return null;
       return (
         <div className="rounded-md border border-red-200 bg-red-50/80 px-3 py-2 text-xs text-red-800">
           <p className="font-medium">Could not load labels for path</p>
@@ -406,6 +423,7 @@ export default function EvalLabelAlignment({
         pipelineQuery={pipelineQuery}
         tempPredLabelRemap={tempPredLabelRemap}
         onTempPredLabelRemapChange={onTempPredLabelRemapChange}
+        autoHide={autoHide}
       />
     );
   }
@@ -415,6 +433,7 @@ export default function EvalLabelAlignment({
   }
 
   if (detailQuery.isLoading || pipelineQuery.isLoading) {
+    if (autoHide) return null;
     return (
       <p className="text-xs text-gray-400" aria-live="polite">
         Loading label alignment…
@@ -423,6 +442,7 @@ export default function EvalLabelAlignment({
   }
 
   if (detailQuery.isError) {
+    if (autoHide) return null;
     return (
       <p className="text-xs text-red-600">
         Could not load dataset: {(detailQuery.error as Error).message}
@@ -438,6 +458,7 @@ export default function EvalLabelAlignment({
       pipelineQuery={pipelineQuery}
       tempPredLabelRemap={tempPredLabelRemap}
       onTempPredLabelRemapChange={onTempPredLabelRemapChange}
+      autoHide={autoHide}
     />
   );
 }
