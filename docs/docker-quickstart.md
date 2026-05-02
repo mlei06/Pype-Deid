@@ -30,13 +30,15 @@ The `Dockerfile` at the repo root is the single production image
 build arg.
 
 ```bash
-# Default extras: presidio + spaCy/NER + LLM + parquet + scripts (Faker/pandas
-# for surrogate output). The heavy `train` extra (transformers+torch) is off.
+# Default extras: parquet + scripts (Faker/pandas for surrogate output).
+# Presidio, spaCy, transformers/torch, and the LLM clients are now in the
+# base install — no extras needed for inference. Add `train` only if you
+# plan to run `clinical-deid train run` (datasets/seqeval/accelerate).
 docker build -t clinical-deid-api .
 
-# Add `train` when a deployed pipeline uses huggingface_ner at runtime.
+# Add `train` for HuggingFace fine-tuning inside the container.
 docker build -t clinical-deid-api \
-    --build-arg EXTRAS=presidio,ner,llm,parquet,scripts,train .
+    --build-arg EXTRAS=parquet,scripts,train .
 ```
 
 See `pyproject.toml` for the full extras list.

@@ -13,8 +13,10 @@ services:
     build:
       context: .
       args:
-        # Default extras. ``scripts`` = Faker/pandas for surrogate output_mode. Append ``train`` for HF runtime.
-        EXTRAS: presidio,ner,llm,parquet,scripts
+        # Default extras. ``scripts`` = Faker/pandas for surrogate output_mode.
+        # Presidio, spaCy, transformers/torch, and LLM clients are in the base install.
+        # Append ``train`` (datasets/seqeval/accelerate) only for fine-tuning inside the container.
+        EXTRAS: parquet,scripts
     image: clinical-deid-api:latest
     ports:
       - "8000:8000"

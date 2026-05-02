@@ -24,7 +24,8 @@ Ships with a **clinical de-identification pack** (HIPAA Safe Harbor label space,
 ```bash
 # Backend
 python -m venv .venv && source .venv/bin/activate
-pip install -e ".[dev]"
+pip install -e .                            # all NER pipes (presidio, HF, LLM) included
+python -m spacy download en_core_web_sm     # required for Presidio pipes
 clinical-deid setup          # verify deps, init DB
 clinical-deid serve           # API on http://localhost:8000
 
@@ -128,15 +129,16 @@ All mutable runtime state lives under `data/`; model weights live under `models/
 ```bash
 python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
-pip install -e ".[dev]"
-clinical-deid setup          # verify deps, download spaCy model, init DB
+pip install -e .                            # core + presidio + HF + LLM
+python -m spacy download en_core_web_sm     # required for Presidio
+clinical-deid setup          # verify deps, init DB
 ```
 
-Optional extras for specific pipes: `pip install -e ".[presidio]"`, `pip install -e ".[ner]"`, `pip install -e ".[llm]"`, etc. (see `pyproject.toml`).
+The base install covers all inference pipes. Opt-in extras: `[dev]` (tests + lint), `[train]` (HuggingFace fine-tuning), `[parquet]` (Parquet export), `[scripts]` (analytics + surrogate output), `[all]` (everything). The legacy `[presidio]`, `[ner]`, `[llm]` extras still resolve as no-ops for back-compat.
 
-**Presidio** does not pull spaCy model weights by itself: configure `python -m spacy download` for the `presidio_ner` `model` you use; HF-based Presidio models also need `en_core_web_sm` and a transformers install (see [docs/pipes-and-pipelines.md](docs/pipes-and-pipelines.md), `presidio_ner`).
+**spaCy language data is not pulled automatically.** `en_core_web_sm` is the default for `presidio_ner` (including HuggingFace Presidio models, which still pair with spaCy as the NLP engine). For larger models add `python -m spacy download en_core_web_md` / `lg` / `trf` and switch the `presidio_ner` `model` field.
 
-`pip` is the canonical install path; `uv.lock` is committed for reproducible builds when using `uv sync` / `uv pip install -e ".[dev]"`, but is not required.
+`pip` is the canonical install path; `uv.lock` is committed for reproducible builds when using `uv sync` / `uv pip install -e .`, but is not required.
 
 ## Web UIs: Playground vs Production app
 

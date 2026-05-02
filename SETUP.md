@@ -23,10 +23,17 @@ source .venv/bin/activate          # Linux / macOS
 ### 2. Install the package
 
 ```bash
-pip install -e ".[dev]"
+pip install -e .
+python -m spacy download en_core_web_sm
 ```
 
-This installs the core package plus `pytest`, `ruff`, and development tooling.
+The base install includes everything needed for `regex_ner`, `whitelist`, `blacklist`, `presidio_ner` (all model families: spaCy / HuggingFace / stanza / flair), `huggingface_ner` (inference), and `llm_ner`. The spaCy model download is required for any Presidio-backed pipe (including HuggingFace ones — Presidio uses spaCy as its NLP engine even when the NER head is HF).
+
+For tests + lint tooling, add `[dev]`:
+
+```bash
+pip install -e ".[dev]"
+```
 
 ### 3. Initialize the database and verify dependencies
 
@@ -101,7 +108,7 @@ VITE_API_KEY=your-key-here
 python scripts/emit_discharge_eval_snapshots.py
 ```
 
-(Install the same extras you need to **run** each pipeline: at minimum `.[dev,presidio,ner]`, and a HuggingFace checkpoint under `models/huggingface/mimic-clinicalbert-sentence` for the transformer graphs.)
+(The base install already covers Presidio + HuggingFace inference. For the transformer graphs you also need a HuggingFace checkpoint under `models/huggingface/mimic-clinicalbert-sentence`.)
 
 **Optional large download (not in git)** — A separate **mimic-10k** gold archive (models + 10k-note corpus) can still be used for large-scale work. `clinical-transformer` was developed against that style of data; the discharge set above is small and hand-curated for docs and quick CI-style checks. Extract from the following when you have the file:
 
@@ -139,23 +146,24 @@ To produce a labeled corpus, synthetic PHI was injected back into 10,000 notes a
 
 ## Optional Extras
 
-Install only what you need:
+The base install includes Presidio, HuggingFace inference, and LLM clients. The remaining extras are opt-in for specific workflows.
 
-| Extra | What it enables |
-|-------|----------------|
-| `.[presidio]` | Presidio NER pipe (spaCy + Presidio) |
-| `.[ner]` | HuggingFace NER pipe (transformers) |
-| `.[llm]` | LLM-prompted NER pipe + LLM dataset synthesis |
-| `.[train]` | HuggingFace fine-tuning (`clinical-deid train run`) |
-| `.[scripts]` | Analytics and dataset transform scripts (pandas) |
-| `.[parquet]` | Parquet export format |
-| `.[all]` | Everything above |
+| Extra | What it adds | When you need it |
+|-------|--------------|------------------|
+| `.[dev]` | `pytest`, `pytest-cov`, `ruff`, `pandas`, `faker` | Running tests + lint locally |
+| `.[scripts]` | `pandas`, `faker` | Analytics and dataset-transform scripts; surrogate output mode |
+| `.[train]` | `datasets`, `seqeval`, `accelerate` | HuggingFace fine-tuning (`clinical-deid train run`) |
+| `.[parquet]` | `pyarrow` | Parquet export format |
+| `.[all]` | `dev` + `train` + `parquet` | Full toolchain |
+
+Back-compat stubs `[presidio]`, `[ner]`, `[llm]` still resolve (they're no-ops now — their dependencies moved into the base install), so older install commands keep working.
 
 ```bash
-pip install -e ".[presidio,ner,llm]"
+pip install -e ".[all]"        # full toolchain incl. tests, training, parquet
+pip install -e ".[train]"      # base install + fine-tuning extras
 ```
 
-**Presidio and spaCy:** the `[presidio]` extra installs Python packages only; it does **not** download spaCy language data. You must `python -m spacy download …` for the `presidio_ner` `model` you use. HuggingFace Presidio models in our configuration still require **`en_core_web_sm`** plus `transformers` / `torch` (see the **SpaCy data packages and load-time behavior** note for `presidio_ner` in [docs/pipes-and-pipelines.md](docs/pipes-and-pipelines.md)).
+**spaCy language data is still required** for Presidio-backed pipes — `python -m spacy download en_core_web_sm` covers the default; install matching wheels for `en_core_web_md` / `lg` / `trf` if you switch the `presidio_ner` model. HuggingFace Presidio models (Stanford / OBI / etc.) still pair with `en_core_web_sm` as the spaCy engine.
 
 ---
 

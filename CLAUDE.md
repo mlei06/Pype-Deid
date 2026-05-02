@@ -13,7 +13,8 @@ The default configuration ships a **clinical de-identification pack** (HIPAA Saf
 ```bash
 # Backend
 python -m venv .venv && source .venv/bin/activate
-pip install -e ".[dev]"
+pip install -e ".[dev]"                     # base (presidio + HF + LLM) + tests/lint
+python -m spacy download en_core_web_sm     # required for Presidio pipes
 clinical-deid setup          # verify deps, init DB, smoke test
 clinical-deid serve           # start API on localhost:8000
 
@@ -30,7 +31,7 @@ ruff check src/               # lint Python
 cd frontend && npm run lint   # lint frontend
 ```
 
-Optional extras: `.[presidio]`, `.[ner]`, `.[llm]`, `.[scripts]`, `.[parquet]`, `.[all]`.
+The base install includes Presidio, HuggingFace inference, and LLM clients. Opt-in extras: `.[dev]` (tests/lint), `.[train]` (fine-tuning: datasets/seqeval/accelerate), `.[scripts]` (pandas/faker for analytics + surrogate mode), `.[parquet]` (pyarrow), `.[all]` (everything). Legacy `.[presidio]`, `.[ner]`, `.[llm]` are kept as no-op back-compat stubs.
 
 Node.js 20.19+ or 22.12+ required for the frontend (Vite 8).
 

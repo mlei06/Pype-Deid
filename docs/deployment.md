@@ -25,6 +25,25 @@ For a step-by-step Docker bring-up (build, volumes, env vars, frontends), see [d
     - `./models:/app/models:ro`
 - **NeuroNER:** Optional HTTP sidecar (`neuroner-cspmc/sidecar/`); set `CLINICAL_DEID_NEURONER_HTTP_URL`.
 
+## Modes are the client contract — not pipelines
+
+Clients call `POST /process/<mode>` (e.g. `POST /process/fast`). The mode name is the only thing client code is coupled to. Behind it, you control two things independently:
+
+1. **Which pipeline a mode points at** — repoint `fast` from `clinical-fast` to `clinical-llm` in `data/modes.json` (or via the **Deploy** view).
+2. **What that pipeline does** — edit `data/pipelines/<name>.json` (or via the Playground **Create** view) to add, remove, or reorder pipes.
+
+**Both changes are safe to make without updating client code.** Client requests keep the same shape (`POST /process/<mode>` with `{text: ...}`) and the response keeps the same shape (`{spans: [{start, end, label, ...}], ...}`). The label set may change — that's expected. Each shipped pipeline declares its `output_label_space` field; the seven default pipelines all share the same canonical 8-label space (`AGE, DATE, EMAIL, ID, LOCATION, NAME, ORGANIZATION, PHONE`), but a custom pipeline can declare any label set the operator wants.
+
+What's *not* part of the contract — and may shift when you change the underlying pipeline:
+
+- Which substrings get marked (regex-only finds different spans than an LLM).
+- Per-span `source` field (`"regex_ner"` vs `"llm_ner"` vs `"presidio_ner"`, …).
+- Per-span `confidence` field (populated by HF/LLM, `null` for regex/whitelist).
+- Latency, determinism, and per-call cost (a `fast` mode backed by an LLM pipeline costs money and takes seconds).
+- Runtime dependencies (swapping to an LLM-backed pipeline requires `OPENAI_API_KEY`; swapping to a HuggingFace pipeline requires the model under `models/huggingface/`).
+
+So the contract is: **mode name + response schema**. Treat mode names as a versioned interface — if you want a category change (e.g. introduce LLM-backed inference), ship a new mode (`llm`, `ensemble`, …) rather than repointing an existing one. The 7 shipped modes follow this convention: `fast` is always regex-only, `transformer` always uses HuggingFace, `llm` always calls an LLM, etc.
+
 ## Authentication
 
 When `CLINICAL_DEID_ADMIN_API_KEYS` and `CLINICAL_DEID_INFERENCE_API_KEYS` are both empty, auth is **off** (local dev). When either list is non-empty, clients must send `Authorization: Bearer <key>` or `X-API-Key: <key>`.

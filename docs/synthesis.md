@@ -2,7 +2,7 @@
 
 Generate synthetic clinical notes with embedded PHI entities using an OpenAI-compatible LLM. The synthesis module produces `AnnotatedDocument` objects with character-level span offsets, ready for training or evaluation.
 
-**Requires:** `pip install -e ".[llm]"` (httpx)
+**Requires:** included in the base install (`httpx` and `openai` ship with `pip install -e .`).
 
 ## Architecture
 

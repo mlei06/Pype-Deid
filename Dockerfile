@@ -6,10 +6,12 @@
 #             -v $(pwd)/models:/app/models:ro \
 #             clinical-deid-api
 #
-# Default extras: Presidio, spaCy/NER, LLM client, Parquet, and ``scripts`` (Faker/pandas)
-# for API ``output_mode=surrogate`` / redact. The heavy [train] extra (transformers+torch)
-# is omitted; for huggingface_ner at runtime use e.g.
-#   --build-arg EXTRAS=presidio,ner,llm,parquet,scripts,train
+# Default extras: ``parquet`` + ``scripts`` (Faker/pandas for API
+# ``output_mode=surrogate`` / redact). Presidio, spaCy, transformers, torch,
+# and the LLM clients are now in the base install — no extras needed for
+# inference. Add the ``train`` extra (datasets/seqeval/accelerate) only when
+# you plan to fine-tune via ``clinical-deid train run`` inside the image:
+#   --build-arg EXTRAS=parquet,scripts,train
 
 FROM python:3.11-slim-bookworm AS base
 
@@ -28,7 +30,7 @@ WORKDIR /build
 COPY pyproject.toml README.md ./
 COPY src ./src
 
-ARG EXTRAS=presidio,ner,llm,parquet,scripts
+ARG EXTRAS=parquet,scripts
 RUN pip install --prefix=/install ".[${EXTRAS}]"
 
 FROM base AS runtime
@@ -70,5 +72,8 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
 
 # Workers should be tuned to the host. 1 is a safe default for a small
 # container; set WEB_CONCURRENCY to override without rebuilding.
-ENV WEB_CONCURRENCY=1
-CMD ["sh", "-c", "uvicorn clinical_deid.api.app:app --host 0.0.0.0 --port 8000 --workers ${WEB_CONCURRENCY}"]
+# --timeout-graceful-shutdown gives in-flight requests time to finish on SIGTERM
+# (e.g. during rolling deploys); orchestrators typically allow ~30s before SIGKILL.
+ENV WEB_CONCURRENCY=1 \
+    GRACEFUL_SHUTDOWN_SECONDS=30
+CMD ["sh", "-c", "uvicorn clinical_deid.api.app:app --host 0.0.0.0 --port 8000 --workers ${WEB_CONCURRENCY} --timeout-graceful-shutdown ${GRACEFUL_SHUTDOWN_SECONDS}"]
