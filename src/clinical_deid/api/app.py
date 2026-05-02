@@ -1,15 +1,17 @@
 from __future__ import annotations
 
 import logging
+import tempfile
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
+from sqlalchemy import text
 
 from clinical_deid.api.routers import audit, datasets, deploy, dictionaries, evaluation, inference, models, pipelines, process
 from clinical_deid.api.schemas import HealthResponse
-from clinical_deid.db import init_db
+from clinical_deid.db import get_engine, init_db
 
 logger = logging.getLogger("clinical_deid")
 
@@ -17,8 +19,47 @@ logger = logging.getLogger("clinical_deid")
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     init_db()
+    from clinical_deid.api.auth import auth_enabled
+    from clinical_deid.config import get_settings
+
+    if not auth_enabled() and get_settings().environment == "production":
+        logger.warning(
+            "API auth is DISABLED but CLINICAL_DEID_ENVIRONMENT=production. "
+            "Set CLINICAL_DEID_ADMIN_API_KEYS / CLINICAL_DEID_INFERENCE_API_KEYS "
+            "or change the environment value before exposing this instance."
+        )
     logger.info("database initialised, API ready")
-    yield
+    try:
+        yield
+    finally:
+        # Drain DB connections on SIGTERM so workers exit cleanly during rolling
+        # deploys. Uvicorn's --timeout-graceful-shutdown drives the request drain.
+        try:
+            get_engine().dispose()
+            logger.info("database engine disposed; shutdown complete")
+        except Exception:
+            logger.exception("error disposing database engine on shutdown")
+
+
+def _check_database() -> bool:
+    try:
+        with get_engine().connect() as conn:
+            conn.execute(text("SELECT 1"))
+        return True
+    except Exception:
+        logger.exception("health check: database probe failed")
+        return False
+
+
+def _check_data_writable(data_dir) -> bool:
+    try:
+        data_dir.mkdir(parents=True, exist_ok=True)
+        with tempfile.NamedTemporaryFile(dir=data_dir, prefix=".health-", delete=True):
+            pass
+        return True
+    except Exception:
+        logger.exception("health check: data dir not writable: %s", data_dir)
+        return False
 
 
 def create_app() -> FastAPI:
@@ -60,7 +101,7 @@ def create_app() -> FastAPI:
         CORSMiddleware,
         allow_origins=settings.cors_origins,
         allow_methods=["GET", "POST", "PUT", "DELETE"],
-        allow_headers=["*"],
+        allow_headers=["Content-Type", "Authorization", "X-API-Key"],
     )
 
     application.include_router(pipelines.router)
@@ -75,13 +116,24 @@ def create_app() -> FastAPI:
 
     @application.get("/health", response_model=HealthResponse)
     def health(
+        response: Response,
         api_key_scope: str | None = Depends(get_api_key_scope_for_health),
     ) -> HealthResponse:
+        # Resolve data_dir from sqlite_path or fall back to pipelines_dir's parent.
+        data_dir = settings.sqlite_path.parent if settings.sqlite_path else settings.pipelines_dir.parent
+        checks = {
+            "database": _check_database(),
+            "data_writable": _check_data_writable(data_dir),
+        }
+        ok = all(checks.values())
+        if not ok:
+            response.status_code = 503
         return HealthResponse(
-            status="ok",
+            status="ok" if ok else "degraded",
             label_space_name=settings.label_space_name,
             risk_profile_name=settings.risk_profile_name,
             api_key_scope=api_key_scope,
+            checks=checks,
         )
 
     return application

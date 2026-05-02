@@ -15,6 +15,12 @@ logger = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
+    #: Deployment posture. ``production`` causes the app to refuse silent insecure
+    #: defaults — e.g. logs a warning at startup if no API keys are configured.
+    environment: str = Field(
+        default="development",
+        description="Deployment posture: ``development`` (default) or ``production``.",
+    )
     #: All mutable state lives under ``data/`` so a deployment can mount one volume.
     #: Model weights live under ``models/`` (read-only in production).
     database_url: str = "sqlite:///./data/app.sqlite"

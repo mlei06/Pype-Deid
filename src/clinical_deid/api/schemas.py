@@ -31,6 +31,13 @@ class HealthResponse(BaseModel):
             "``admin``. SPAs can send the browser key to gate admin-only actions."
         ),
     )
+    checks: dict[str, bool] = Field(
+        default_factory=dict,
+        description=(
+            "Dependency probes: ``database`` (audit DB reachable) and ``data_writable`` "
+            "(``data/`` mount writable). When any check is false, the endpoint returns 503."
+        ),
+    )
 
 
 # ---------------------------------------------------------------------------
