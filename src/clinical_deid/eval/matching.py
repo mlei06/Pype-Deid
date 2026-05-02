@@ -43,6 +43,29 @@ class EvalMetrics:
 
 
 @dataclass(frozen=True)
+class MacroAverage:
+    """Unweighted mean of per-label precision/recall/F1 for one matching mode."""
+
+    precision: float
+    recall: float
+    f1: float
+    label_count: int
+
+
+@dataclass
+class MacroMetrics:
+    """Macro averages across all labels.
+
+    Excludes ``exact_boundary`` (which ignores label, so a per-label macro is
+    not meaningful for it).
+    """
+
+    strict: MacroAverage
+    partial_overlap: MacroAverage
+    token_level: MacroAverage
+
+
+@dataclass(frozen=True)
 class LabelMetrics:
     """Per-label metrics across matching modes."""
 
@@ -68,6 +91,23 @@ def prf(tp: int, fp: int, fn: int) -> tuple[float, float, float]:
 def make_match_result(tp: int, fp: int, fn: int, partial: int = 0) -> MatchResult:
     prec, rec, f1 = prf(tp, fp, fn)
     return MatchResult(precision=prec, recall=rec, f1=f1, tp=tp, fp=fp, fn=fn, partial=partial)
+
+
+def macro_average(results: list[MatchResult]) -> MacroAverage:
+    """Unweighted mean of P/R/F1 across per-label results.
+
+    Empty input yields zeros — surfaces "no labels evaluated" cleanly to the UI
+    rather than raising.
+    """
+    n = len(results)
+    if n == 0:
+        return MacroAverage(precision=0.0, recall=0.0, f1=0.0, label_count=0)
+    return MacroAverage(
+        precision=sum(r.precision for r in results) / n,
+        recall=sum(r.recall for r in results) / n,
+        f1=sum(r.f1 for r in results) / n,
+        label_count=n,
+    )
 
 
 def _spans_overlap(a: EntitySpan, b: EntitySpan) -> bool:
@@ -112,12 +152,16 @@ def _exact_boundary_match(pred: list[EntitySpan], gold: list[EntitySpan]) -> Mat
 
 
 def _partial_overlap_match(pred: list[EntitySpan], gold: list[EntitySpan]) -> MatchResult:
-    """Spans overlap AND share the same label = match; greedy assignment."""
+    """Spans overlap AND share the same label = match; greedy assignment.
+
+    Walks predicted spans in input order and assigns each one to the unmatched
+    gold span (same label) with the largest character overlap. Order-dependent:
+    different pred orderings can yield different TP/FP/FN.
+    """
     gold_matched: set[int] = set()
     pred_matched: set[int] = set()
     partial_count = 0
 
-    # Sort by length descending for greedy matching of largest overlaps first
     pred_indexed = list(enumerate(pred))
     gold_indexed = list(enumerate(gold))
 

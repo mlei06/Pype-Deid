@@ -1,3 +1,15 @@
-from clinical_deid.eval.spans import SpanMicroF1, span_sets, strict_micro_f1
+from clinical_deid.eval.matching import (
+    EvalMetrics,
+    LabelMetrics,
+    MatchResult,
+    compute_metrics,
+    compute_per_label_metrics,
+)
 
-__all__ = ["SpanMicroF1", "span_sets", "strict_micro_f1"]
+__all__ = [
+    "EvalMetrics",
+    "LabelMetrics",
+    "MatchResult",
+    "compute_metrics",
+    "compute_per_label_metrics",
+]

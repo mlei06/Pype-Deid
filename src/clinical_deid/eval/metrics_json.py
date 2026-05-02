@@ -27,6 +27,23 @@ def eval_metrics_to_dict(em) -> dict[str, Any]:
     }
 
 
+def macro_average_to_dict(ma) -> dict[str, Any]:
+    return {
+        "precision": ma.precision,
+        "recall": ma.recall,
+        "f1": ma.f1,
+        "label_count": ma.label_count,
+    }
+
+
+def macro_metrics_to_dict(mm) -> dict[str, Any]:
+    return {
+        "strict": macro_average_to_dict(mm.strict),
+        "partial_overlap": macro_average_to_dict(mm.partial_overlap),
+        "token_level": macro_average_to_dict(mm.token_level),
+    }
+
+
 def redaction_metrics_to_dict(rm) -> dict[str, Any]:
     return {
         "gold_phi_count": rm.gold_phi_count,
@@ -75,6 +92,7 @@ def build_persisted_eval_metrics(
 
     metrics: dict[str, Any] = {
         "overall": eval_metrics_to_dict(result.overall),
+        "macro": macro_metrics_to_dict(result.macro),
         "per_label": per_label_dict,
         "risk_weighted_recall": result.risk_weighted_recall,
         "label_confusion": result.label_confusion,

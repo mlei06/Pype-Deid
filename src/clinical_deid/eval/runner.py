@@ -6,19 +6,21 @@ Pipelines only produce spans; redaction is applied separately at the API layer.
 
 from __future__ import annotations
 
-from collections import defaultdict
+from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 
 from clinical_deid.domain import AnnotatedDocument, EntitySpan
 from clinical_deid.eval.matching import (
     EvalMetrics,
     LabelMetrics,
+    MacroMetrics,
     MatchResult,
     compute_metrics,
     compute_per_label_metrics,
+    macro_average,
     make_match_result,
 )
-from clinical_deid.eval.redaction import RedactionMetrics, compute_redaction_metrics
+from clinical_deid.eval.redaction import LabelLeakage, RedactionMetrics, compute_redaction_metrics
 from clinical_deid.pipes.base import Pipe
 from clinical_deid.risk import RiskProfile, default_risk_profile
 
@@ -54,6 +56,7 @@ class EvalResult:
     """Aggregate evaluation result across all documents."""
 
     overall: EvalMetrics
+    macro: MacroMetrics
     per_label: dict[str, LabelMetrics]
     risk_weighted_recall: float
     document_results: list[DocumentEvalResult]
@@ -89,19 +92,32 @@ def _build_confusion_matrix(
 ) -> dict[str, dict[str, int]]:
     """Build label confusion matrix from overlapping pred/gold spans.
 
-    Returns ``{gold_label: {pred_label: count}}``.
+    Returns ``{gold_label: {pred_label: count}}`` where each gold span
+    contributes exactly one cell (the predicted label of its best-overlap pred,
+    or ``"<MISSED>"`` if nothing overlaps). Predicted spans that match no gold
+    are aggregated under the synthetic ``"<SPURIOUS>"`` row, so the matrix
+    surfaces both misses and hallucinations.
     """
     confusion: dict[str, dict[str, int]] = defaultdict(lambda: defaultdict(int))
+    pred_matched: set[int] = set()
 
     for gs in gold_spans:
-        matched = False
-        for ps in pred_spans:
-            # Check for overlap
-            if ps.start < gs.end and gs.start < ps.end:
-                confusion[gs.label][ps.label] += 1
-                matched = True
-        if not matched:
+        best_pi: int | None = None
+        best_overlap = 0
+        for pi, ps in enumerate(pred_spans):
+            overlap = max(0, min(gs.end, ps.end) - max(gs.start, ps.start))
+            if overlap > best_overlap:
+                best_overlap = overlap
+                best_pi = pi
+        if best_pi is None:
             confusion[gs.label]["<MISSED>"] += 1
+        else:
+            confusion[gs.label][pred_spans[best_pi].label] += 1
+            pred_matched.add(best_pi)
+
+    for pi, ps in enumerate(pred_spans):
+        if pi not in pred_matched:
+            confusion["<SPURIOUS>"][ps.label] += 1
 
     return {k: dict(v) for k, v in confusion.items()}
 
@@ -133,8 +149,6 @@ def _remap_pred_span_labels(
 
 def _aggregate_redaction_metrics(doc_metrics: list[RedactionMetrics]) -> RedactionMetrics:
     """Aggregate per-document redaction metrics into a corpus-level summary."""
-    from collections import Counter
-
     total_gold = sum(m.gold_phi_count for m in doc_metrics)
     total_leaked = sum(m.leaked_phi_count for m in doc_metrics)
     total_orig_len = sum(m.original_length for m in doc_metrics)
@@ -150,8 +164,6 @@ def _aggregate_redaction_metrics(doc_metrics: list[RedactionMetrics]) -> Redacti
         for ll in m.per_label:
             gold_by_label[ll.label] += ll.gold_count
             leaked_by_label[ll.label] += ll.leaked_count
-
-    from clinical_deid.eval.redaction import LabelLeakage
 
     per_label = []
     for label in sorted(gold_by_label):
@@ -311,8 +323,15 @@ def evaluate_pipeline(
             for pl, count in pred_map.items():
                 total_confusion[gl][pl] += count
 
-    # Sort documents by worst strict F1 first
-    doc_results.sort(key=lambda d: d.metrics.strict.f1)
+    # Sort documents by worst strict F1 first. Tie-break: empty (no gold and
+    # no pred) docs sink to the bottom — their F1=0.0 is noise, not failure —
+    # and among real failures, surface higher-support docs ahead of one-off ties.
+    def _worst_doc_key(d: DocumentEvalResult) -> tuple[int, float, int]:
+        s = d.metrics.strict
+        no_signal = (s.tp + s.fp + s.fn) == 0
+        return (1 if no_signal else 0, s.f1, -len(d.gold_spans))
+
+    doc_results.sort(key=_worst_doc_key)
 
     # Aggregate overall metrics
     overall = EvalMetrics(
@@ -339,6 +358,14 @@ def evaluate_pipeline(
 
     total_rwr = profile.risk_weighted_recall(all_fn, all_gold)
 
+    # Macro averages — unweighted mean of per-label P/R/F1, so rare labels
+    # aren't drowned out by frequent ones (NAME, DATE) the way micro-F1 hides them.
+    macro = MacroMetrics(
+        strict=macro_average([lm.strict for lm in agg_per_label.values()]),
+        partial_overlap=macro_average([lm.partial_overlap for lm in agg_per_label.values()]),
+        token_level=macro_average([lm.token_level for lm in agg_per_label.values()]),
+    )
+
     # Aggregate redaction metrics
     agg_redaction: RedactionMetrics | None = None
     if doc_redaction_metrics:
@@ -346,6 +373,7 @@ def evaluate_pipeline(
 
     return EvalResult(
         overall=overall,
+        macro=macro,
         per_label=agg_per_label,
         risk_weighted_recall=total_rwr,
         document_results=doc_results,

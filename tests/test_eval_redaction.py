@@ -106,3 +106,42 @@ def test_empty_phi_text_ignored():
     ]
     m = compute_redaction_metrics(original, redacted, gold)
     assert m.gold_phi_count == 0  # whitespace-only spans are excluded
+
+
+def test_per_occurrence_partial_leak():
+    """A PHI string appearing 3x with 1 surviving copy counts as 1/3, not 1/1."""
+    # "John" appears at offsets 0, 14, 28; redacted output keeps it once.
+    original = "John saw Dr. John about John."
+    redacted = "[NAME] saw Dr. John about [NAME]."
+    gold = [
+        {"start": 0, "end": 4, "label": "NAME"},
+        {"start": 13, "end": 17, "label": "NAME"},
+        {"start": 24, "end": 28, "label": "NAME"},
+    ]
+    m = compute_redaction_metrics(original, redacted, gold)
+    assert m.gold_phi_count == 3
+    assert m.leaked_phi_count == 1
+    assert m.leakage_rate == round(1 / 3, 6)
+    label_map = {ll.label: ll for ll in m.per_label}
+    assert label_map["NAME"].gold_count == 3
+    assert label_map["NAME"].leaked_count == 1
+
+
+def test_over_redaction_diff_based():
+    """Non-PHI characters that get deleted should count as over-redaction."""
+    # PHI is "John" at [8, 12); the redaction also wrongly drops " was seen".
+    original = "Patient John was seen today."
+    redacted = "Patient [NAME] today."
+    gold = [{"start": 8, "end": 12, "label": "NAME"}]
+    m = compute_redaction_metrics(original, redacted, gold)
+    # " was seen" = 9 non-PHI characters that disappeared from the original.
+    assert m.over_redaction_chars == 9
+
+
+def test_over_redaction_zero_when_only_phi_changes():
+    """A clean tag-replacement that leaves non-PHI text intact reports 0."""
+    original = "Patient John today."
+    redacted = "Patient [NAME] today."
+    gold = [{"start": 8, "end": 12, "label": "NAME"}]
+    m = compute_redaction_metrics(original, redacted, gold)
+    assert m.over_redaction_chars == 0
