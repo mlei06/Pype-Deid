@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useModes } from '../../hooks/useModes';
 import { useBatchDetect } from './useBatchDetect';
 import { useActiveDataset, useProductionStore } from './store';
+import { useConfirm } from '../shared/ConfirmDialog';
 import type { ResolveStrategyId } from '../../lib/spanOverlapConflicts';
 
 export function useWorkspaceController() {
@@ -13,6 +14,7 @@ export function useWorkspaceController() {
   const active = useActiveDataset();
   const { data: modesData } = useModes();
   const { run, cancel, running, progress } = useBatchDetect();
+  const confirm = useConfirm();
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [runTarget, setRunTarget] = useState('');
@@ -78,10 +80,14 @@ export function useWorkspaceController() {
 
     const resolvedInSelection = active.files.filter((f) => ids.includes(f.id) && f.resolved);
     if (resolvedInSelection.length > 0) {
-      const ok = confirm(
-        `${resolvedInSelection.length} resolved file(s) are in the selection. ` +
-          'Re-running detection will REPLACE annotations and clear the resolved flag. Continue?',
-      );
+      const ok = await confirm({
+        title: 'Re-run detection on resolved files?',
+        message: `${resolvedInSelection.length} resolved file${
+          resolvedInSelection.length === 1 ? '' : 's'
+        } in the selection. Re-running will replace annotations and clear the resolved flag.`,
+        confirmLabel: 'Re-run',
+        danger: true,
+      });
       if (!ok) return;
     }
 

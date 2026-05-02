@@ -33,6 +33,12 @@ interface SpanHighlighterProps {
   spans: EntitySpanResponse[];
   activeSpanKey?: string | null;
   flashSpanKey?: string | null;
+  /**
+   * When false, the floating label badges above each span are hidden (color
+   * underline + hover tooltip remain). Useful on dense documents where the
+   * badges would collide with the previous line of text.
+   */
+  showLabels?: boolean;
   onSpanHover?: (key: string | null) => void;
   onSpanClick?: (span: EntitySpanResponse, key: string, anchor: DOMRect) => void;
   onUncoveredSelection?: (
@@ -196,6 +202,7 @@ const SpanHighlighter = forwardRef<SpanHighlighterHandle, SpanHighlighterProps>(
       spans,
       activeSpanKey,
       flashSpanKey,
+      showLabels = true,
       onSpanHover,
       onSpanClick,
       onUncoveredSelection,
@@ -391,7 +398,12 @@ const SpanHighlighter = forwardRef<SpanHighlighterHandle, SpanHighlighterProps>(
       <pre
         ref={rootRef}
         onMouseUp={handleMouseUp}
-        className="block w-full whitespace-pre-wrap break-words font-mono text-sm leading-relaxed"
+        className={clsx(
+          'block w-full whitespace-pre-wrap break-words font-mono text-sm',
+          // Loose line-height when labels are visible so floating badges
+          // don't collide with the line above.
+          showLabels ? 'leading-loose' : 'leading-relaxed',
+        )}
       >
         {segments.map((seg, i) => {
           const sliceText = text.slice(seg.start, seg.end);
@@ -478,7 +490,7 @@ const SpanHighlighter = forwardRef<SpanHighlighterHandle, SpanHighlighterProps>(
                 onSpanClick?.(s, key, rect);
               }}
             >
-              {isLeftEdge && (
+              {showLabels && isLeftEdge && (
                 <LabelBadge label={s.label} className="absolute -top-4 left-0" data-no-offset="true" />
               )}
               {onSpanResize && isLeftEdge && (

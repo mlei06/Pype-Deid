@@ -20,6 +20,7 @@ import {
   type DetectionStatus,
 } from './store';
 import PasteModal from './PasteModal';
+import { useConfirm } from '../shared/ConfirmDialog';
 
 /** Row height (px) used for virtualization. Matches the rendered `<li>` height. */
 const ROW_HEIGHT_PX = 36;
@@ -113,8 +114,9 @@ export default function DatasetFileList({
   const setFileResolved = useProductionStore((s) => s.setFileResolved);
   const setFileFlagged = useProductionStore((s) => s.setFileFlagged);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [filter, setFilter] = useState<'all' | 'pending' | 'resolved' | 'error'>('all');
+  const [filter, setFilter] = useState<'all' | 'todo' | 'resolved' | 'error'>('all');
   const [showPaste, setShowPaste] = useState(false);
+  const confirm = useConfirm();
 
   const counts = useMemo(() => {
     let resolved = 0;
@@ -128,11 +130,12 @@ export default function DatasetFileList({
 
   const visible = useMemo(() => {
     switch (filter) {
-      case 'pending':
+      case 'todo':
+        // Anything still on the user's plate: not yet resolved and not in
+        // an error state. Covers both pre-detection (pending / processing)
+        // and detected-but-not-yet-reviewed (ready) files.
         return dataset.files.filter(
-          (f) =>
-            !f.resolved &&
-            (f.detectionStatus === 'pending' || f.detectionStatus === 'processing'),
+          (f) => !f.resolved && f.detectionStatus !== 'error',
         );
       case 'resolved':
         return dataset.files.filter((f) => f.resolved);
@@ -213,14 +216,16 @@ export default function DatasetFileList({
         {dataset.files.length > 0 && (
           <button
             type="button"
-            onClick={() => {
-              if (
-                confirm(
-                  `Remove all ${dataset.files.length} files from "${dataset.name}"? Annotations will be lost.`,
-                )
-              ) {
-                clearFiles(dataset.id);
-              }
+            onClick={async () => {
+              const ok = await confirm({
+                title: `Remove all files from "${dataset.name}"?`,
+                message: `${dataset.files.length} file${
+                  dataset.files.length === 1 ? '' : 's'
+                } and all their annotations will be deleted.`,
+                confirmLabel: 'Remove all',
+                danger: true,
+              });
+              if (ok) clearFiles(dataset.id);
             }}
             className="rounded border border-gray-200 px-2 py-1.5 text-xs text-gray-500 hover:bg-gray-50"
             title="Clear all files in this dataset"
@@ -257,17 +262,29 @@ export default function DatasetFileList({
       </div>
 
       <div className="flex gap-1 border-b border-gray-100 px-2 py-1 text-[10px]">
-        {(['all', 'pending', 'resolved', 'error'] as const).map((f) => (
+        {(
+          [
+            { id: 'all', label: 'All' },
+            { id: 'todo', label: 'To do' },
+            { id: 'resolved', label: 'Resolved' },
+            { id: 'error', label: 'Error' },
+          ] as const
+        ).map((f) => (
           <button
-            key={f}
+            key={f.id}
             type="button"
-            onClick={() => setFilter(f)}
+            onClick={() => setFilter(f.id)}
             className={clsx(
-              'rounded px-1.5 py-0.5 capitalize',
-              filter === f ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-100',
+              'rounded px-1.5 py-0.5',
+              filter === f.id ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-100',
             )}
+            title={
+              f.id === 'todo'
+                ? 'Files still needing detection or review (anything not resolved)'
+                : undefined
+            }
           >
-            {f}
+            {f.label}
           </button>
         ))}
       </div>
@@ -280,8 +297,14 @@ export default function DatasetFileList({
         onSelectCurrent={(id) => setCurrentFile(dataset.id, id)}
         onToggleResolved={(f) => setFileResolved(dataset.id, f.id, !f.resolved)}
         onToggleFlagged={(f) => setFileFlagged(dataset.id, f.id, !f.flagged)}
-        onRemove={(f) => {
-          if (confirm(`Remove "${f.sourceLabel}"?`)) removeFile(dataset.id, f.id);
+        onRemove={async (f) => {
+          const ok = await confirm({
+            title: `Remove "${f.sourceLabel}"?`,
+            message: 'This file and its annotations will be deleted from the dataset.',
+            confirmLabel: 'Remove',
+            danger: true,
+          });
+          if (ok) removeFile(dataset.id, f.id);
         }}
         emptyMessage={
           dataset.files.length === 0
@@ -325,8 +348,18 @@ function FileRow({
   const spanCount = f.detectionStatus === 'ready' ? f.annotations.length : null;
   return (
     <div
+      role="button"
+      tabIndex={0}
+      aria-current={isCurrent ? 'true' : undefined}
+      onClick={() => onSelectCurrent(f.id)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelectCurrent(f.id);
+        }
+      }}
       className={clsx(
-        'flex h-9 items-center gap-1.5 border-l-2 border-b border-gray-100 px-2 text-xs transition-colors',
+        'flex h-9 cursor-pointer select-none items-center gap-1.5 border-l-2 border-b border-gray-100 px-2 text-xs transition-colors focus:outline-none focus-visible:bg-gray-100',
         isCurrent
           ? 'border-l-gray-900 bg-gray-50 text-gray-900'
           : 'border-l-transparent text-gray-700 hover:bg-gray-50',
@@ -335,29 +368,25 @@ function FileRow({
       <input
         type="checkbox"
         checked={isSelected}
+        onClick={(e) => e.stopPropagation()}
         onChange={() => onToggleSelected(f.id)}
-        className="shrink-0"
+        className="shrink-0 cursor-pointer"
+        aria-label={`Select ${f.sourceLabel}`}
       />
-      <button
-        type="button"
-        onClick={() => onSelectCurrent(f.id)}
-        className="flex min-w-0 flex-1 items-center gap-2 text-left"
-      >
-        <Icon
-          size={13}
-          className={clsx('shrink-0', STATUS_COLORS[f.detectionStatus])}
-        />
-        <span className="min-w-0 flex-1 truncate font-medium">{f.sourceLabel}</span>
-        <span className="shrink-0 text-[10px] text-gray-400">
-          {spanCount != null
-            ? spanCount
-            : f.detectionStatus === 'processing'
-              ? '...'
-              : f.detectionStatus === 'error'
-                ? 'err'
-                : ''}
-        </span>
-      </button>
+      <Icon
+        size={13}
+        className={clsx('shrink-0', STATUS_COLORS[f.detectionStatus])}
+      />
+      <span className="min-w-0 flex-1 truncate font-medium">{f.sourceLabel}</span>
+      <span className="shrink-0 text-[10px] text-gray-400">
+        {spanCount != null
+          ? spanCount
+          : f.detectionStatus === 'processing'
+            ? '...'
+            : f.detectionStatus === 'error'
+              ? 'err'
+              : ''}
+      </span>
       <button
         type="button"
         onClick={(e) => {

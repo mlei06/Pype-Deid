@@ -8,7 +8,6 @@ import {
   BookOpen,
   Rocket,
   Activity,
-  ShieldCheck,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -16,7 +15,6 @@ const TABS = [
   { to: '/create', label: 'Create', icon: Blocks },
   { to: '/pipelines', label: 'Pipelines', icon: Network },
   { to: '/inference', label: 'Inference', icon: Play },
-  { to: '/production', label: 'Production', icon: ShieldCheck },
   { to: '/evaluate', label: 'Evaluate', icon: BarChart3 },
   { to: '/datasets', label: 'Datasets', icon: Database },
   { to: '/dictionaries', label: 'Dictionaries', icon: BookOpen },

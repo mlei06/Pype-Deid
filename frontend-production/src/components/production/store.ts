@@ -69,6 +69,8 @@ export interface Dataset {
 interface UiState {
   reviewer: string;
   lastExportScope: 'all' | 'resolved';
+  /** When false, span labels above each highlight are hidden (color underline only). */
+  showSpanLabels: boolean;
 }
 
 interface State extends UiState {
@@ -77,6 +79,7 @@ interface State extends UiState {
 
   setReviewer: (name: string) => void;
   setLastExportScope: (scope: 'all' | 'resolved') => void;
+  setShowSpanLabels: (show: boolean) => void;
 
   createDataset: (name: string, seed?: Partial<Dataset>) => string;
   renameDataset: (id: string, name: string) => void;
@@ -162,6 +165,7 @@ interface LegacyDoc {
 interface PersistedShape {
   reviewer?: string;
   lastExportScope?: 'all' | 'resolved';
+  showSpanLabels?: boolean;
   activeDatasetId?: string | null;
   datasets?: Record<string, Dataset>;
 }
@@ -264,6 +268,7 @@ const persistOptions: PersistOptions<State, PersistedShape> = {
   partialize: (s): PersistedShape => ({
     reviewer: s.reviewer,
     lastExportScope: s.lastExportScope,
+    showSpanLabels: s.showSpanLabels,
     activeDatasetId: s.activeDatasetId,
     datasets: s.datasets,
   }),
@@ -288,11 +293,13 @@ export const useProductionStore = create<State>()(
     (set, get) => ({
       reviewer: '',
       lastExportScope: 'resolved',
+      showSpanLabels: true,
       activeDatasetId: null,
       datasets: {},
 
       setReviewer: (name) => set({ reviewer: name }),
       setLastExportScope: (scope) => set({ lastExportScope: scope }),
+      setShowSpanLabels: (show) => set({ showSpanLabels: show }),
 
       createDataset: (name, seed) => {
         const ds = newDataset(name, seed);

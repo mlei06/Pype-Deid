@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { clsx } from 'clsx';
 import {
   Plus,
   RotateCcw,
@@ -6,11 +7,19 @@ import {
   PanelRightOpen,
   Eye,
   EyeOff,
+  Undo2,
+  Redo2,
+  Check,
+  CheckCircle2,
+  X,
+  Tag,
 } from 'lucide-react';
 import SpanHighlighter, { type SpanHighlighterHandle } from '../shared/SpanHighlighter';
 import LabelBadge from '../shared/LabelBadge';
 import SpanEditor from '../shared/SpanEditor';
 import ColorKeyPopover from '../shared/ColorKeyPopover';
+import LabelCombobox from '../shared/LabelCombobox';
+import { useConfirm } from '../shared/ConfirmDialog';
 import PreviewColumn from './PreviewColumn';
 import {
   effectiveSurrogateSeed,
@@ -18,13 +27,14 @@ import {
   type Dataset,
   type DatasetFile,
 } from './store';
-import { CANONICAL_LABELS } from '../../lib/canonicalLabels';
+import { useAnnotationHistory } from './useAnnotationHistory';
 import { entitySpanKey } from '../../lib/entitySpanKey';
 import {
   findOverlapGroups,
   applyResolveStrategy,
   keepInOverlapGroup,
   dropOverlapGroup,
+  pickPrimarySpan,
   type OverlapGroup,
   type ResolveStrategyId,
 } from '../../lib/spanOverlapConflicts';
@@ -41,6 +51,8 @@ interface GhostSelection {
   start: number;
   end: number;
   text: string;
+  left: number;
+  top: number;
 }
 
 export default function DocumentReviewer({
@@ -49,8 +61,13 @@ export default function DocumentReviewer({
   file,
   reviewer,
 }: DocumentReviewerProps) {
-  const updateFile = useProductionStore((s) => s.updateFile);
   const setFileSurrogateSeed = useProductionStore((s) => s.setFileSurrogateSeed);
+  const setFileResolved = useProductionStore((s) => s.setFileResolved);
+  const showSpanLabels = useProductionStore((s) => s.showSpanLabels);
+  const setShowSpanLabels = useProductionStore((s) => s.setShowSpanLabels);
+  const confirm = useConfirm();
+  const history = useAnnotationHistory(datasetId, file.id);
+  const { commit, undo, redo, canUndo, canRedo, lastChangeAt } = history;
 
   const [activeSpanKey, setActiveSpanKey] = useState<string | null>(null);
   const [flashSpanKey, setFlashSpanKey] = useState<string | null>(null);
@@ -65,9 +82,16 @@ export default function DocumentReviewer({
     left: number;
     top: number;
   } | null>(null);
-  const [spanLabelDraft, setSpanLabelDraft] = useState('');
+  const [conflictPopover, setConflictPopover] = useState<{
+    groupId: string;
+    keptKey: string | null;
+    left: number;
+    top: number;
+  } | null>(null);
   const rootRef = useRef<HTMLElement | null>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
+  const conflictPopoverRef = useRef<HTMLDivElement>(null);
+  const ghostPopoverRef = useRef<HTMLDivElement>(null);
   const highlighterRef = useRef<SpanHighlighterHandle>(null);
 
   useEffect(() => {
@@ -76,7 +100,7 @@ export default function DocumentReviewer({
     setGhostSelection(null);
     setPulseRange(null);
     setSpanPopover(null);
-    setSpanLabelDraft('');
+    setConflictPopover(null);
   }, [file.id]);
 
   useEffect(() => {
@@ -88,6 +112,54 @@ export default function DocumentReviewer({
     document.addEventListener('mousedown', onDown);
     return () => document.removeEventListener('mousedown', onDown);
   }, [spanPopover]);
+
+  // When a span popover opens, move focus to its container. Without this,
+  // focus often stays on a previously-focused input (e.g. a label combobox in
+  // the rail), and ⌫ / Delete would edit that field instead of removing the
+  // span. With focus on the popover div (not an input), the keydown handler
+  // sees inField=false and runs the delete branch.
+  useEffect(() => {
+    if (!spanPopover) return;
+    const id = window.requestAnimationFrame(() => {
+      popoverRef.current?.focus();
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [spanPopover?.key]);
+
+  useEffect(() => {
+    if (!ghostSelection) return;
+    const onDown = (e: MouseEvent) => {
+      if (ghostPopoverRef.current?.contains(e.target as Node)) return;
+      // Selection-on-document path clears via SpanHighlighter's mouseup; this
+      // covers clicks outside the document (rail, header, etc.).
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setGhostSelection(null);
+    };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [ghostSelection]);
+
+  useEffect(() => {
+    if (!conflictPopover) return;
+    const onDown = (e: MouseEvent) => {
+      if (conflictPopoverRef.current?.contains(e.target as Node)) return;
+      setConflictPopover(null);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setConflictPopover(null);
+    };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [conflictPopover]);
 
   useEffect(() => {
     if (!flashSpanKey) return;
@@ -129,20 +201,23 @@ export default function DocumentReviewer({
   }, [overlapGroups]);
 
   const handleChangeSpans = (spans: EntitySpanResponse[]) => {
-    updateFile(datasetId, file.id, { annotations: spans });
+    commit(spans);
   };
 
   const updateSpanByKey = (key: string, patch: Partial<EntitySpanResponse>) => {
     const next = file.annotations.map((s) => (entitySpanKey(s) === key ? { ...s, ...patch } : s));
-    updateFile(datasetId, file.id, { annotations: next });
+    commit(next);
   };
 
   const deleteSpanByKey = (key: string) => {
     const next = file.annotations.filter((s) => entitySpanKey(s) !== key);
-    updateFile(datasetId, file.id, { annotations: next });
+    commit(next);
     setSpanPopover(null);
     setActiveSpanKey((ak) => (ak === key ? null : ak));
   };
+
+  const deleteSpanByKeyRef = useRef(deleteSpanByKey);
+  deleteSpanByKeyRef.current = deleteSpanByKey;
 
   const handleSpanResize = useCallback(
     (key: string, start: number, end: number) => {
@@ -150,22 +225,33 @@ export default function DocumentReviewer({
         .getState()
         .datasets[datasetId]?.files.find((x) => x.id === file.id);
       if (!f) return;
-      updateFile(datasetId, file.id, {
-        annotations: f.annotations.map((s) =>
+      commit(
+        f.annotations.map((s) =>
           entitySpanKey(s) === key
             ? { ...s, start, end, text: f.originalText.slice(start, end) }
             : s,
         ),
-      });
+      );
     },
-    [datasetId, file.id, updateFile],
+    [datasetId, file.id, commit],
   );
 
-  const handleReset = () => {
-    if (file.detectedAt) {
-      updateFile(datasetId, file.id, { annotations: file.detectedAt });
+  const handleReset = useCallback(async () => {
+    if (!file.detectedAt) return;
+    const manualCount = file.annotations.filter((s) => s.source === 'manual').length;
+    if (manualCount > 0) {
+      const ok = await confirm({
+        title: 'Discard manual edits?',
+        message: `Reset will replace the current spans with the last detection output. ${manualCount} manually added span${
+          manualCount === 1 ? '' : 's'
+        } will be discarded. You can undo this afterwards.`,
+        confirmLabel: 'Reset',
+        danger: true,
+      });
+      if (!ok) return;
     }
-  };
+    commit(file.detectedAt);
+  }, [confirm, file.annotations, file.detectedAt, commit]);
 
   const clearTransientForKeys = useCallback((droppedKeys: Set<string>) => {
     if (droppedKeys.size === 0) return;
@@ -184,22 +270,18 @@ export default function DocumentReviewer({
         if (k !== keptKey) dropped.add(k);
       }
       clearTransientForKeys(dropped);
-      updateFile(datasetId, file.id, {
-        annotations: keepInOverlapGroup(file.annotations, group, kept),
-      });
+      commit(keepInOverlapGroup(file.annotations, group, kept));
     },
-    [datasetId, file.id, file.annotations, updateFile, clearTransientForKeys],
+    [file.annotations, commit, clearTransientForKeys],
   );
 
   const handleResolveGroupDrop = useCallback(
     (group: OverlapGroup) => {
       const dropped = new Set(group.members.map((m) => entitySpanKey(m)));
       clearTransientForKeys(dropped);
-      updateFile(datasetId, file.id, {
-        annotations: dropOverlapGroup(file.annotations, group),
-      });
+      commit(dropOverlapGroup(file.annotations, group));
     },
-    [datasetId, file.id, file.annotations, updateFile, clearTransientForKeys],
+    [file.annotations, commit, clearTransientForKeys],
   );
 
   const handleResolveAllOverlaps = useCallback(
@@ -212,9 +294,9 @@ export default function DocumentReviewer({
         if (!survivors.has(k)) dropped.add(k);
       }
       clearTransientForKeys(dropped);
-      updateFile(datasetId, file.id, { annotations: next });
+      commit(next);
     },
-    [datasetId, file.id, file.annotations, updateFile, clearTransientForKeys],
+    [file.annotations, commit, clearTransientForKeys],
   );
 
   const focusGroup = useCallback((group: OverlapGroup) => {
@@ -224,19 +306,20 @@ export default function DocumentReviewer({
     highlighterRef.current?.scrollToRange(group.minStart, group.maxEnd);
   }, []);
 
-  const addSpanFromGhost = () => {
+  const addSpanFromGhost = (labelOverride?: string) => {
     if (!ghostSelection) return;
+    const label = (labelOverride ?? addLabel).trim() || 'OTHER';
     const exists = file.annotations.some(
       (s) =>
         s.start === ghostSelection.start &&
         s.end === ghostSelection.end &&
-        s.label === addLabel,
+        s.label === label,
     );
     if (!exists) {
       const next: EntitySpanResponse = {
         start: ghostSelection.start,
         end: ghostSelection.end,
-        label: addLabel,
+        label,
         text: ghostSelection.text,
         confidence: null,
         source: 'manual',
@@ -244,9 +327,10 @@ export default function DocumentReviewer({
       const merged = [...file.annotations, next].sort(
         (a, b) => a.start - b.start || a.end - b.end,
       );
-      updateFile(datasetId, file.id, { annotations: merged });
+      commit(merged);
       setFlashSpanKey(entitySpanKey(next));
     }
+    if (labelOverride) setAddLabel(label);
     setGhostSelection(null);
   };
 
@@ -254,17 +338,46 @@ export default function DocumentReviewer({
     const root = rootRef.current;
     if (!root) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.metaKey || e.ctrlKey || e.altKey) return;
       const activeEl = document.activeElement as HTMLElement | null;
-      if (!activeEl || !root.contains(activeEl)) return;
-      if (
-        activeEl.tagName === 'INPUT' ||
-        activeEl.tagName === 'TEXTAREA' ||
-        activeEl.tagName === 'SELECT' ||
-        activeEl.isContentEditable
-      ) {
+      const inField =
+        !!activeEl &&
+        (activeEl.tagName === 'INPUT' ||
+          activeEl.tagName === 'TEXTAREA' ||
+          activeEl.tagName === 'SELECT' ||
+          activeEl.isContentEditable);
+
+      // Cmd/Ctrl+Z, Cmd/Ctrl+Shift+Z — annotation undo/redo. Skip when typing
+      // in a field (the field's native undo wins).
+      if ((e.metaKey || e.ctrlKey) && !e.altKey && (e.key === 'z' || e.key === 'Z')) {
+        if (inField) return;
+        e.preventDefault();
+        if (e.shiftKey) {
+          if (canRedo) redo();
+        } else {
+          if (canUndo) undo();
+        }
         return;
       }
+
+      // Backspace / Delete — remove the currently selected (popover) or
+      // hovered span. Skip when typing in a field or when a ghost selection
+      // is pending (Esc dismisses that first).
+      if (
+        (e.key === 'Backspace' || e.key === 'Delete') &&
+        !inField &&
+        !ghostSelection
+      ) {
+        const target = spanPopover?.key ?? activeSpanKey;
+        if (target) {
+          e.preventDefault();
+          deleteSpanByKeyRef.current(target);
+          return;
+        }
+      }
+
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (!activeEl || !root.contains(activeEl)) return;
+      if (inField) return;
       if ((e.key === 'Enter' || e.key === ' ') && ghostSelection) {
         e.preventDefault();
         addSpanFromGhost();
@@ -289,7 +402,18 @@ export default function DocumentReviewer({
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [activeSpanKey, overlapGroups, groupBySpanKey, ghostSelection, focusGroup]);
+  }, [
+    activeSpanKey,
+    overlapGroups,
+    groupBySpanKey,
+    ghostSelection,
+    focusGroup,
+    canUndo,
+    canRedo,
+    undo,
+    redo,
+    spanPopover,
+  ]);
 
   const seed = effectiveSurrogateSeed(file, dataset);
 
@@ -318,10 +442,46 @@ export default function DocumentReviewer({
               )}
             </div>
           )}
+          <SavedIndicator
+            lastChangeAt={lastChangeAt}
+            isDirty={annotationsDiffer}
+          />
+          <div className="flex items-center gap-0.5 rounded border border-gray-200 bg-white p-0.5">
+            <button
+              type="button"
+              onClick={undo}
+              disabled={!canUndo}
+              className={clsx(
+                'inline-flex items-center rounded px-1.5 py-1 text-xs font-medium',
+                canUndo
+                  ? 'text-gray-700 hover:bg-gray-100'
+                  : 'cursor-not-allowed text-gray-300',
+              )}
+              title="Undo (⌘/Ctrl+Z)"
+              aria-label="Undo last span edit"
+            >
+              <Undo2 size={12} />
+            </button>
+            <button
+              type="button"
+              onClick={redo}
+              disabled={!canRedo}
+              className={clsx(
+                'inline-flex items-center rounded px-1.5 py-1 text-xs font-medium',
+                canRedo
+                  ? 'text-gray-700 hover:bg-gray-100'
+                  : 'cursor-not-allowed text-gray-300',
+              )}
+              title="Redo (⌘/Ctrl+Shift+Z)"
+              aria-label="Redo span edit"
+            >
+              <Redo2 size={12} />
+            </button>
+          </div>
           {annotationsDiffer && (
             <button
               type="button"
-              onClick={handleReset}
+              onClick={() => void handleReset()}
               className="inline-flex items-center gap-1 rounded border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50"
               title="Reset spans to last detection output"
             >
@@ -329,7 +489,48 @@ export default function DocumentReviewer({
               Reset
             </button>
           )}
+          <button
+            type="button"
+            onClick={() => setFileResolved(datasetId, file.id, !file.resolved)}
+            className={clsx(
+              'inline-flex items-center gap-1 rounded border px-3 py-1.5 text-xs font-medium shadow-sm',
+              file.resolved
+                ? 'border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100'
+                : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50',
+            )}
+            title={
+              file.resolved
+                ? 'Resolved — click to mark unresolved (R)'
+                : 'Mark this file resolved (R)'
+            }
+            aria-pressed={file.resolved}
+          >
+            <CheckCircle2
+              size={12}
+              className={file.resolved ? 'text-emerald-600' : 'text-gray-400'}
+            />
+            {file.resolved ? 'Resolved' : 'Mark resolved'}
+          </button>
           <div className="flex items-center gap-1 rounded border border-gray-200 bg-white p-0.5">
+            <button
+              type="button"
+              onClick={() => setShowSpanLabels(!showSpanLabels)}
+              className={clsx(
+                'inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-medium',
+                showSpanLabels
+                  ? 'bg-gray-100 text-gray-800'
+                  : 'text-gray-500 hover:bg-gray-50',
+              )}
+              title={
+                showSpanLabels
+                  ? 'Hide label badges (color underline + hover tooltip stay)'
+                  : 'Show label badges'
+              }
+              aria-pressed={showSpanLabels}
+            >
+              <Tag size={12} className={showSpanLabels ? '' : 'opacity-40'} />
+              Labels
+            </button>
             <button
               type="button"
               onClick={() => setEditorOpen((v) => !v)}
@@ -368,60 +569,51 @@ export default function DocumentReviewer({
             spans={file.annotations}
             activeSpanKey={activeSpanKey}
             flashSpanKey={flashSpanKey}
+            showLabels={showSpanLabels}
             onSpanHover={setActiveSpanKey}
             onSpanClick={(span, key, anchor) => {
+              setConflictPopover(null);
               setSpanPopover({
                 key,
                 span,
-                left: Math.max(8, Math.min(anchor.left, window.innerWidth - 220)),
+                left: Math.max(8, Math.min(anchor.left, window.innerWidth - 240)),
                 top: anchor.bottom + 6,
               });
-              setSpanLabelDraft(span.label);
             }}
-            onUncoveredSelection={(sel) => setGhostSelection(sel)}
+            onUncoveredSelection={(sel, anchor) => {
+              const POPOVER_W = 280;
+              const POPOVER_H_BELOW = 96;
+              const left = Math.max(
+                8,
+                Math.min(anchor.left, window.innerWidth - POPOVER_W - 8),
+              );
+              const fitsBelow =
+                anchor.bottom + POPOVER_H_BELOW + 12 < window.innerHeight;
+              const top = fitsBelow
+                ? anchor.bottom + 6
+                : Math.max(8, anchor.top - POPOVER_H_BELOW - 6);
+              setGhostSelection({ ...sel, left, top });
+            }}
             onClearPendingSelection={() => setGhostSelection(null)}
             pendingGhostRange={ghostSelection}
             pulseRange={pulseRange}
-            onOverlapClick={(spans) => {
+            onOverlapClick={(spans, anchor) => {
               const member = spans[0];
               if (!member) return;
               const group = groupBySpanKey.get(entitySpanKey(member));
               if (!group) return;
+              setSpanPopover(null);
               focusGroup(group);
+              const primary = pickPrimarySpan(group.members);
+              setConflictPopover({
+                groupId: group.id,
+                keptKey: entitySpanKey(primary),
+                left: Math.max(8, Math.min(anchor.left, window.innerWidth - 280)),
+                top: anchor.bottom + 6,
+              });
             }}
             onSpanResize={handleSpanResize}
           />
-          {ghostSelection && (
-            <div className="pointer-events-auto sticky bottom-0 left-0 right-0 mt-3 flex flex-wrap items-center gap-2 rounded border border-amber-200 bg-amber-50/95 px-2 py-2 text-[11px] text-amber-950 shadow-sm">
-              <span className="font-medium">Add as:</span>
-              <select
-                value={addLabel}
-                onChange={(e) => setAddLabel(e.target.value)}
-                className="rounded border border-amber-200 bg-white px-2 py-0.5 text-gray-700"
-              >
-                {CANONICAL_LABELS.map((l) => (
-                  <option key={l} value={l}>
-                    {l}
-                  </option>
-                ))}
-              </select>
-              <button
-                type="button"
-                onClick={addSpanFromGhost}
-                className="inline-flex items-center gap-1 rounded bg-amber-600 px-2 py-0.5 text-white hover:bg-amber-700"
-              >
-                <Plus size={11} />
-                Add span
-              </button>
-              <button
-                type="button"
-                onClick={() => setGhostSelection(null)}
-                className="text-[10px] text-amber-800/80 underline hover:text-amber-950"
-              >
-                Dismiss
-              </button>
-            </div>
-          )}
         </div>
         {editorOpen && (
           <aside
@@ -472,51 +664,260 @@ export default function DocumentReviewer({
         )}
       </div>
 
+      {ghostSelection && (
+        <div
+          ref={ghostPopoverRef}
+          className="fixed z-50 w-[280px] rounded-lg border border-amber-300 bg-amber-50 p-2 shadow-lg"
+          style={{ left: ghostSelection.left, top: ghostSelection.top }}
+          role="dialog"
+          aria-label="Add new span"
+          onMouseDown={(e) => e.stopPropagation()}
+        >
+          <div className="mb-1.5 flex items-baseline justify-between gap-2">
+            <span className="text-[10px] font-semibold uppercase text-amber-800">
+              Add span
+            </span>
+            <span className="text-[9px] text-amber-700/70">
+              [{ghostSelection.start}-{ghostSelection.end}]
+            </span>
+          </div>
+          <div className="mb-2 line-clamp-2 break-all rounded border border-amber-200 bg-white/70 px-1.5 py-1 font-mono text-[10px] text-amber-950">
+            {ghostSelection.text.length > 120
+              ? `${ghostSelection.text.slice(0, 120)}…`
+              : ghostSelection.text}
+          </div>
+          <div className="mb-2">
+            <LabelCombobox
+              value={addLabel}
+              onCommit={(next) => addSpanFromGhost(next)}
+              onCancel={() => setGhostSelection(null)}
+              extraSuggestions={uniqueLabels}
+              autoFocus
+              ariaLabel="Label for new span"
+              placeholder="Type label, then Enter"
+            />
+          </div>
+          <div className="flex items-center justify-between gap-1">
+            <button
+              type="button"
+              onClick={() => setGhostSelection(null)}
+              className="text-[10px] text-amber-800/80 underline hover:text-amber-950"
+            >
+              Cancel (Esc)
+            </button>
+            <button
+              type="button"
+              onClick={() => addSpanFromGhost()}
+              className="inline-flex items-center gap-1 rounded bg-amber-600 px-2 py-1 text-[11px] font-medium text-white hover:bg-amber-700"
+            >
+              <Plus size={11} />
+              Add span
+            </button>
+          </div>
+        </div>
+      )}
+
       {spanPopover && (
         <div
           ref={popoverRef}
-          className="fixed z-50 w-56 rounded-lg border border-gray-200 bg-white p-2 shadow-lg"
+          tabIndex={-1}
+          className="fixed z-50 w-60 rounded-lg border border-gray-200 bg-white p-2 shadow-lg outline-none"
           style={{ left: spanPopover.left, top: spanPopover.top }}
         >
-          <div className="mb-1.5 text-[10px] font-semibold uppercase text-gray-500">Span label</div>
-          <div className="mb-2 text-[9px] leading-snug text-gray-400">
-            [{spanPopover.span.start}-{spanPopover.span.end}]
+          <div className="mb-1.5 flex items-baseline justify-between gap-2">
+            <span className="text-[10px] font-semibold uppercase text-gray-500">
+              Span label
+            </span>
+            <span className="text-[9px] text-gray-400">
+              [{spanPopover.span.start}-{spanPopover.span.end}]
+            </span>
           </div>
-          <input
-            value={spanLabelDraft}
-            onChange={(e) => setSpanLabelDraft(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key !== 'Enter') return;
-              const next = spanLabelDraft.trim();
-              if (!next) return;
-              updateSpanByKey(spanPopover.key, { label: next });
-              setSpanPopover((p) => (p ? { ...p, span: { ...p.span, label: next } } : null));
-            }}
-            className="mb-2 w-full rounded border border-gray-200 px-2 py-1 text-xs text-gray-800"
-            placeholder="Type label"
-            autoFocus
-          />
-          <button
-            type="button"
-            onClick={() => {
-              const next = spanLabelDraft.trim();
-              if (!next) return;
-              updateSpanByKey(spanPopover.key, { label: next });
-              setSpanPopover((p) => (p ? { ...p, span: { ...p.span, label: next } } : null));
-            }}
-            className="mb-1.5 w-full rounded border border-gray-200 bg-gray-50 px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-100"
-          >
-            Apply label
-          </button>
+          <div className="mb-2 truncate text-[11px] font-medium text-gray-800">
+            {spanPopover.span.label}
+          </div>
+          <div className="mb-2">
+            <LabelCombobox
+              value={spanPopover.span.label}
+              onCommit={(next) => {
+                if (next === spanPopover.span.label) {
+                  setSpanPopover(null);
+                  return;
+                }
+                updateSpanByKey(spanPopover.key, { label: next });
+                setSpanPopover((p) =>
+                  p ? { ...p, span: { ...p.span, label: next } } : null,
+                );
+              }}
+              onCancel={() => setSpanPopover(null)}
+              extraSuggestions={uniqueLabels}
+              ariaLabel="Change span label"
+              placeholder="Change label…"
+            />
+          </div>
           <button
             type="button"
             onClick={() => deleteSpanByKey(spanPopover.key)}
             className="w-full rounded border border-red-100 bg-red-50 px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-100"
+            title="Delete span (⌫ / Delete)"
           >
             Delete span
           </button>
         </div>
       )}
+
+      {conflictPopover &&
+        (() => {
+          const group = overlapGroups.find((g) => g.id === conflictPopover.groupId);
+          if (!group) return null;
+          const dropMode = conflictPopover.keptKey === '__drop_all__';
+          const excerpt =
+            group.excerpt.length > 60 ? `${group.excerpt.slice(0, 60)}…` : group.excerpt;
+          return (
+            <div
+              ref={conflictPopoverRef}
+              className="fixed z-50 w-72 rounded-lg border border-amber-200 bg-white p-2 shadow-lg"
+              style={{ left: conflictPopover.left, top: conflictPopover.top }}
+              role="dialog"
+              aria-label="Resolve overlap conflict"
+            >
+              <div className="mb-1.5 flex items-center justify-between">
+                <span className="text-[10px] font-semibold uppercase text-amber-700">
+                  Overlap conflict
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setConflictPopover(null)}
+                  className="rounded p-0.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                  aria-label="Close"
+                >
+                  <X size={12} />
+                </button>
+              </div>
+              <div className="mb-2 font-mono text-[10px] text-gray-700">
+                {excerpt}{' '}
+                <span className="text-gray-400">
+                  [{group.minStart}–{group.maxEnd}]
+                </span>
+              </div>
+              <div className="mb-2 space-y-1">
+                {group.members.map((s) => {
+                  const id = entitySpanKey(s);
+                  return (
+                    <label
+                      key={id}
+                      className="flex cursor-pointer items-start gap-2 text-[11px] text-gray-700"
+                    >
+                      <input
+                        type="radio"
+                        name={`inline-conflict-${group.id}`}
+                        className="mt-0.5"
+                        checked={conflictPopover.keptKey === id}
+                        onChange={() =>
+                          setConflictPopover((p) => (p ? { ...p, keptKey: id } : null))
+                        }
+                      />
+                      <span>
+                        <span className="font-semibold">{s.label}</span>{' '}
+                        <span className="text-gray-500">
+                          [{s.start}–{s.end}]
+                          {s.source && ` · ${s.source}`}
+                        </span>
+                      </span>
+                    </label>
+                  );
+                })}
+                <label className="flex cursor-pointer items-start gap-2 text-[11px] text-gray-700">
+                  <input
+                    type="radio"
+                    name={`inline-conflict-${group.id}`}
+                    className="mt-0.5"
+                    checked={conflictPopover.keptKey === '__drop_all__'}
+                    onChange={() =>
+                      setConflictPopover((p) =>
+                        p ? { ...p, keptKey: '__drop_all__' } : null,
+                      )
+                    }
+                  />
+                  <span className="text-red-700">
+                    <span className="font-semibold">Keep none</span>{' '}
+                    <span className="text-gray-500">(drop every span)</span>
+                  </span>
+                </label>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (dropMode) {
+                    handleResolveGroupDrop(group);
+                  } else if (conflictPopover.keptKey) {
+                    const kept = group.members.find(
+                      (m) => entitySpanKey(m) === conflictPopover.keptKey,
+                    );
+                    if (kept) handleResolveGroupKeep(group, kept);
+                  }
+                  setConflictPopover(null);
+                }}
+                className={clsx(
+                  'inline-flex w-full items-center justify-center gap-1 rounded px-2 py-1.5 text-[11px] font-medium text-white',
+                  dropMode
+                    ? 'bg-red-600 hover:bg-red-700'
+                    : 'bg-amber-600 hover:bg-amber-700',
+                )}
+              >
+                <Check size={12} />
+                {dropMode ? 'Drop spans' : 'Confirm resolution'}
+              </button>
+            </div>
+          );
+        })()}
     </section>
+  );
+}
+
+function SavedIndicator({
+  lastChangeAt,
+  isDirty,
+}: {
+  lastChangeAt: number | null;
+  isDirty: boolean;
+}) {
+  const [, tick] = useState(0);
+  useEffect(() => {
+    if (lastChangeAt == null) return;
+    const id = window.setInterval(() => tick((n) => n + 1), 10000);
+    return () => window.clearInterval(id);
+  }, [lastChangeAt]);
+
+  if (!isDirty && lastChangeAt == null) {
+    return (
+      <span
+        className="inline-flex items-center gap-1 text-[10px] text-gray-400"
+        title="No edits in this session"
+      >
+        <Check size={11} />
+        Saved
+      </span>
+    );
+  }
+
+  if (lastChangeAt == null) return null;
+
+  const ago = Math.max(0, Date.now() - lastChangeAt);
+  const label =
+    ago < 4000
+      ? 'just now'
+      : ago < 60_000
+        ? `${Math.floor(ago / 1000)}s ago`
+        : ago < 3_600_000
+          ? `${Math.floor(ago / 60_000)}m ago`
+          : `${Math.floor(ago / 3_600_000)}h ago`;
+  return (
+    <span
+      className="inline-flex items-center gap-1 text-[10px] text-emerald-700"
+      title="Edits are stored locally — no server save needed"
+    >
+      <Check size={11} />
+      Saved · {label}
+    </span>
   );
 }

@@ -22,6 +22,8 @@ const SHORTCUTS: { keys: string; description: string }[] = [
   { keys: 'N', description: 'Next file whose detection failed' },
   { keys: 'R', description: 'Toggle resolved on the current file' },
   { keys: 'Enter / Space', description: 'Accept selected ghost span in review pane' },
+  { keys: '⌫ / Delete', description: 'Remove the hovered or selected span' },
+  { keys: '⌘/Ctrl+Z', description: 'Undo last span edit (Shift to redo)' },
   { keys: '[ / ]', description: 'Jump to previous / next overlap conflict' },
   { keys: '?', description: 'Show this cheat sheet' },
 ];

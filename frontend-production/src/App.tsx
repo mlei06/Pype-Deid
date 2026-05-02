@@ -10,6 +10,7 @@ import {
   WorkspaceLegacyRedirect,
   SettingsLegacyRedirect,
 } from './components/production/LegacyRedirects';
+import { ConfirmProvider } from './components/shared/ConfirmDialog';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -20,54 +21,50 @@ const queryClient = new QueryClient({
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
-          <Route element={<ProductionShell />}>
-            <Route path="/" element={<Navigate to="/library" replace />} />
-            <Route path="/library" element={<LibraryView />} />
-            <Route path="/audit" element={<AuditView />} />
+      <ConfirmProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route element={<ProductionShell />}>
+              <Route path="/" element={<Navigate to="/library" replace />} />
+              <Route path="/library" element={<LibraryView />} />
+              <Route path="/audit" element={<AuditView />} />
 
-            <Route
-              path="/datasets/:id/files"
-              element={
-                <RequireDatasetParam>
-                  <WorkspaceView />
-                </RequireDatasetParam>
-              }
-            />
-            <Route
-              path="/datasets/:id/detect"
-              element={
-                <Navigate to="../files" replace />
-              }
-            />
-            <Route
-              path="/datasets/:id/review"
-              element={
-                <Navigate to="../files" replace />
-              }
-            />
-            <Route
-              path="/datasets/:id/review/:fileId"
-              element={
-                <Navigate to="../../files" replace />
-              }
-            />
-            <Route
-              path="/datasets/:id/export"
-              element={
-                <RequireDatasetParam>
-                  <SettingsView />
-                </RequireDatasetParam>
-              }
-            />
+              <Route
+                path="/datasets/:id/files"
+                element={
+                  <RequireDatasetParam>
+                    <WorkspaceView />
+                  </RequireDatasetParam>
+                }
+              />
+              <Route
+                path="/datasets/:id/detect"
+                element={<Navigate to="../files" replace />}
+              />
+              <Route
+                path="/datasets/:id/review"
+                element={<Navigate to="../files" replace />}
+              />
+              <Route
+                path="/datasets/:id/review/:fileId"
+                element={<Navigate to="../../files" replace />}
+              />
+              <Route
+                path="/datasets/:id/export"
+                element={
+                  <RequireDatasetParam>
+                    <SettingsView />
+                  </RequireDatasetParam>
+                }
+              />
 
-            <Route path="/workspace" element={<WorkspaceLegacyRedirect />} />
-            <Route path="/settings" element={<SettingsLegacyRedirect />} />
-            <Route path="*" element={<Navigate to="/library" replace />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+              <Route path="/workspace" element={<WorkspaceLegacyRedirect />} />
+              <Route path="/settings" element={<SettingsLegacyRedirect />} />
+              <Route path="*" element={<Navigate to="/library" replace />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </ConfirmProvider>
     </QueryClientProvider>
   );
 }

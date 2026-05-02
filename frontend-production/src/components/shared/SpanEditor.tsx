@@ -11,6 +11,7 @@ import {
   ArrowRightLeft,
 } from 'lucide-react';
 import LabelBadge from './LabelBadge';
+import LabelCombobox from './LabelCombobox';
 import { entitySpanKey } from '../../lib/entitySpanKey';
 import {
   pickPrimarySpan,
@@ -95,6 +96,8 @@ export default function SpanEditor({
     }
     return [...map.entries()].sort(([a], [b]) => a.localeCompare(b));
   }, [spans]);
+
+  const uniqueLabels = useMemo(() => grouped.map(([label]) => label), [grouped]);
 
   const conflictedSpanKeys = useMemo(() => {
     const s = new Set<string>();
@@ -473,28 +476,22 @@ export default function SpanEditor({
                         <span className="hidden min-[360px]:inline">Map group</span>
                       </button>
                       {openMapGroup === label && (
-                        <div className="absolute right-0 top-full z-20 mt-0.5 min-w-[12rem] rounded border border-gray-200 bg-white p-2 shadow-lg">
+                        <div className="absolute right-0 top-full z-20 mt-0.5 min-w-[14rem] rounded border border-gray-200 bg-white p-2 shadow-lg">
                           <div className="mb-1 text-[10px] font-semibold text-gray-500">
                             Map {label} to
                           </div>
-                          <input
+                          <LabelCombobox
                             value={groupLabelDraft}
-                            onChange={(e) => setGroupLabelDraft(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key !== 'Enter') return;
-                              remapGroup(label, groupLabelDraft);
+                            onCommit={(next) => remapGroup(label, next)}
+                            onCancel={() => {
+                              setOpenMapGroup(null);
+                              setGroupLabelDraft('');
                             }}
-                            className="mb-1.5 w-full rounded border border-gray-200 px-2 py-1 text-[10px] text-gray-800"
+                            extraSuggestions={uniqueLabels.filter((l) => l !== label)}
                             placeholder="Type target label"
                             autoFocus
+                            ariaLabel={`Remap ${label} to`}
                           />
-                          <button
-                            type="button"
-                            onClick={() => remapGroup(label, groupLabelDraft)}
-                            className="w-full rounded border border-gray-200 bg-gray-50 px-2 py-1 text-[10px] font-medium text-gray-700 hover:bg-gray-100"
-                          >
-                            Apply
-                          </button>
                         </div>
                       )}
                     </div>
@@ -557,20 +554,18 @@ export default function SpanEditor({
                                 {s.text || originalText.slice(s.start, s.end)}
                               </code>
                               <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover/row:opacity-100 group-focus-within/row:opacity-100">
-                                <input
-                                  defaultValue={s.label}
-                                  onBlur={(e) => {
-                                    const next = e.target.value.trim();
-                                    if (next && next !== s.label) handleLabelChange(key, next);
-                                  }}
-                                  onKeyDown={(e) => {
-                                    if (e.key !== 'Enter') return;
-                                    const next = (e.target as HTMLInputElement).value.trim();
-                                    if (next && next !== s.label) handleLabelChange(key, next);
-                                  }}
-                                  className="max-w-[110px] rounded border border-gray-200 bg-white px-1 py-0.5 text-[9px] text-gray-800"
-                                  title="Type a new label"
-                                />
+                                <div className="w-[120px]">
+                                  <LabelCombobox
+                                    value={s.label}
+                                    onCommit={(next) => {
+                                      if (next !== s.label) handleLabelChange(key, next);
+                                    }}
+                                    extraSuggestions={uniqueLabels}
+                                    size="sm"
+                                    commitOnBlur
+                                    ariaLabel="Span label"
+                                  />
+                                </div>
                                 <button
                                   type="button"
                                   onClick={() => handleDelete(key)}
