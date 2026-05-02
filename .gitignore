@@ -21,18 +21,25 @@ var/*.sqlite-journal
 # All mutable runtime state lives under data/ (see data/README.md).
 data/app.sqlite
 data/app.sqlite-journal
+data/app.sqlite-shm
+data/app.sqlite-wal
 data/raw/*
 !data/raw/.gitkeep
 data/corpora/*
 !data/corpora/.gitkeep
-# Ship a small gold corpus + manifest for demo/docs (see data/README.md)
-!data/corpora/discharge_summaries/
-!data/corpora/discharge_summaries/**
+# Ship small tracked corpora for demo/docs (see data/README.md):
+#   sample_notes              — 15 annotated production-export notes
+#   sample_notes_surrogated   — same notes with synthesized PHI surrogates
+!data/corpora/sample_notes/
+!data/corpora/sample_notes/**
+!data/corpora/sample_notes_surrogated/
+!data/corpora/sample_notes_surrogated/**
 data/evaluations/*
 !data/evaluations/.gitkeep
-!data/evaluations/discharge-summaries__*.json
 data/inference_runs/*
 !data/inference_runs/.gitkeep
+data/batch/
+data/exports/
 # Pipelines and modes.json ship as tracked seed files; ignore anything else
 # operators create at runtime so the working tree stays clean.
 data/pipelines/*
