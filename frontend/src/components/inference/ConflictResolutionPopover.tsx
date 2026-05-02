@@ -1,10 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Loader2, X } from 'lucide-react';
 import { redactDocument } from '../../api/process';
 import type { EntitySpanResponse } from '../../api/types';
 import type { OverlapGroup } from '../../lib/spanOverlapConflicts';
 import LabelBadge from '../shared/LabelBadge';
+
+const FOCUSABLE_SELECTOR =
+  'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 interface ConflictResolutionPopoverProps {
   open: boolean;
@@ -29,6 +32,53 @@ export default function ConflictResolutionPopover({
   const [surrogateSnippets, setSurrogateSnippets] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+
+  // Save the previously-focused element, focus the dialog on open, restore on close.
+  useEffect(() => {
+    if (!open) return;
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    // Defer to next tick so the dialog has mounted.
+    const id = window.setTimeout(() => {
+      const root = dialogRef.current;
+      if (!root) return;
+      const focusables = root.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+      (focusables[0] ?? root).focus();
+    }, 0);
+    return () => {
+      window.clearTimeout(id);
+      previouslyFocused?.focus?.();
+    };
+  }, [open]);
+
+  // Escape closes; Tab cycles within the dialog.
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        onClose();
+        return;
+      }
+      if (e.key !== 'Tab') return;
+      const root = dialogRef.current;
+      if (!root) return;
+      const focusables = Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+      if (e.shiftKey && active === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', handler, true);
+    return () => document.removeEventListener('keydown', handler, true);
+  }, [open, onClose]);
 
   useEffect(() => {
     if (!open || !group) {
@@ -80,9 +130,12 @@ export default function ConflictResolutionPopover({
 
   const body = (
     <div
-      className="fixed z-[100] w-[min(400px,calc(100vw-16px))] rounded-lg border border-amber-200 bg-white p-3 shadow-2xl"
+      ref={dialogRef}
+      tabIndex={-1}
+      className="fixed z-[100] w-[min(400px,calc(100vw-16px))] rounded-lg border border-amber-200 bg-white p-3 shadow-2xl outline-none"
       style={{ left, top }}
       role="dialog"
+      aria-modal="true"
       aria-labelledby="conflict-popover-title"
     >
       <div className="mb-2 flex items-start justify-between gap-2">

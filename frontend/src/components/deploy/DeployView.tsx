@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Loader2, Plus, Trash2, Save, Shield, Rocket } from 'lucide-react';
+import { Loader2, Plus, Trash2, Save, Shield, Rocket, Info } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useDeployConfig, useDeployablePipelines, useUpdateDeployConfig } from '../../hooks/useDeploy';
 import type { DeployConfig } from '../../api/types';
@@ -130,6 +130,28 @@ export default function DeployView() {
             Failed to save: {(updateConfig.error as Error).message}
           </div>
         )}
+
+        {/* Contract callout — what changes here is/isn't safe for clients */}
+        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
+          <div className="flex items-start gap-2">
+            <Info size={16} className="mt-0.5 flex-shrink-0 text-blue-600" />
+            <div className="space-y-2">
+              <p className="font-medium">Modes are the client contract — not pipelines.</p>
+              <p>
+                Clients call <code className="rounded bg-blue-100 px-1 py-0.5 text-xs">POST /process/&lt;mode&gt;</code> with the mode name as the only stable identifier.
+                You can <strong>repoint a mode to a different pipeline</strong> here, or <strong>edit the pipeline JSON</strong> in the Create view, without updating client code.
+                Request and response shape stay the same.
+              </p>
+              <p className="text-xs text-blue-800">
+                What can shift across pipelines: which substrings get marked, the
+                <code className="mx-1 rounded bg-blue-100 px-1 py-0.5">label</code> set,
+                <code className="mx-1 rounded bg-blue-100 px-1 py-0.5">source</code> /
+                <code className="mx-1 rounded bg-blue-100 px-1 py-0.5">confidence</code> on each span, latency, determinism, and cost.
+                If you want a fundamental category change (e.g. introduce LLM-backed inference), prefer adding a new mode over repointing an existing one.
+              </p>
+            </div>
+          </div>
+        </div>
 
         {/* Inference Modes */}
         <section>

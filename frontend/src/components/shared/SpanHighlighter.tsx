@@ -1,4 +1,5 @@
 import {
+  useEffect,
   useMemo,
   useRef,
   useCallback,
@@ -279,7 +280,9 @@ const SpanHighlighter = forwardRef<SpanHighlighterHandle, SpanHighlighterProps>(
     } | null>(null);
 
     const onSpanResizeRef = useRef(onSpanResize);
-    onSpanResizeRef.current = onSpanResize;
+    useEffect(() => {
+      onSpanResizeRef.current = onSpanResize;
+    }, [onSpanResize]);
 
     const beginResize = useCallback(
       (side: 'left' | 'right', span: EntitySpanResponse) => (e: ReactPointerEvent<HTMLSpanElement>) => {

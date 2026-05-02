@@ -376,9 +376,11 @@ export default function InferenceView() {
 
   /** Rotates through overlap groups via ``[`` / ``]``; scrolls + pulses each one. Skips when an editor/menu has focus. */
   const overlapNavIdxRef = useRef(-1);
+  // Reset whenever the group set changes (new result OR span edits regenerate
+  // groups). Keeps `]` semantically "go to the first/next group from here."
   useEffect(() => {
     overlapNavIdxRef.current = -1;
-  }, [result?.request_id, result?.pipeline_name]);
+  }, [overlapGroups]);
   useEffect(() => {
     if (overlapGroups.length === 0) return;
     const onKey = (e: KeyboardEvent) => {
