@@ -43,8 +43,8 @@ All mutable state lives under `data/` and all model weights live under `models/`
 
 | What | Storage | Location |
 |------|---------|----------|
-| Pipelines | JSON files | `data/pipelines/{name}.json` (mutable via UI or on disk). **Shipped examples:** `clinical-fast`, `presidio`, `clinical-transformer`, `clinical-transformer-presidio` (tracked JSON). |
-| Eval results | JSON files | `data/evaluations/{pipeline}_{timestamp}.json` (Playground **Evaluate**, `POST /eval/run`, and **`clinical-deid eval`** — all browsable in the UI via `GET /eval/runs`). **Shipped doc snapshots:** `discharge-summaries__<pipeline>.json` for the tracked `discharge_summaries` corpus; regenerate with `python scripts/emit_discharge_eval_snapshots.py` |
+| Pipelines | JSON files | `data/pipelines/{name}.json` (mutable via UI or on disk). **Shipped examples:** `clinical-fast`, `presidio`, `clinical-transformer`, `clinical-transformer-presidio`, `clinical-llm`, `clinical-llm-presidio`, `clinical-ensemble` (tracked JSON). |
+| Eval results | JSON files | `data/evaluations/{pipeline}_{timestamp}.json` (Playground **Evaluate**, `POST /eval/run`, and **`clinical-deid eval`** — all browsable in the UI via `GET /eval/runs`) |
 | Inference runs | JSON files | `data/inference_runs/{pipeline}_{timestamp}.json` |
 | Models | Directories | `models/{framework}/{name}/` |
 | Datasets | JSONL under corpora | `data/corpora/{name}/corpus.jsonl` + `dataset.json` (cached analytics). BRAT is ingest/export only — not stored as the canonical corpus layout |

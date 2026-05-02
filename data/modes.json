@@ -2,19 +2,31 @@
   "modes": {
     "fast": {
       "pipeline": "clinical-fast",
-      "description": "Shipped: regex_ner, whitelist, blacklist, resolve (no ML)"
+      "description": "Shipped: regex + whitelist + blacklist (no ML, ~10 ms)"
     },
     "presidio": {
       "pipeline": "presidio",
-      "description": "Shipped: presidio_ner (spaCy large) + regex_ner (skip_overlapping)"
+      "description": "Shipped: Presidio (spaCy large) + regex + whitelist + blacklist"
     },
     "transformer": {
       "pipeline": "clinical-transformer",
-      "description": "Shipped: regex + whitelist + HF mimic-clinicalbert-sentence + resolve"
+      "description": "Shipped: regex + whitelist + blacklist + HF mimic-clinicalbert-sentence"
     },
     "transformer_presidio": {
       "pipeline": "clinical-transformer-presidio",
-      "description": "Shipped: regex + HF + presidio (double stack; needs spaCy + HF weights)"
+      "description": "Shipped: regex + whitelist + blacklist + HF + Presidio"
+    },
+    "llm": {
+      "pipeline": "clinical-llm",
+      "description": "Shipped: regex + whitelist + blacklist + LLM (gpt-4o-mini). Requires OPENAI_API_KEY."
+    },
+    "llm_presidio": {
+      "pipeline": "clinical-llm-presidio",
+      "description": "Shipped: regex + whitelist + blacklist + Presidio (spaCy small) + LLM. CPU-only. Requires OPENAI_API_KEY."
+    },
+    "ensemble": {
+      "pipeline": "clinical-ensemble",
+      "description": "Shipped: regex + whitelist + blacklist + Presidio + HF + LLM, longest-non-overlapping resolve. Highest recall, slow + expensive."
     }
   },
   "default_mode": "fast"

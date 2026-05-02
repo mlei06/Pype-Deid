@@ -1,21 +1,11 @@
 {
   "pipes": [
     {
-      "type": "presidio_ner",
-      "config": {
-        "model": "spacy/en_core_web_lg",
-        "entities": null,
-        "language": "en",
-        "source_name": "presidio_ner",
-        "skip_overlapping": false
-      }
-    },
-    {
       "type": "regex_ner",
       "config": {
         "source_name": "regex_ner",
         "pattern_pack": "clinical_phi",
-        "skip_overlapping": true,
+        "skip_overlapping": false,
         "labels": {
           "ADDRESS": {
             "enabled": true,
@@ -93,6 +83,26 @@
       }
     },
     {
+      "type": "llm_ner",
+      "config": {
+        "model": "gpt-4o-mini",
+        "temperature": 0.0,
+        "reasoning_effort": "low",
+        "labels": [
+          "AGE",
+          "DATE",
+          "EMAIL",
+          "ID",
+          "LOCATION",
+          "NAME",
+          "ORGANIZATION",
+          "PHONE"
+        ],
+        "source_name": "llm_ner",
+        "skip_overlapping": true
+      }
+    },
+    {
       "type": "label_mapper",
       "config": {
         "mapping": {
@@ -142,7 +152,7 @@
       }
     }
   ],
-  "description": "Presidio — regex + Presidio (spaCy en_core_web_lg) + whitelist + blacklist. Canonical 8-label output via label_mapper.",
+  "description": "Clinical LLM — regex + whitelist + blacklist + LLM (gpt-4o-mini). Cheap deterministic pipes catch structured PHI; LLM only carries narrative context. Requires OPENAI_API_KEY.",
   "output_label_space": [
     "AGE",
     "DATE",

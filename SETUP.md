@@ -98,19 +98,13 @@ VITE_API_KEY=your-key-here
 
 ## Demo Assets (what ships in git)
 
-**Pipelines and modes** — the repo **tracks** these JSON files under `data/pipelines/`: `clinical-fast`, `presidio`, `clinical-transformer`, and `clinical-transformer-presidio` (name = file stem). `data/modes.json` seeds four inference **modes** that point at those pipelines (`default_mode` is `fast` → `clinical-fast`).
+**Pipelines and modes** — the repo **tracks** these JSON files under `data/pipelines/`: `clinical-fast`, `presidio`, `clinical-transformer`, `clinical-transformer-presidio`, `clinical-llm`, `clinical-llm-presidio`, and `clinical-ensemble` (name = file stem). `data/modes.json` seeds seven inference **modes** that point at those pipelines (`default_mode` is `fast` → `clinical-fast`).
 
-**Gold corpus — `data/corpora/discharge_summaries/`** — seven clinical-text snippets with span annotations, produced in the **Production UI (consumer)**: review/export to JSONL, then registered as a dataset. This is the default teaching / regression corpus referenced in the main [README](README.md#evaluation).
+**Gold corpora — `data/corpora/sample_notes/` and `data/corpora/sample_notes_surrogated/`** — 15 clinical-text notes with span annotations each, produced in the **Production UI (consumer)**: review/export to JSONL, then registered as a dataset. `sample_notes` carries the original PHI; `sample_notes_surrogated` is the same notes with synthesized surrogates (Faker-backed) replacing every span. Both are the default teaching / regression corpora referenced from the main [README](README.md#evaluation).
 
-**Eval snapshots** — `data/evaluations/discharge-summaries__<pipeline>.json` store strict and risk-weighted metrics for each shipped pipeline on that corpus. Recompute after changing a pipeline or the corpus:
+The base install already covers Presidio + HuggingFace inference. For the transformer pipelines you also need a HuggingFace checkpoint under `models/huggingface/mimic-clinicalbert-sentence`.
 
-```bash
-python scripts/emit_discharge_eval_snapshots.py
-```
-
-(The base install already covers Presidio + HuggingFace inference. For the transformer graphs you also need a HuggingFace checkpoint under `models/huggingface/mimic-clinicalbert-sentence`.)
-
-**Optional large download (not in git)** — A separate **mimic-10k** gold archive (models + 10k-note corpus) can still be used for large-scale work. `clinical-transformer` was developed against that style of data; the discharge set above is small and hand-curated for docs and quick CI-style checks. Extract from the following when you have the file:
+**Optional large download (not in git)** — A separate **mimic-10k** gold archive (models + 10k-note corpus) can still be used for large-scale work. `clinical-transformer` was developed against that style of data; the sample notes above are small and hand-curated for docs and quick CI-style checks. Extract from the following when you have the file:
 
 > **Google Drive:** <https://drive.google.com/file/d/1eGIWtsfSvdfTJ-iCAj7V4WapZZt00pwk/view?usp=sharing>
 

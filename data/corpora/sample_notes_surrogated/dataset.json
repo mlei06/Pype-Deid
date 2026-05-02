@@ -1,0 +1,119 @@
+{
+  "name": "sample_notes_surrogated",
+  "schema_version": 2,
+  "layout": "colocated",
+  "format": "jsonl",
+  "description": "Production export: Sample Notes (surrogate_annotated)",
+  "document_count": 15,
+  "total_spans": 331,
+  "labels": [
+    "AGE",
+    "DATE",
+    "EMAIL",
+    "HOSPITAL",
+    "ID",
+    "LOCATION",
+    "NAME",
+    "ORGANIZATION",
+    "PHONE"
+  ],
+  "analytics": {
+    "document_count": 15,
+    "total_spans": 331,
+    "unique_label_count": 9,
+    "label_counts": {
+      "NAME": 92,
+      "DATE": 83,
+      "LOCATION": 40,
+      "ORGANIZATION": 33,
+      "PHONE": 30,
+      "AGE": 23,
+      "ID": 21,
+      "EMAIL": 8,
+      "HOSPITAL": 1
+    },
+    "character_length": {
+      "mean": 1507.0667,
+      "min": 1077.0,
+      "max": 2252.0,
+      "std": 349.6922
+    },
+    "token_count_estimate": {
+      "mean": 222.4667,
+      "min": 137.0,
+      "max": 329.0,
+      "std": 53.6415
+    },
+    "spans_per_document": {
+      "mean": 22.0667,
+      "min": 14.0,
+      "max": 34.0,
+      "std": 5.7255
+    },
+    "documents_by_span_count": {
+      "14": 1,
+      "16": 1,
+      "17": 2,
+      "19": 1,
+      "20": 2,
+      "21+": 8
+    },
+    "span_character_length": {
+      "mean": 13.0514,
+      "min": 2.0,
+      "max": 32.0,
+      "std": 6.2934
+    },
+    "span_length_histogram": {
+      "11-20": 163,
+      "1-10": 126,
+      "21-50": 42
+    },
+    "documents_with_overlapping_spans": 0,
+    "overlapping_span_pairs": 0,
+    "label_cooccurrence": {
+      "DATE|ID": 15,
+      "DATE|LOCATION": 15,
+      "DATE|NAME": 15,
+      "DATE|ORGANIZATION": 15,
+      "DATE|PHONE": 15,
+      "ID|LOCATION": 15,
+      "ID|NAME": 15,
+      "ID|ORGANIZATION": 15,
+      "ID|PHONE": 15,
+      "LOCATION|NAME": 15,
+      "LOCATION|ORGANIZATION": 15,
+      "LOCATION|PHONE": 15,
+      "NAME|ORGANIZATION": 15,
+      "NAME|PHONE": 15,
+      "ORGANIZATION|PHONE": 15,
+      "AGE|DATE": 12,
+      "AGE|ID": 12,
+      "AGE|LOCATION": 12,
+      "AGE|NAME": 12,
+      "AGE|ORGANIZATION": 12,
+      "AGE|PHONE": 12,
+      "AGE|EMAIL": 6,
+      "DATE|EMAIL": 6,
+      "EMAIL|ID": 6,
+      "EMAIL|LOCATION": 6,
+      "EMAIL|NAME": 6,
+      "EMAIL|ORGANIZATION": 6,
+      "EMAIL|PHONE": 6,
+      "AGE|HOSPITAL": 1,
+      "DATE|HOSPITAL": 1,
+      "EMAIL|HOSPITAL": 1,
+      "HOSPITAL|ID": 1,
+      "HOSPITAL|LOCATION": 1,
+      "HOSPITAL|NAME": 1,
+      "HOSPITAL|ORGANIZATION": 1,
+      "HOSPITAL|PHONE": 1
+    }
+  },
+  "split_document_counts": {
+    "(none)": 15
+  },
+  "has_split_metadata": false,
+  "metadata": {},
+  "created_at": "2026-05-02T21:52:42.811121+00:00"
+}

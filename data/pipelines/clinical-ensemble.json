@@ -1,21 +1,11 @@
 {
   "pipes": [
     {
-      "type": "presidio_ner",
-      "config": {
-        "model": "spacy/en_core_web_lg",
-        "entities": null,
-        "language": "en",
-        "source_name": "presidio_ner",
-        "skip_overlapping": false
-      }
-    },
-    {
       "type": "regex_ner",
       "config": {
         "source_name": "regex_ner",
         "pattern_pack": "clinical_phi",
-        "skip_overlapping": true,
+        "skip_overlapping": false,
         "labels": {
           "ADDRESS": {
             "enabled": true,
@@ -93,6 +83,51 @@
       }
     },
     {
+      "type": "presidio_ner",
+      "config": {
+        "model": "spacy/en_core_web_lg",
+        "entities": null,
+        "language": "en",
+        "source_name": "presidio_ner",
+        "skip_overlapping": false
+      }
+    },
+    {
+      "type": "huggingface_ner",
+      "config": {
+        "model": "mimic-clinicalbert-sentence",
+        "segmentation": "auto",
+        "source_name": "huggingface_ner",
+        "skip_overlapping": false
+      }
+    },
+    {
+      "type": "llm_ner",
+      "config": {
+        "model": "gpt-4o-mini",
+        "temperature": 0.0,
+        "reasoning_effort": "low",
+        "labels": [
+          "AGE",
+          "DATE",
+          "EMAIL",
+          "ID",
+          "LOCATION",
+          "NAME",
+          "ORGANIZATION",
+          "PHONE"
+        ],
+        "source_name": "llm_ner",
+        "skip_overlapping": false
+      }
+    },
+    {
+      "type": "resolve_spans",
+      "config": {
+        "strategy": "longest_non_overlapping"
+      }
+    },
+    {
       "type": "label_mapper",
       "config": {
         "mapping": {
@@ -142,7 +177,7 @@
       }
     }
   ],
-  "description": "Presidio — regex + Presidio (spaCy en_core_web_lg) + whitelist + blacklist. Canonical 8-label output via label_mapper.",
+  "description": "Clinical Ensemble — regex + whitelist + blacklist + Presidio + HuggingFace + LLM, with longest-non-overlapping conflict resolution. Highest-recall baseline (slow, expensive, requires OPENAI_API_KEY + HF model).",
   "output_label_space": [
     "AGE",
     "DATE",

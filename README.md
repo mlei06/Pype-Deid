@@ -11,9 +11,9 @@ Ships with a **clinical de-identification pack** (HIPAA Safe Harbor label space,
 - **Playground UI** ([`frontend/`](./frontend/)) — admin-oriented web app: **visual pipeline builder**, **single-document** inference with span editing and trace, **evaluation** (metrics, confusion matrix, run comparison), **dataset** registry and transforms, **dictionaries**, **Deploy** (modes / allowlist), and **audit** viewer. Dev server: `http://localhost:3000` (see [Web UIs](#web-uis-playground-vs-production-app) below and [docs/ui.md](docs/ui.md)).
 - **Production UI** ([`frontend-production/`](./frontend-production/)) — inference-scoped app for **batch** work over a corpus: local dataset library, per-file review, redacted/surrogate **export**; uses deploy **modes** from `data/modes.json`. Dev server: `http://localhost:3001`. Same API as the Playground, narrower key. Details: [Web UIs](#web-uis-playground-vs-production-app), [docs/ui.md](docs/ui.md).
 - 11 pipe types: `regex_ner`, `whitelist`, `blacklist`, `presidio_ner`, `huggingface_ner`, `neuroner_ner`, `llm_ner`, `label_mapper`, `label_filter`, `resolve_spans`, `consistency_propagator`
-- **Shipped example pipelines** (under `data/pipelines/`, name = filename stem): `clinical-fast`, `presidio`, `clinical-transformer`, `clinical-transformer-presidio` — plus seed **inference modes** in `data/modes.json` (`fast` → `clinical-fast` by default)
-- Evaluation: 4 matching modes (strict, partial, token-level, boundary), per-label breakdown, risk-weighted recall, HIPAA Safe Harbor coverage report, confusion matrix
-- **Shipped eval snapshots** for the `discharge_summaries` gold set (`data/evaluations/discharge-summaries__*.json`); refresh with `python scripts/emit_discharge_eval_snapshots.py` after changing pipelines or the corpus
+- **Shipped example pipelines** (under `data/pipelines/`, name = filename stem): `clinical-fast`, `presidio`, `clinical-transformer`, `clinical-transformer-presidio`, `clinical-llm`, `clinical-llm-presidio`, `clinical-ensemble` — plus seed **inference modes** in `data/modes.json` (`fast` → `clinical-fast` by default)
+- Evaluation: 4 matching modes (strict, partial, token-level, boundary), macro + micro averages, per-label breakdown, risk-weighted recall, HIPAA Safe Harbor coverage report, confusion matrix
+- **Tracked teaching corpora** under `data/corpora/`: `sample_notes` (15 annotated production-export notes) and `sample_notes_surrogated` (same notes with synthesized PHI surrogates)
 - Dataset tools: JSONL/BRAT import, compose, transform, LLM synthesis, export to CoNLL/spaCy/HuggingFace/BRAT
 - **CLI and HTTP API** — same features as the UIs for scripting and automation (see [CLI](#cli) and [docs/api.md](docs/api.md))
 - HuggingFace fine-tuning pipeline (`clinical-deid train run`)
@@ -47,7 +47,7 @@ https://youtu.be/iKYWic1IqJQ
 Three concepts overlap in name but are stored differently:
 
 1. **CLI `--profile`** (`src/clinical_deid/profiles.py`) — in-memory configs **`fast`**, **`balanced`**, **`accurate`** (regex-only → +Presidio → +consistency/resolve). Default for `clinical-deid run|batch|eval` is **`balanced`** when you don’t pass `--pipeline` or `--config`.
-2. **Saved pipeline JSON** (`data/pipelines/<name>.json`) — the repo ships **`clinical-fast`**, **`presidio`**, **`clinical-transformer`**, and **`clinical-transformer-presidio`** (name = file stem). Use **`--pipeline <name>`** or pick them in the Playground.
+2. **Saved pipeline JSON** (`data/pipelines/<name>.json`) — the repo ships **`clinical-fast`**, **`presidio`**, **`clinical-transformer`**, **`clinical-transformer-presidio`**, **`clinical-llm`**, **`clinical-llm-presidio`**, and **`clinical-ensemble`** (name = file stem). Use **`--pipeline <name>`** or pick them in the Playground.
 3. **Deploy mode aliases** (`data/modes.json`) — map a short **mode** string to a saved pipeline for **`POST /process/<mode>`** and the Production UIs. Seeded defaults:
 
 | Mode alias | Resolves to pipeline | Notes |
@@ -56,6 +56,9 @@ Three concepts overlap in name but are stored differently:
 | `presidio` | `presidio` | Presidio + regex stack |
 | `transformer` | `clinical-transformer` | Needs HF weights under `models/huggingface/` |
 | `transformer_presidio` | `clinical-transformer-presidio` | HF + Presidio + spaCy deps |
+| `llm` | `clinical-llm` | Regex/whitelist/blacklist + LLM (gpt-4o-mini); needs `OPENAI_API_KEY` |
+| `llm_presidio` | `clinical-llm-presidio` | Adds Presidio (spaCy small) under the LLM stack; CPU-only |
+| `ensemble` | `clinical-ensemble` | Regex + Presidio + HF + LLM, longest-non-overlapping resolve. Highest recall, slow + expensive. |
 
 **CLI profile** quick reference (when using `--profile`, not `--pipeline`):
 
@@ -69,32 +72,24 @@ Four evaluation modes supported: **strict** (exact span + label), **exact bounda
 
 ```bash
 # Evaluate a saved pipeline against a gold JSONL corpus
-clinical-deid eval --corpus data/corpora/discharge_summaries/corpus.jsonl --pipeline clinical-fast
+clinical-deid eval --corpus data/corpora/sample_notes/corpus.jsonl --pipeline clinical-fast
 
 # Or use a CLI profile (default profile is balanced)
-clinical-deid eval --corpus data/corpora/discharge_summaries/corpus.jsonl --profile fast
+clinical-deid eval --corpus data/corpora/sample_notes/corpus.jsonl --profile fast
 ```
 
-**Demo gold set — `discharge_summaries`:** seven short clinical snippets with span **gold labels** in `corpus.jsonl` (layered surrogate / model metadata on some lines under `document.metadata` from the **Production UI** export flow), plus cached stats in `dataset.json`. The repo **tracks** that corpus so Evaluate and the CLI use the same files.
+**Tracked teaching corpora** (under `data/corpora/`):
 
-Strict micro-F1, precision, recall, and risk-weighted recall (RWR) on that corpus, for each **shipped** pipeline. Run snapshots are tracked under `data/evaluations/` — regenerate after edits with `python scripts/emit_discharge_eval_snapshots.py` (see [data/README.md](data/README.md)):
+- **`sample_notes`** — 15 production-export clinical notes with span gold labels in `corpus.jsonl` (plus cached stats in `dataset.json`). 331 spans across the canonical 8-label space. Use this for evaluation.
+- **`sample_notes_surrogated`** — same 15 notes with every PHI span replaced by Faker-backed surrogates. Useful for inspecting the surrogate output mode and as a non-PHI demo corpus.
 
-| Pipeline | Precision | Recall | Strict F1 | Risk-weighted recall |
-|----------|----------:|-------:|----------:|---------------------:|
-| `clinical-fast` | 0.74 | 0.30 | 0.43 | 0.26 |
-| `presidio` | 0.36 | 0.55 | 0.44 | 0.60 |
-| `clinical-transformer` | 0.65 | 0.75 | **0.69** | **0.79** |
-| `clinical-transformer-presidio` | 0.43 | 0.75 | 0.55 | 0.79 |
+Both ship in git so Evaluate and the CLI work out of the box.
 
-**Key takeaways from these runs:** `clinical-fast` (regex + whitelist) has the highest precision but misses names entirely — it catches 0 of 22 NAME spans since regex cannot generalize to unseen proper nouns. Adding Presidio (`presidio` pipeline) recovers name recall but at high cost: 55 false positives vs 6, and DATE precision collapses to 0.37 due to over-firing. The `clinical-transformer` HuggingFace model gives the best overall result — NAME F1 jumps to 0.89, LOCATION to 0.89, and HOSPITAL to 1.0. Combining transformer with Presidio (`clinical-transformer-presidio`) does **not** improve recall (stays 0.75) but doubles false positives, confirming that Presidio adds noise rather than coverage on top of a trained NER model. AGE (4 gold spans) is missed by every pipeline — a shared blind spot across regex patterns, Presidio, and the current HF model.
-
-Full per-label breakdowns and confusion matrices: `data/evaluations/<pipeline>_<timestamp>.json`. **Regenerate:** `python scripts/emit_discharge_eval_snapshots.py` (requires the same optional extras you use to load each pipeline, e.g. Presidio + spaCy + HF weights).
-
-**Where eval results are stored:** Every run from **Playground → Evaluate** or **`POST /eval/run`**, and every **`clinical-deid eval`**, writes a JSON file under **`data/evaluations/`** (default; override with `CLINICAL_DEID_EVALUATIONS_DIR`). Files are named **`{pipeline_name}_{YYYYMMDD_HHMMSS}.json`** (UTC). The **Evaluate** view lists and opens past runs from that folder via `GET /eval/runs` — so CLI and UI runs share the same history. Tracked `discharge-summaries__<pipeline>.json` files in the same directory are precomputed **snapshots** for docs (see [data/README.md](data/README.md)).
+**Where eval results are stored:** Every run from **Playground → Evaluate** or **`POST /eval/run`**, and every **`clinical-deid eval`**, writes a JSON file under **`data/evaluations/`** (default; override with `CLINICAL_DEID_EVALUATIONS_DIR`). Files are named **`{pipeline_name}_{YYYYMMDD_HHMMSS}.json`** (UTC). The **Evaluate** view lists and opens past runs from that folder via `GET /eval/runs` — so CLI and UI runs share the same history.
 
 > The same eval can be run from **Playground → Evaluate** or the CLI; HTTP details are in [docs/api.md](docs/api.md).
 
-**Larger benchmark — mimic-10k (optional download):** MIMIC-III clinical notes ship with PHI already redacted (replaced by `[** ... **]` placeholders) but with **no span annotations**, so they cannot be used for evaluation directly. For a large-scale labeled set, synthetic PHI was reinjected at those positions using the surrogate pipeline (see [SETUP.md](SETUP.md)). That optional archive is **not** in git; the discharge set above is the repo-default teaching corpus.
+**Larger benchmark — mimic-10k (optional download):** MIMIC-III clinical notes ship with PHI already redacted (replaced by `[** ... **]` placeholders) but with **no span annotations**, so they cannot be used for evaluation directly. For a large-scale labeled set, synthetic PHI was reinjected at those positions using the surrogate pipeline (see [SETUP.md](SETUP.md)). That optional archive is **not** in git; the sample notes above are the repo-default teaching corpus.
 
 ---
 

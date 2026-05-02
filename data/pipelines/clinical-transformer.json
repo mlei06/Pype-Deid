@@ -90,18 +90,66 @@
         "source_name": "huggingface_ner",
         "skip_overlapping": false
       }
+    },
+    {
+      "type": "label_mapper",
+      "config": {
+        "mapping": {
+          "PERSON": "NAME",
+          "PER": "NAME",
+          "PATIENT": "NAME",
+          "DOCTOR": "NAME",
+          "STAFF": "NAME",
+          "HCW": "NAME",
+          "DATE_TIME": "DATE",
+          "TIME": "DATE",
+          "PHONE_NUMBER": "PHONE",
+          "EMAIL_ADDRESS": "EMAIL",
+          "IP_ADDRESS": "ID",
+          "US_SSN": "ID",
+          "SSN": "ID",
+          "MRN": "ID",
+          "MEDICAL_LICENSE": "ID",
+          "US_DRIVER_LICENSE": "ID",
+          "US_PASSPORT": "ID",
+          "US_BANK_NUMBER": "ID",
+          "CREDIT_CARD": "ID",
+          "IBAN_CODE": "ID",
+          "US_ITIN": "ID",
+          "US_NPI": "ID",
+          "US_DEA": "ID",
+          "US_MBI": "ID",
+          "UK_NHS": "ID",
+          "FACILITY": "ORGANIZATION",
+          "FAC": "ORGANIZATION",
+          "HOSP": "ORGANIZATION",
+          "HOSPITAL": "ORGANIZATION",
+          "PATORG": "ORGANIZATION",
+          "ORG": "ORGANIZATION",
+          "GPE": "LOCATION",
+          "LOC": "LOCATION",
+          "ADDRESS": "LOCATION",
+          "URL": null,
+          "CRYPTO": null,
+          "NRP": null,
+          "NORP": null,
+          "PROFESSION": null,
+          "CONTACT": null,
+          "OTHERPHI": null
+        },
+        "drop_unmapped": false
+      }
     }
   ],
-  "description": "Clinical Transformer \u2014 regex + whitelist + blacklist + HuggingFace NER",
+  "description": "Clinical Transformer — regex + whitelist + blacklist + HuggingFace NER (mimic-clinicalbert-sentence). Canonical 8-label output via label_mapper.",
   "output_label_space": [
     "AGE",
     "DATE",
     "EMAIL",
-    "ORGANIZATION",
     "ID",
     "LOCATION",
     "NAME",
+    "ORGANIZATION",
     "PHONE"
-  ],
-  "output_label_space_updated_at": "2026-04-25T19:03:31.583111+00:00"
+  ]
 }
