@@ -10,7 +10,7 @@
     },
     "transformer": {
       "pipeline": "clinical-transformer",
-      "description": "Shipped: regex + whitelist + blacklist + HF mimic-clinicalbert-sentence"
+      "description": "Shipped: regex + whitelist + blacklist + HF openai-privacy-filter"
     },
     "transformer_presidio": {
       "pipeline": "clinical-transformer-presidio",

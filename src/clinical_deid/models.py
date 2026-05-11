@@ -36,6 +36,13 @@ class ModelInfo:
     has_crf: bool = False
     training_config: dict[str, Any] | None = None
     training_meta: dict[str, Any] = field(default_factory=dict)
+    # Optional per-model raw→canonical label map. Models that already emit
+    # canonical PHI labels (e.g. trained clinical checkpoints) leave this empty;
+    # models with a foreign label taxonomy (e.g. openai-privacy-filter's
+    # ``private_person``/``private_email``/...) declare the canonical projection
+    # here so the pipe doesn't depend on every consumer remembering to populate
+    # ``entity_map`` in the pipeline JSON.
+    default_entity_map: dict[str, str] = field(default_factory=dict)
 
 
 def _load_manifest(manifest_path: Path) -> ModelInfo:
@@ -82,6 +89,7 @@ def _load_manifest(manifest_path: Path) -> ModelInfo:
         has_crf=raw.get("has_crf", False),
         training_config=raw.get("training_config"),
         training_meta=raw.get("training", {}),
+        default_entity_map=dict(raw.get("default_entity_map") or {}),
     )
 
 

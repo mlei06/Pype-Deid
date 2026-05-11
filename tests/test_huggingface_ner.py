@@ -126,6 +126,7 @@ def test_label_space_bundle_empty_registry(tmp_path, monkeypatch):
     bundle = build_huggingface_label_space_bundle()
     assert bundle == {
         "labels_by_model": {},
+        "entity_maps_by_model": {},
         "default_entity_map": {},
         "default_model": "",
         "model_info": {},

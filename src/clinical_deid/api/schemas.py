@@ -349,6 +349,13 @@ class LabelSpaceBundle(BaseModel):
     default_entity_map: dict[str, str] = Field(
         description="Default raw/entity → canonical PHI map (merged with config.entity_map on the client).",
     )
+    entity_maps_by_model: dict[str, dict[str, str]] = Field(
+        default_factory=dict,
+        description=(
+            "Per-model raw/entity → canonical PHI maps from each model's manifest. Preferred over the "
+            "legacy global ``default_entity_map`` when present for the selected model."
+        ),
+    )
     default_model: str = Field(description="Default ``model`` when the pipe config omits it.")
     model_info: dict[str, dict[str, Any]] = Field(
         default_factory=dict,

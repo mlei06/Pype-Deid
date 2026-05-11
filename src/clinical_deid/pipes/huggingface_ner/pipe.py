@@ -89,10 +89,12 @@ def build_huggingface_label_space_bundle() -> dict[str, Any]:
     from clinical_deid.models import list_models
 
     labels_by_model: dict[str, list[str]] = {}
+    entity_maps_by_model: dict[str, dict[str, str]] = {}
     model_info: dict[str, dict[str, Any]] = {}
     default_model = ""
     for info in list_models(get_settings().models_dir, framework="huggingface"):
         labels_by_model[info.name] = sorted(info.labels)
+        entity_maps_by_model[info.name] = dict(info.default_entity_map)
         if not default_model:
             default_model = info.name
 
@@ -106,9 +108,15 @@ def build_huggingface_label_space_bundle() -> dict[str, Any]:
             "train_documents": meta.get("train_documents"),
             "trained_at": meta.get("trained_at"),
         }
+    # ``default_entity_map`` is kept as a single dict for back-compat with
+    # older frontends; it carries the default model's manifest map so the
+    # legacy global merge in ``useLabelSpace`` still produces canonical
+    # labels for the initial selection.
+    legacy_default = dict(entity_maps_by_model.get(default_model) or DEFAULT_ENTITY_MAP)
     return {
         "labels_by_model": labels_by_model,
-        "default_entity_map": dict(DEFAULT_ENTITY_MAP),
+        "entity_maps_by_model": entity_maps_by_model,
+        "default_entity_map": legacy_default,
         "default_model": default_model,
         "model_info": model_info,
     }
@@ -440,6 +448,7 @@ class HuggingfaceNerPipe(ConfigurablePipe):
         self._manifest_labels: list[str] = []
         self._segmentation: str = "truncate"
         self._max_tokens: int = 512
+        self._manifest_entity_map: dict[str, str] = {}
 
     def _resolve_model(self) -> tuple[Path, dict[str, Any]]:
         from clinical_deid.config import get_settings
@@ -473,6 +482,7 @@ class HuggingfaceNerPipe(ConfigurablePipe):
         return info.path, {
             "labels": info.labels,
             "trained_segmentation": info.training_meta.get("segmentation"),
+            "default_entity_map": dict(info.default_entity_map),
         }
 
     def _ensure_loaded(self) -> None:
@@ -480,6 +490,7 @@ class HuggingfaceNerPipe(ConfigurablePipe):
             return
         model_path, manifest = self._resolve_model()
         self._manifest_labels = list(manifest.get("labels") or [])
+        self._manifest_entity_map = dict(manifest.get("default_entity_map") or {})
         self._segmentation = _resolve_segmentation_mode(
             self._config.segmentation,
             manifest.get("trained_segmentation"),
@@ -487,6 +498,16 @@ class HuggingfaceNerPipe(ConfigurablePipe):
         )
         self._pipeline = _load_pipeline(model_path, _resolve_device_index())
         self._max_tokens = int(self._pipeline.tokenizer.model_max_length or 512)
+
+    def _effective_entity_map(self) -> dict[str, str]:
+        """Manifest defaults overridden by the pipeline JSON's ``entity_map``.
+
+        Lets a model that emits a foreign label taxonomy (e.g. openai-privacy-filter's
+        ``private_person`` / ``private_email`` / ...) project to canonical PHI labels
+        without every pipeline JSON having to repeat the mapping. Explicit overrides
+        in the pipeline config still win.
+        """
+        return {**self._manifest_entity_map, **self._config.entity_map}
 
     @property
     def base_labels(self) -> set[str]:
@@ -496,13 +517,16 @@ class HuggingfaceNerPipe(ConfigurablePipe):
         ``build_huggingface_label_space_bundle`` so the UI stays in sync.
         """
         if self._manifest_labels:
-            return {self._config.entity_map.get(lbl, lbl) for lbl in self._manifest_labels}
+            effective = self._effective_entity_map()
+            return {effective.get(lbl, lbl) for lbl in self._manifest_labels}
         try:
             _, manifest = self._resolve_model()
         except Exception:
             return set()
         labels = manifest.get("labels") or []
-        return {self._config.entity_map.get(lbl, lbl) for lbl in labels}
+        manifest_map = dict(manifest.get("default_entity_map") or {})
+        effective = {**manifest_map, **self._config.entity_map}
+        return {effective.get(lbl, lbl) for lbl in labels}
 
     @property
     def label_mapping(self) -> dict[str, str | None]:
@@ -519,18 +543,19 @@ class HuggingfaceNerPipe(ConfigurablePipe):
 
         self._ensure_loaded()
         source = f"{self._config.source_name}:{self._config.model}"
+        entity_map = self._effective_entity_map()
 
         if self._segmentation == "sentence":
             found = _predict_by_sentence(
-                self._pipeline, text, source, self._config.entity_map
+                self._pipeline, text, source, entity_map
             )
         elif self._segmentation == "chunk":
             found = _predict_by_chunks(
-                self._pipeline, text, source, self._config.entity_map, self._max_tokens
+                self._pipeline, text, source, entity_map, self._max_tokens
             )
         else:
             found = _predict_truncate(
-                self._pipeline, text, source, self._config.entity_map
+                self._pipeline, text, source, entity_map
             )
 
         found.sort(key=lambda s: (s.start, s.end, s.label))

@@ -89,7 +89,7 @@ Both ship in git so Evaluate and the CLI work out of the box.
 
 > The same eval can be run from **Playground → Evaluate** or the CLI; HTTP details are in [docs/api.md](docs/api.md).
 
-**Larger benchmark — mimic-10k (optional download):** MIMIC-III clinical notes ship with PHI already redacted (replaced by `[** ... **]` placeholders) but with **no span annotations**, so they cannot be used for evaluation directly. For a large-scale labeled set, synthetic PHI was reinjected at those positions using the surrogate pipeline (see [SETUP.md](SETUP.md)). That optional archive is **not** in git; the sample notes above are the repo-default teaching corpus.
+**HuggingFace model weights (required for transformer/ensemble pipelines):** The shipped `clinical-transformer*` and `clinical-ensemble` pipelines rely on **`openai-privacy-filter`** (default) and **`mimic-clinicalbert-sentence`** under `models/huggingface/`. Neither is in git — download both as a single archive from Google Drive following [SETUP.md](SETUP.md#demo-assets-what-ships-in-git). The `clinical-fast`, `presidio`, and `clinical-llm*` pipelines do not need them.
 
 ---
 

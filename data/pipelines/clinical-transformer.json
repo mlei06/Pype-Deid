@@ -85,10 +85,20 @@
     {
       "type": "huggingface_ner",
       "config": {
-        "model": "mimic-clinicalbert-sentence",
+        "model": "openai-privacy-filter",
         "segmentation": "auto",
         "source_name": "huggingface_ner",
-        "skip_overlapping": false
+        "skip_overlapping": false,
+        "entity_map": {
+          "private_person": "NAME",
+          "private_email": "EMAIL",
+          "private_phone": "PHONE",
+          "private_address": "LOCATION",
+          "private_date": "DATE",
+          "private_url": "URL",
+          "account_number": "ID",
+          "secret": "ID"
+        }
       }
     },
     {
@@ -141,7 +151,7 @@
       }
     }
   ],
-  "description": "Clinical Transformer — regex + whitelist + blacklist + HuggingFace NER (mimic-clinicalbert-sentence). Canonical 8-label output via label_mapper.",
+  "description": "Clinical Transformer — regex + whitelist + blacklist + HuggingFace NER (openai-privacy-filter). Canonical 8-label output via label_mapper.",
   "output_label_space": [
     "AGE",
     "DATE",

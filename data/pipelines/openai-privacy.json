@@ -1,0 +1,23 @@
+{
+  "pipes": [
+    {
+      "type": "huggingface_ner",
+      "config": {
+        "model": "openai-privacy-filter",
+        "segmentation": "auto",
+        "source_name": "huggingface_ner",
+        "skip_overlapping": false
+      }
+    }
+  ],
+  "output_label_space": [
+    "DATE",
+    "EMAIL",
+    "ID",
+    "LOCATION",
+    "NAME",
+    "PHONE",
+    "URL"
+  ],
+  "output_label_space_updated_at": "2026-05-03T23:57:54.600524+00:00"
+}
