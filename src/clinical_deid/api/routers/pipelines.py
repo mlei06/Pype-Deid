@@ -9,7 +9,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Annotated
 
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, Query, UploadFile
 
 from clinical_deid.api.auth import require_admin, require_admin_or_inference
 from clinical_deid.api.schemas import (
@@ -348,12 +348,14 @@ def create_pipeline(body: CreatePipelineRequest) -> PipelineDetail:
 
 
 @router.get("", response_model=list[PipelineDetail], dependencies=[require_admin])
-def list_all_pipelines() -> list[PipelineDetail]:
-    """List all saved pipelines."""
-    return [
-        PipelineDetail(name=p.name, config=p.config)
-        for p in list_pipelines(_pipelines_dir())
-    ]
+def list_all_pipelines(
+    limit: int = Query(default=100, ge=1, le=1000),
+    offset: int = Query(default=0, ge=0),
+) -> list[PipelineDetail]:
+    """List saved pipelines (paginated)."""
+    pipelines = list_pipelines(_pipelines_dir())
+    pipelines = pipelines[offset : offset + limit]
+    return [PipelineDetail(name=p.name, config=p.config) for p in pipelines]
 
 
 @router.get("/{pipeline_name}", response_model=PipelineDetail, dependencies=[require_admin])

@@ -46,9 +46,13 @@ def _info_response(info) -> DictionaryInfoResponse:
 def list_dictionaries(
     kind: Annotated[DictKind | None, Query()] = None,
     label: Annotated[str | None, Query()] = None,
+    limit: int = Query(default=200, ge=1, le=1000),
+    offset: int = Query(default=0, ge=0),
 ) -> list[DictionaryInfoResponse]:
-    """List all stored dictionaries, optionally filtered by kind."""
-    return [_info_response(d) for d in _store().list_dictionaries(kind=kind, label=label)]
+    """List stored dictionaries (paginated), optionally filtered by kind."""
+    items = _store().list_dictionaries(kind=kind, label=label)
+    items = items[offset : offset + limit]
+    return [_info_response(d) for d in items]
 
 
 @router.get("/{kind}/{name}", response_model=DictionaryTermsResponse)

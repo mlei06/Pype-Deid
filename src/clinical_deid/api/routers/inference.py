@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 
 from clinical_deid.api.auth import require_admin
 from clinical_deid.api.schemas import (
@@ -26,9 +26,13 @@ router = APIRouter(prefix="/inference", tags=["inference"], dependencies=[requir
 
 
 @router.get("/runs", response_model=list[SavedInferenceRunSummary])
-def list_saved_runs() -> list[SavedInferenceRunSummary]:
-    """List saved inference snapshots, newest first."""
+def list_saved_runs(
+    limit: int = Query(default=100, ge=1, le=1000),
+    offset: int = Query(default=0, ge=0),
+) -> list[SavedInferenceRunSummary]:
+    """List saved inference snapshots (paginated), newest first."""
     rows = list_inference_runs(get_settings().inference_runs_dir)
+    rows = rows[offset : offset + limit]
     return [
         SavedInferenceRunSummary(
             id=r.id,
