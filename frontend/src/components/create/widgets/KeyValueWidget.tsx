@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { FieldProps } from '@rjsf/utils';
 import { fetchPrefixLabelSpace } from '../../../api/pipelines';
-import { labelColor } from '../../../lib/labelColors';
+import { labelColor } from '@shared/lib/labelColors';
 import type { SchemaFormContext } from '../schemaFormContext';
 
 /**

@@ -31,7 +31,9 @@ function selectPipeTypeInfo(pipeTypes: PipeTypeInfo[] | undefined, name: string)
 
 function bundleLabels(bundle: LabelSpaceBundle, model: string, entityMap: Record<string, string>): string[] {
   const keys = bundle.labels_by_model[model] ?? [];
-  const effective = { ...bundle.default_entity_map, ...entityMap };
+  const perModelDefault = bundle.entity_maps_by_model?.[model];
+  const baseDefault = perModelDefault ?? bundle.default_entity_map;
+  const effective = { ...baseDefault, ...entityMap };
   const set = new Set<string>();
   for (const k of keys) set.add(effective[k] ?? k);
   return [...set].sort();

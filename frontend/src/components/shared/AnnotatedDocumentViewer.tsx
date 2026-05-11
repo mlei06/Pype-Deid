@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { clsx } from 'clsx';
 import { Eye, EyeOff, Columns2 } from 'lucide-react';
 import SpanHighlighter from './SpanHighlighter';
-import RedactedView from './RedactedView';
-import LabelBadge from './LabelBadge';
+import RedactedView from '@shared/components/RedactedView';
+import LabelBadge from '@shared/components/LabelBadge';
 import type { EntitySpanResponse } from '../../api/types';
 
 type ViewMode = 'annotated' | 'redacted' | 'side-by-side';

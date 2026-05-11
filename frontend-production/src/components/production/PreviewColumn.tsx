@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Loader2, RefreshCw, X } from 'lucide-react';
 import { clsx } from 'clsx';
 import { redactDocument } from '../../api/production';
-import RedactedView from '../shared/RedactedView';
+import RedactedView from '@shared/components/RedactedView';
 import SpanHighlighter from '../shared/SpanHighlighter';
 import {
   getCachedOutput,

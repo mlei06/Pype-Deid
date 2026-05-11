@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ShieldCheck, ShieldAlert, ArrowUpDown } from 'lucide-react';
 import { clsx } from 'clsx';
-import LabelBadge from '../shared/LabelBadge';
+import LabelBadge from '@shared/components/LabelBadge';
 import type { RedactionMetrics } from '../../api/types';
 
 interface RedactionDashboardProps {

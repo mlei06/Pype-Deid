@@ -1,5 +1,5 @@
 import type { HTMLAttributes } from 'react';
-import { labelColor } from '../../lib/labelColors';
+import { labelColor } from '../lib/labelColors';
 
 interface LabelBadgeProps extends HTMLAttributes<HTMLSpanElement> {
   label: string;

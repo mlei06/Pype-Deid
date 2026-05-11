@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { ArrowUpDown } from 'lucide-react';
-import LabelBadge from '../shared/LabelBadge';
+import LabelBadge from '@shared/components/LabelBadge';
 import type { LabelMetricsDetail } from '../../api/types';
 
 interface PerLabelTableProps {

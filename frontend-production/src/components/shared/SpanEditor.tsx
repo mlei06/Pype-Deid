@@ -10,9 +10,9 @@ import {
   AlertTriangle,
   ArrowRightLeft,
 } from 'lucide-react';
-import LabelBadge from './LabelBadge';
+import LabelBadge from '@shared/components/LabelBadge';
 import LabelCombobox from './LabelCombobox';
-import { entitySpanKey } from '../../lib/entitySpanKey';
+import { entitySpanKey } from '@shared/lib/entitySpanKey';
 import {
   pickPrimarySpan,
   RESOLVE_STRATEGY_LABEL,

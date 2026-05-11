@@ -5,7 +5,7 @@ import {
   useRefreshAnalytics,
   useRefreshAllDatasets,
 } from '../../hooks/useDatasets';
-import LabelBadge from '../shared/LabelBadge';
+import LabelBadge from '@shared/components/LabelBadge';
 import type { DatasetSummary } from '../../api/types';
 
 interface DatasetListProps {

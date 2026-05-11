@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { ChevronDown } from 'lucide-react';
-import { labelFamilyLegend, labelFamilySwatch } from '../../lib/labelColors';
+import { labelFamilyLegend, labelFamilySwatch } from '../lib/labelColors';
 
 export default function ColorKeyPopover() {
   const [open, setOpen] = useState(false);

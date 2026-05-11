@@ -21,7 +21,7 @@ import {
   invalidateCacheForDataset,
 } from '../../lib/outputCache';
 import { dedupeSpansKeepPrimary } from '../../lib/spanOverlapConflicts';
-import RedactedView from '../shared/RedactedView';
+import RedactedView from '@shared/components/RedactedView';
 import SpanHighlighter from '../shared/SpanHighlighter';
 import {
   useProductionStore,

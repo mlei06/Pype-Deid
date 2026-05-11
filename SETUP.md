@@ -65,6 +65,12 @@ The platform ships two separate SPAs that share the same backend.
 | **Playground UI** (admin/operator) | `frontend/` | 3000 | admin key |
 | **Production UI** (inference consumer) | `frontend-production/` | 3001 | inference key |
 
+Both apps consume code from `frontend-shared/` via the `@shared/*` path alias; install its (tiny) type-only dependencies once before building:
+
+```bash
+cd frontend-shared && npm install && cd ..
+```
+
 ### Playground UI
 
 ```bash
@@ -102,11 +108,9 @@ VITE_API_KEY=your-key-here
 
 **Gold corpora — `data/corpora/sample_notes/` and `data/corpora/sample_notes_surrogated/`** — 15 clinical-text notes with span annotations each, produced in the **Production UI (consumer)**: review/export to JSONL, then registered as a dataset. `sample_notes` carries the original PHI; `sample_notes_surrogated` is the same notes with synthesized surrogates (Faker-backed) replacing every span. Both are the default teaching / regression corpora referenced from the main [README](README.md#evaluation).
 
-The base install already covers Presidio + HuggingFace inference. For the transformer pipelines you also need a HuggingFace checkpoint under `models/huggingface/mimic-clinicalbert-sentence`.
+The base install covers Presidio + HuggingFace inference. The shipped transformer pipelines (`clinical-transformer`, `clinical-transformer-presidio`, `clinical-ensemble`) load **`openai-privacy-filter`** as the main HF detector; `mimic-clinicalbert-sentence` is also bundled as an alternative clinical-tuned checkpoint. Neither model is in git — download both as a single archive:
 
-**Optional large download (not in git)** — A separate **mimic-10k** gold archive (models + 10k-note corpus) can still be used for large-scale work. `clinical-transformer` was developed against that style of data; the sample notes above are small and hand-curated for docs and quick CI-style checks. Extract from the following when you have the file:
-
-> **Google Drive:** <https://drive.google.com/file/d/1eGIWtsfSvdfTJ-iCAj7V4WapZZt00pwk/view?usp=sharing>
+> **Google Drive:** <REPLACE_WITH_GDRIVE_LINK>
 
 ### Download and extract
 
@@ -114,27 +118,27 @@ The base install already covers Presidio + HuggingFace inference. For the transf
 # Install gdown once (handles Google Drive's download flow)
 pip install gdown
 
-# Download the archive
-gdown "1eGIWtsfSvdfTJ-iCAj7V4WapZZt00pwk" -O demo-assets.zip
+# Download the archive (replace FILE_ID with the actual ID from the link above)
+gdown "FILE_ID" -O huggingface-models.zip
 
-# Extract at the repo root — files go directly into models/ and data/corpora/
-unzip demo-assets.zip
+# Extract at the repo root — files go directly under models/huggingface/
+unzip huggingface-models.zip -d models/huggingface/
 ```
 
 After extraction the layout will be:
 
 ```
-models/huggingface/mimic-clinicalbert-sentence/   ← HuggingFace model weights
-data/corpora/mimic-10k/corpus.jsonl               ← annotated evaluation corpus
+models/huggingface/openai-privacy-filter/         ← OpenAI Privacy Filter (default HF model)
+models/huggingface/mimic-clinicalbert-sentence/   ← Bio_ClinicalBERT fine-tuned on synthetic MIMIC notes
 ```
 
-The backend discovers both automatically on startup — no registration or config change needed. The model appears in the `huggingface_ner` pipe's model dropdown, and `mimic-10k` appears in the Datasets view.
+Each directory ships with a `model_manifest.json` so the backend discovers both automatically on startup — no registration or config change needed. They appear in the `huggingface_ner` pipe's model dropdown.
 
-### About the mimic-10k corpus
+### About the bundled models
 
-MIMIC-III clinical notes are distributed with PHI already redacted — the original identifiers are replaced with bracketed placeholders like `[** Name **]` — but the dataset ships with **no PHI span annotations**. That makes it unusable for training or evaluating a de-identification model directly, because there is nothing to measure against.
+**`openai-privacy-filter`** — OpenAI's bidirectional token classifier (1.5B params, 50M active) over an 8-category privacy taxonomy: `private_person`, `private_email`, `private_phone`, `private_address`, `private_date`, `private_url`, `account_number`, `secret`. 128k-token context window allows full-document inference in one pass. Apache 2.0. The shipped pipelines map its raw labels onto the project's canonical PHI label space via `entity_map`.
 
-To produce a labeled corpus, synthetic PHI was injected back into 10,000 notes at the redacted positions using the platform's own surrogate pipeline: realistic fake names, dates, MRNs, phone numbers, and addresses replace each `[** ... **]` placeholder, and those insertion positions become the ground-truth spans. The result looks like real clinical notes and every PHI span is labeled — suitable for both training and held-out evaluation.
+**`mimic-clinicalbert-sentence`** — Bio_ClinicalBERT fine-tuned on MIMIC-based synthetic de-id notes. Emits canonical PHI labels (`NAME`, `DATE`, `AGE`, `ID`, `LOCATION`, `ORGANIZATION`, `PHONE`, `HOSPITAL`) directly — no entity_map needed. Trained at sentence granularity; use with `segmentation: auto` so inference matches training context. Smaller and faster than the OpenAI model; useful for clinical-domain comparison or as a swap-in alternative.
 
 ---
 

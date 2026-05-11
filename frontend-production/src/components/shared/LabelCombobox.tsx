@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { clsx } from 'clsx';
-import { CANONICAL_LABELS } from '../../lib/canonicalLabels';
+import { CANONICAL_LABELS } from '@shared/lib/canonicalLabels';
 
 interface LabelComboboxProps {
   value: string;

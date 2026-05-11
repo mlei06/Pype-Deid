@@ -1,5 +1,5 @@
 import type { EntitySpanResponse } from '../api/types';
-import { entitySpanKey } from './entitySpanKey';
+import { entitySpanKey } from '@shared/lib/entitySpanKey';
 
 /**
  * Mirrors ``DEFAULT_LABEL_PRIORITY`` in ``clinical_deid/pipes/span_merge.py``

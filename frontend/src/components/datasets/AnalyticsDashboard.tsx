@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
-import LabelBadge from '../shared/LabelBadge';
+import LabelBadge from '@shared/components/LabelBadge';
 import type { DatasetAnalytics, DatasetDetail } from '../../api/types';
 import { useDatasetSplitAnalytics } from '../../hooks/useDatasets';
 import { splitLabelForDisplay } from './splitLabels';

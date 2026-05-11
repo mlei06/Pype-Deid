@@ -1,0 +1,3 @@
+# frontend-shared
+
+Source-only library of UI utilities and components used by both the Playground (`/frontend`) and Production (`/frontend-production`) apps. Each app exposes this directory under the `@shared` path alias (see each app's `vite.config.ts` and `tsconfig.app.json`); no build step is performed and no package is published. Only files that are 100% identical across both apps belong here — anything that has diverged stays in the consuming app. The `package.json` here exists solely so TypeScript's `tsc -b` can resolve `react`/`lucide-react` types when type-checking the shared sources; run `npm install` in this directory once after cloning.

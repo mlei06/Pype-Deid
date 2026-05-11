@@ -1,4 +1,4 @@
-import type { EntitySpanResponse, TraceFrame } from '../api/types';
+import type { EntitySpanResponse, TraceFrame } from '../types';
 
 export interface SpanLabelConflict {
   start: number;

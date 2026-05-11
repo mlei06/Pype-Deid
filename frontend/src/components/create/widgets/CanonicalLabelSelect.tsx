@@ -1,5 +1,5 @@
-import { CANONICAL_LABELS } from '../../../lib/canonicalLabels';
-import { labelColor } from '../../../lib/labelColors';
+import { CANONICAL_LABELS } from '@shared/lib/canonicalLabels';
+import { labelColor } from '@shared/lib/labelColors';
 
 interface Props {
   value: string;

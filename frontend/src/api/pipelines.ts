@@ -89,6 +89,8 @@ export interface ModelInfo {
 export interface LabelSpaceBundle {
   labels_by_model: Record<string, string[]>;
   default_entity_map: Record<string, string>;
+  /** Per-model raw→canonical label maps from each model's manifest. Preferred over the legacy global ``default_entity_map`` when present for the selected model. */
+  entity_maps_by_model?: Record<string, Record<string, string>>;
   default_model: string;
   /** Optional per-model display metadata (e.g. trained max length). Empty for pipes that don't expose it. */
   model_info?: Record<string, ModelInfo>;

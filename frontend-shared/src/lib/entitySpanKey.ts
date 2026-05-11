@@ -1,4 +1,4 @@
-import type { EntitySpanResponse } from '../api/types';
+import type { EntitySpanResponse } from '../types';
 
 /** Stable key for a span within a document (used for list ↔ highlight sync). */
 export function entitySpanKey(s: EntitySpanResponse): string {

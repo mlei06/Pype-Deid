@@ -1,7 +1,7 @@
 import { useMemo, useState, useCallback, useRef, useEffect } from 'react';
 import { X, Info } from 'lucide-react';
 import { usePipelineEditorStore } from '../../stores/pipelineEditorStore';
-import { labelColor } from '../../lib/labelColors';
+import { labelColor } from '@shared/lib/labelColors';
 import SchemaForm from './SchemaForm';
 import type { SchemaFormContext } from './schemaFormContext';
 import { PipeEditorNodeContext } from './PipeEditorNodeContext';

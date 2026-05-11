@@ -2,8 +2,8 @@ import { useState, useMemo } from 'react';
 import { clsx } from 'clsx';
 import { ChevronRight, ChevronDown, Clock } from 'lucide-react';
 import SpanHighlighter from '../shared/SpanHighlighter';
-import LabelBadge from '../shared/LabelBadge';
-import { labelColor } from '../../lib/labelColors';
+import LabelBadge from '@shared/components/LabelBadge';
+import { labelColor } from '@shared/lib/labelColors';
 import {
   diffSpans,
   diffTextWords,

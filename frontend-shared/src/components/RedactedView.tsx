@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { labelColor } from '../../lib/labelColors';
+import { labelColor } from '../lib/labelColors';
 
 interface RedactedViewProps {
   text: string;

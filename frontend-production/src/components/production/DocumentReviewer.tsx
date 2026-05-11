@@ -15,9 +15,9 @@ import {
   Tag,
 } from 'lucide-react';
 import SpanHighlighter, { type SpanHighlighterHandle } from '../shared/SpanHighlighter';
-import LabelBadge from '../shared/LabelBadge';
+import LabelBadge from '@shared/components/LabelBadge';
 import SpanEditor from '../shared/SpanEditor';
-import ColorKeyPopover from '../shared/ColorKeyPopover';
+import ColorKeyPopover from '@shared/components/ColorKeyPopover';
 import LabelCombobox from '../shared/LabelCombobox';
 import { useConfirm } from '../shared/ConfirmDialog';
 import PreviewColumn from './PreviewColumn';
@@ -28,7 +28,7 @@ import {
   type DatasetFile,
 } from './store';
 import { useAnnotationHistory } from './useAnnotationHistory';
-import { entitySpanKey } from '../../lib/entitySpanKey';
+import { entitySpanKey } from '@shared/lib/entitySpanKey';
 import {
   findOverlapGroups,
   applyResolveStrategy,

@@ -10,8 +10,8 @@ import {
   type ReactNode,
 } from 'react';
 import { clsx } from 'clsx';
-import { labelColor } from '../../lib/labelColors';
-import { entitySpanKey, isRangeUncovered } from '../../lib/entitySpanKey';
+import { labelColor } from '@shared/lib/labelColors';
+import { entitySpanKey, isRangeUncovered } from '@shared/lib/entitySpanKey';
 import {
   buildCoverageSegments,
   findOverlapGroups,
@@ -19,9 +19,9 @@ import {
   type CoverageSegment,
   type OverlapGroup,
 } from '../../lib/spanOverlapConflicts';
-import { scrollTextRangeIntoView } from '../../lib/scrollRangeIntoView';
-import type { SpanLabelConflict } from '../../lib/traceConflicts';
-import LabelBadge from './LabelBadge';
+import { scrollTextRangeIntoView } from '@shared/lib/scrollRangeIntoView';
+import type { SpanLabelConflict } from '@shared/lib/traceConflicts';
+import LabelBadge from '@shared/components/LabelBadge';
 import type { EntitySpanResponse } from '../../api/types';
 
 export interface SpanHighlighterHandle {

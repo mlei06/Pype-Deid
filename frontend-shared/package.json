@@ -1,0 +1,15 @@
+{
+  "name": "frontend-shared",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Shared UI utilities and components for the Playground and Production frontends. Source-only; consumed via the @shared/* path alias.",
+  "peerDependencies": {
+    "lucide-react": "^1.8.0",
+    "react": "^19.2.4"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "lucide-react": "^1.8.0",
+    "react": "^19.2.4"
+  }
+}

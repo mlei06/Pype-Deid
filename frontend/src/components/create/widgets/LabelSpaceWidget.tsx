@@ -1,7 +1,7 @@
 import { Plus, X, ArrowRight, Loader2 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import type { FieldProps } from '@rjsf/utils';
-import { labelColor } from '../../../lib/labelColors';
+import { labelColor } from '@shared/lib/labelColors';
 import { useLabelSpace } from '../../../hooks/useLabelSpace';
 import { usePipeFormContextConfig } from '../../../hooks/usePipeFormContextConfig';
 import type { SchemaFormContext } from '../schemaFormContext';

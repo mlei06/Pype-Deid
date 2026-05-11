@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { ArrowUpDown, Search } from 'lucide-react';
 import { clsx } from 'clsx';
-import LabelBadge from '../../shared/LabelBadge';
+import LabelBadge from '@shared/components/LabelBadge';
 import DeltaBadge from './DeltaBadge';
 import { delta, getLabelMetric, getPerLabel, MATCHING_MODES, modeLabel, pct } from './util';
 import type { MatchingMode } from './util';

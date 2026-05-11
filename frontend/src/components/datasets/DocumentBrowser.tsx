@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, FileText } from 'lucide-react';
 import { useDatasetPreview, useDocument } from '../../hooks/useDatasets';
-import LabelBadge from '../shared/LabelBadge';
+import LabelBadge from '@shared/components/LabelBadge';
 import SpanHighlighter from '../shared/SpanHighlighter';
 import type { DocumentPreview } from '../../api/types';
 import { splitLabelForDisplay, UNSPLIT_BUCKET } from './splitLabels';
