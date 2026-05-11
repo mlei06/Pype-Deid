@@ -64,3 +64,5 @@ data/word_vectors/
 data/neuroner_deploy/
 models/neuroner/
 output/neuroner/
+# Sibling project checked out into the working tree (never part of this repo)
+vsee-intelligent-hub/

@@ -25,6 +25,7 @@ from clinical_deid.dataset_store import (
     list_datasets,
     load_dataset_documents,
     load_dataset_manifest,
+    validate_name as validate_dataset_name,
 )
 
 
@@ -76,6 +77,10 @@ def compose_datasets(body: ComposeRequest) -> DatasetDetail:
         raise HTTPException(status_code=422, detail="Composition produced no documents")
 
     settings = get_settings()
+    try:
+        validate_dataset_name(body.output_name)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
     home = settings.corpora_dir / body.output_name
     home.mkdir(parents=True)
     output_path = home / CORPUS_JSONL_NAME
@@ -189,6 +194,11 @@ def transform_dataset(
     out_name = body.source_dataset if body.in_place else str(body.output_name).strip()
     if not out_name and body.in_place:
         raise HTTPException(status_code=422, detail="source_dataset is required for in-place transform")
+
+    try:
+        validate_dataset_name(out_name)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
     existing = [d.name for d in list_datasets(corp)]
     if not body.in_place and out_name in existing:

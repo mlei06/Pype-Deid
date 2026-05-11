@@ -67,7 +67,7 @@ def _write_jsonl_with_doc_splits(path: Path, splits: list[str]) -> Path:
 
 
 def test_register_and_list(client, tmp_path):
-    jsonl = _write_sample_jsonl(tmp_path / "data" / "sample.jsonl")
+    jsonl = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "sample.jsonl")
     resp = client.post(
         "/datasets",
         json={
@@ -94,7 +94,7 @@ def test_register_and_list(client, tmp_path):
 
 
 def test_register_duplicate_rejected(client, tmp_path):
-    jsonl = _write_sample_jsonl(tmp_path / "data" / "sample.jsonl")
+    jsonl = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "sample.jsonl")
     client.post(
         "/datasets",
         json={"name": "dup", "data_path": str(jsonl), "format": "jsonl"},
@@ -184,7 +184,7 @@ def test_brat_import_sources_endpoint(client, tmp_path):
 
 
 def test_get_dataset(client, tmp_path):
-    jsonl = _write_sample_jsonl(tmp_path / "data" / "sample.jsonl")
+    jsonl = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "sample.jsonl")
     client.post(
         "/datasets",
         json={"name": "get-me", "data_path": str(jsonl), "format": "jsonl"},
@@ -203,7 +203,7 @@ def test_get_missing_returns_404(client):
 
 
 def test_update_dataset(client, tmp_path):
-    jsonl = _write_sample_jsonl(tmp_path / "data" / "sample.jsonl")
+    jsonl = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "sample.jsonl")
     client.post(
         "/datasets",
         json={"name": "upd", "data_path": str(jsonl), "format": "jsonl"},
@@ -218,7 +218,7 @@ def test_update_dataset(client, tmp_path):
 
 
 def test_delete_dataset(client, tmp_path):
-    jsonl = _write_sample_jsonl(tmp_path / "data" / "sample.jsonl")
+    jsonl = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "sample.jsonl")
     client.post(
         "/datasets",
         json={"name": "del-me", "data_path": str(jsonl), "format": "jsonl"},
@@ -234,7 +234,7 @@ def test_delete_dataset(client, tmp_path):
 
 
 def test_preview(client, tmp_path):
-    jsonl = _write_sample_jsonl(tmp_path / "data" / "sample.jsonl")
+    jsonl = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "sample.jsonl")
     client.post(
         "/datasets",
         json={"name": "prev", "data_path": str(jsonl), "format": "jsonl"},
@@ -250,7 +250,8 @@ def test_preview(client, tmp_path):
 
 def test_split_counts_preview_and_subset_analytics(client, tmp_path):
     jsonl = _write_jsonl_with_doc_splits(
-        tmp_path / "splits.jsonl", ["train", "train", "test", "test", "test"]
+        tmp_path / "data" / "corpora" / "_in" / "splits.jsonl",
+        ["train", "train", "test", "test", "test"],
     )
     client.post(
         "/datasets",
@@ -273,7 +274,7 @@ def test_split_counts_preview_and_subset_analytics(client, tmp_path):
 
 
 def test_get_document(client, tmp_path):
-    jsonl = _write_sample_jsonl(tmp_path / "data" / "sample.jsonl")
+    jsonl = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "sample.jsonl")
     client.post(
         "/datasets",
         json={"name": "docview", "data_path": str(jsonl), "format": "jsonl"},
@@ -286,7 +287,7 @@ def test_get_document(client, tmp_path):
 
 
 def test_get_document_not_found(client, tmp_path):
-    jsonl = _write_sample_jsonl(tmp_path / "data" / "sample.jsonl")
+    jsonl = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "sample.jsonl")
     client.post(
         "/datasets",
         json={"name": "docnf", "data_path": str(jsonl), "format": "jsonl"},
@@ -301,7 +302,7 @@ def test_get_document_not_found(client, tmp_path):
 
 
 def test_refresh_analytics(client, tmp_path):
-    jsonl = _write_sample_jsonl(tmp_path / "data" / "sample.jsonl", count=3)
+    jsonl = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "sample.jsonl", count=3)
     client.post(
         "/datasets",
         json={"name": "ref", "data_path": str(jsonl), "format": "jsonl"},
@@ -314,7 +315,7 @@ def test_refresh_analytics(client, tmp_path):
 
 
 def test_refresh_all_endpoint(client, tmp_path):
-    ok = _write_sample_jsonl(tmp_path / "data" / "good.jsonl", count=2)
+    ok = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "good.jsonl", count=2)
     client.post("/datasets", json={"name": "ok1", "data_path": str(ok), "format": "jsonl"})
     client.post("/datasets", json={"name": "ok2", "data_path": str(ok), "format": "jsonl"})
 
@@ -337,7 +338,7 @@ def test_refresh_all_endpoint(client, tmp_path):
 
 
 def test_import_brat_flat_endpoint(client, tmp_path):
-    brat_dir = tmp_path / "brat_flat"
+    brat_dir = tmp_path / "data" / "corpora" / "_brat_in"
     _write_brat_flat(brat_dir)
 
     resp = client.post(
@@ -359,7 +360,7 @@ def test_import_brat_flat_endpoint(client, tmp_path):
 
 
 def test_import_brat_duplicate_name_conflicts(client, tmp_path):
-    brat_dir = tmp_path / "brat_flat"
+    brat_dir = tmp_path / "data" / "corpora" / "_brat_in"
     _write_brat_flat(brat_dir)
     resp1 = client.post(
         "/datasets/import/brat",
@@ -374,7 +375,7 @@ def test_import_brat_duplicate_name_conflicts(client, tmp_path):
 
 
 def test_import_jsonl_alias_route(client, tmp_path):
-    jsonl = _write_sample_jsonl(tmp_path / "data" / "alias.jsonl", count=2)
+    jsonl = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "alias.jsonl", count=2)
     resp = client.post(
         "/datasets/import/jsonl",
         json={"name": "aliased", "data_path": str(jsonl), "format": "jsonl"},
@@ -389,8 +390,8 @@ def test_import_jsonl_alias_route(client, tmp_path):
 
 
 def test_compose_merge(client, tmp_path):
-    a = _write_sample_jsonl(tmp_path / "data" / "a.jsonl", count=3)
-    b = _write_sample_jsonl(tmp_path / "data" / "b.jsonl", count=4)
+    a = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "a.jsonl", count=3)
+    b = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "b.jsonl", count=4)
     client.post("/datasets", json={"name": "src-a", "data_path": str(a), "format": "jsonl"})
     client.post("/datasets", json={"name": "src-b", "data_path": str(b), "format": "jsonl"})
 
@@ -410,8 +411,8 @@ def test_compose_merge(client, tmp_path):
 
 
 def test_compose_proportional(client, tmp_path):
-    a = _write_sample_jsonl(tmp_path / "data" / "a.jsonl", count=10)
-    b = _write_sample_jsonl(tmp_path / "data" / "b.jsonl", count=10)
+    a = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "a.jsonl", count=10)
+    b = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "b.jsonl", count=10)
     client.post("/datasets", json={"name": "pa", "data_path": str(a), "format": "jsonl"})
     client.post("/datasets", json={"name": "pb", "data_path": str(b), "format": "jsonl"})
 
@@ -430,7 +431,7 @@ def test_compose_proportional(client, tmp_path):
 
 
 def test_compose_missing_source(client, tmp_path):
-    a = _write_sample_jsonl(tmp_path / "data" / "a.jsonl", count=2)
+    a = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "a.jsonl", count=2)
     client.post("/datasets", json={"name": "only", "data_path": str(a), "format": "jsonl"})
     resp = client.post(
         "/datasets/compose",
@@ -449,7 +450,7 @@ def test_compose_missing_source(client, tmp_path):
 
 
 def test_transform_filter_labels(client, tmp_path):
-    jsonl = _write_sample_jsonl(tmp_path / "data" / "sample.jsonl", count=5)
+    jsonl = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "sample.jsonl", count=5)
     client.post(
         "/datasets",
         json={"name": "orig", "data_path": str(jsonl), "format": "jsonl"},
@@ -472,7 +473,7 @@ def test_transform_filter_labels(client, tmp_path):
 
 
 def test_transform_in_place(client, tmp_path):
-    jsonl = _write_sample_jsonl(tmp_path / "data" / "sample.jsonl", count=5)
+    jsonl = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "sample.jsonl", count=5)
     client.post(
         "/datasets",
         json={"name": "inplace-src", "data_path": str(jsonl), "format": "jsonl"},
@@ -492,7 +493,7 @@ def test_transform_in_place(client, tmp_path):
 
 
 def test_transform_new_dataset_requires_output_name(client, tmp_path):
-    jsonl = _write_sample_jsonl(tmp_path / "data" / "sample.jsonl", count=2)
+    jsonl = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "sample.jsonl", count=2)
     client.post(
         "/datasets",
         json={"name": "need-name", "data_path": str(jsonl), "format": "jsonl"},
@@ -505,7 +506,7 @@ def test_transform_new_dataset_requires_output_name(client, tmp_path):
 
 
 def test_transform_label_mapping(client, tmp_path):
-    jsonl = _write_sample_jsonl(tmp_path / "data" / "sample.jsonl", count=3)
+    jsonl = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "sample.jsonl", count=3)
     client.post(
         "/datasets",
         json={"name": "map-src", "data_path": str(jsonl), "format": "jsonl"},
@@ -525,7 +526,7 @@ def test_transform_label_mapping(client, tmp_path):
 
 
 def test_transform_resize(client, tmp_path):
-    jsonl = _write_sample_jsonl(tmp_path / "data" / "sample.jsonl", count=10)
+    jsonl = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "sample.jsonl", count=10)
     client.post(
         "/datasets",
         json={"name": "big", "data_path": str(jsonl), "format": "jsonl"},
@@ -545,7 +546,7 @@ def test_transform_resize(client, tmp_path):
 
 def test_transform_source_splits_filters_documents(client, tmp_path):
     jsonl = _write_jsonl_with_doc_splits(
-        tmp_path / "data" / "split.jsonl",
+        tmp_path / "data" / "corpora" / "_in" / "split.jsonl",
         ["train", "train", "valid", "test", "test"],
     )
     client.post(
@@ -567,7 +568,7 @@ def test_transform_source_splits_filters_documents(client, tmp_path):
 
 
 def test_transform_source_splits_empty_matches_422(client, tmp_path):
-    jsonl = _write_sample_jsonl(tmp_path / "data" / "sample.jsonl", count=2)
+    jsonl = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "sample.jsonl", count=2)
     client.post(
         "/datasets",
         json={"name": "no-split", "data_path": str(jsonl), "format": "jsonl"},
@@ -597,7 +598,7 @@ def test_transform_missing_source(client):
 
 def test_transform_writes_jsonl_under_corpora_dir(client, tmp_path):
     """Transform output is ``corpora_dir/{name}/corpus.jsonl``."""
-    jsonl = _write_sample_jsonl(tmp_path / "data" / "sample.jsonl", count=4)
+    jsonl = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "sample.jsonl", count=4)
     client.post(
         "/datasets",
         json={"name": "t-src", "data_path": str(jsonl), "format": "jsonl"},
@@ -618,7 +619,7 @@ def test_transform_writes_jsonl_under_corpora_dir(client, tmp_path):
 
 def test_transform_rejects_removed_output_format_field(client, tmp_path):
     """The removed ``output_format`` field must not silently succeed."""
-    jsonl = _write_sample_jsonl(tmp_path / "data" / "sample.jsonl", count=2)
+    jsonl = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "sample.jsonl", count=2)
     client.post("/datasets", json={"name": "rej-src", "data_path": str(jsonl), "format": "jsonl"})
     resp = client.post(
         "/datasets/transform",
@@ -635,8 +636,8 @@ def test_transform_rejects_removed_output_format_field(client, tmp_path):
 
 
 def test_compose_writes_jsonl_under_corpora_dir(client, tmp_path):
-    a = _write_sample_jsonl(tmp_path / "data" / "a.jsonl", count=2)
-    b = _write_sample_jsonl(tmp_path / "data" / "b.jsonl", count=3)
+    a = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "a.jsonl", count=2)
+    b = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "b.jsonl", count=3)
     client.post("/datasets", json={"name": "c-a", "data_path": str(a), "format": "jsonl"})
     client.post("/datasets", json={"name": "c-b", "data_path": str(b), "format": "jsonl"})
     resp = client.post(
@@ -654,7 +655,7 @@ def test_compose_writes_jsonl_under_corpora_dir(client, tmp_path):
 
 
 def test_export_brat_writes_flat_dir(client, tmp_path):
-    jsonl = _write_sample_jsonl(tmp_path / "data" / "sample.jsonl", count=3)
+    jsonl = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "sample.jsonl", count=3)
     client.post("/datasets", json={"name": "brat-src", "data_path": str(jsonl), "format": "jsonl"})
     resp = client.post("/datasets/brat-src/export", json={"format": "brat"})
     assert resp.status_code == 200, resp.text
@@ -670,7 +671,7 @@ def test_export_brat_writes_flat_dir(client, tmp_path):
 
 
 def test_dataset_schema_endpoint(client, tmp_path):
-    jsonl = _write_sample_jsonl(tmp_path / "data" / "sample.jsonl")
+    jsonl = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "sample.jsonl")
     client.post(
         "/datasets",
         json={"name": "schema-src", "data_path": str(jsonl), "format": "jsonl"},
@@ -686,7 +687,7 @@ def test_dataset_schema_endpoint(client, tmp_path):
 
 
 def test_transform_preview_endpoint(client, tmp_path):
-    jsonl = _write_sample_jsonl(tmp_path / "data" / "sample.jsonl", count=3)
+    jsonl = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "sample.jsonl", count=3)
     client.post(
         "/datasets",
         json={"name": "pv-src", "data_path": str(jsonl), "format": "jsonl"},
@@ -724,7 +725,7 @@ def test_transform_preview_endpoint(client, tmp_path):
 def test_transform_preview_source_splits_in_place_merges_counts(client, tmp_path):
     """New dataset: work subset only. In-place: full corpus (rest + transformed work)."""
     jsonl = _write_jsonl_with_doc_splits(
-        tmp_path / "data" / "psplit.jsonl",
+        tmp_path / "data" / "corpora" / "_in" / "psplit.jsonl",
         ["train", "train", "valid", "test", "test"],
     )
     client.post(
@@ -760,7 +761,7 @@ def test_transform_preview_source_splits_in_place_merges_counts(client, tmp_path
 
 
 def test_transform_preview_rejects_drop_and_keep(client, tmp_path):
-    jsonl = _write_sample_jsonl(tmp_path / "data" / "sample.jsonl", count=2)
+    jsonl = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "sample.jsonl", count=2)
     client.post(
         "/datasets",
         json={"name": "both-src", "data_path": str(jsonl), "format": "jsonl"},
@@ -992,7 +993,7 @@ def test_eval_rejects_empty_eval_pred_label_remap_value(client, tmp_path):
 
 def test_eval_with_dataset_name(client, tmp_path):
     """Eval endpoint can reference a registered dataset by name."""
-    jsonl = _write_sample_jsonl(tmp_path / "data" / "gold.jsonl", count=3)
+    jsonl = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "gold.jsonl", count=3)
     client.post(
         "/datasets",
         json={"name": "eval-gold", "data_path": str(jsonl), "format": "jsonl"},
@@ -1013,7 +1014,7 @@ def test_eval_with_dataset_name(client, tmp_path):
 
 
 def test_eval_run_risk_profile_name_persisted_and_unknown_400(client, tmp_path):
-    jsonl = _write_sample_jsonl(tmp_path / "data" / "gold_rp.jsonl", count=1)
+    jsonl = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "gold_rp.jsonl", count=1)
     client.post(
         "/datasets",
         json={"name": "eval-rp", "data_path": str(jsonl), "format": "jsonl"},
@@ -1045,7 +1046,7 @@ def test_eval_run_risk_profile_name_persisted_and_unknown_400(client, tmp_path):
 
 def test_eval_dataset_splits_filters_and_source_string(client, tmp_path):
     jsonl = _write_jsonl_with_doc_splits(
-        tmp_path / "data" / "gold_split.jsonl",
+        tmp_path / "data" / "corpora" / "_in" / "gold_split.jsonl",
         ["train", "valid", "test"],
     )
     client.post(
@@ -1069,7 +1070,7 @@ def test_eval_dataset_splits_filters_and_source_string(client, tmp_path):
 
 
 def test_eval_dataset_splits_no_match_422(client, tmp_path):
-    jsonl = _write_sample_jsonl(tmp_path / "data" / "gold.jsonl", count=2)
+    jsonl = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "gold.jsonl", count=2)
     client.post(
         "/datasets",
         json={"name": "eval-nosplit", "data_path": str(jsonl), "format": "jsonl"},
@@ -1094,7 +1095,9 @@ def test_eval_dataset_splits_no_match_422(client, tmp_path):
 
 
 def _setup_sample_eval(client, tmp_path, count: int, *, name: str) -> None:
-    jsonl = _write_sample_jsonl(tmp_path / "data" / f"{name}.jsonl", count=count)
+    jsonl = _write_sample_jsonl(
+        tmp_path / "data" / "corpora" / "_in" / f"{name}.jsonl", count=count
+    )
     client.post(
         "/datasets",
         json={"name": name, "data_path": str(jsonl), "format": "jsonl"},
@@ -1161,7 +1164,7 @@ def test_eval_sample_without_seed_returns_used_seed(client, tmp_path):
 
 def test_eval_sample_applies_splits_before_sizing(client, tmp_path):
     jsonl = _write_jsonl_with_doc_splits(
-        tmp_path / "data" / "gold_splits_sample.jsonl",
+        tmp_path / "data" / "corpora" / "_in" / "gold_splits_sample.jsonl",
         ["train", "train", "train", "valid"],
     )
     client.post(
@@ -1550,7 +1553,7 @@ def test_ingest_from_pipeline_missing_pipeline(client, tmp_path):
 
 
 def test_put_document_replaces_spans(client, tmp_path):
-    jsonl = _write_sample_jsonl(tmp_path / "data" / "sample.jsonl", count=2)
+    jsonl = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "sample.jsonl", count=2)
     client.post(
         "/datasets",
         json={"name": "edit-ds", "data_path": str(jsonl), "format": "jsonl"},
@@ -1577,7 +1580,7 @@ def test_put_document_replaces_spans(client, tmp_path):
 
 
 def test_put_document_allows_text_override(client, tmp_path):
-    jsonl = _write_sample_jsonl(tmp_path / "data" / "sample.jsonl", count=1)
+    jsonl = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "sample.jsonl", count=1)
     client.post(
         "/datasets",
         json={"name": "edit-text", "data_path": str(jsonl), "format": "jsonl"},
@@ -1594,7 +1597,7 @@ def test_put_document_allows_text_override(client, tmp_path):
 
 
 def test_put_document_rejects_out_of_range_span(client, tmp_path):
-    jsonl = _write_sample_jsonl(tmp_path / "data" / "sample.jsonl", count=1)
+    jsonl = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "sample.jsonl", count=1)
     client.post(
         "/datasets",
         json={"name": "edit-range", "data_path": str(jsonl), "format": "jsonl"},
@@ -1607,7 +1610,7 @@ def test_put_document_rejects_out_of_range_span(client, tmp_path):
 
 
 def test_put_document_missing_id_returns_404(client, tmp_path):
-    jsonl = _write_sample_jsonl(tmp_path / "data" / "sample.jsonl", count=1)
+    jsonl = _write_sample_jsonl(tmp_path / "data" / "corpora" / "_in" / "sample.jsonl", count=1)
     client.post(
         "/datasets",
         json={"name": "edit-missing", "data_path": str(jsonl), "format": "jsonl"},

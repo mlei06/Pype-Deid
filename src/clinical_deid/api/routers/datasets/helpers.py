@@ -54,26 +54,41 @@ def parse_splits_query(splits: str | None) -> list[str] | None:
 
 
 def resolve_source_under_corpora(raw: str) -> Path:
-    """Resolve a user-supplied source path, rejecting anything outside CORPORA_DIR."""
-    corpora_root = corpora_dir().resolve()
+    """Resolve a user-supplied source path under the platform-managed roots.
+
+    Accepts paths under ``CORPORA_DIR`` (canonical home) or ``EXPORTS_DIR`` (so the
+    common round-trip "export then re-import" works without manual file moves).
+    Rejects anything else.
+    """
+    settings = get_settings()
+    corpora_root = settings.corpora_dir.resolve()
+    exports_root = settings.exports_dir.resolve()
     candidate = Path(raw)
     if candidate.is_absolute():
         resolved = candidate.resolve()
     else:
         resolved = (corpora_root / candidate).resolve()
-    try:
-        resolved.relative_to(corpora_root)
-    except ValueError as exc:
+    under_corpora = _is_under(resolved, corpora_root)
+    under_exports = _is_under(resolved, exports_root)
+    if not (under_corpora or under_exports):
         raise HTTPException(
             status_code=400,
             detail=(
-                f"source_path must stay under the corpora root ({corpora_root}); "
-                f"got {raw!r}."
+                f"source_path must stay under the corpora root ({corpora_root}) or "
+                f"exports root ({exports_root}); got {raw!r}."
             ),
-        ) from exc
+        )
     if not resolved.exists():
         raise HTTPException(status_code=404, detail=f"source_path not found: {raw!r}")
     return resolved
+
+
+def _is_under(child: Path, parent: Path) -> bool:
+    try:
+        child.relative_to(parent)
+    except ValueError:
+        return False
+    return True
 
 
 def surrogate_project_docs(docs: list[Any], *, seed: int | None) -> list[Any]:

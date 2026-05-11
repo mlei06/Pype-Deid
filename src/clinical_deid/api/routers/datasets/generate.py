@@ -18,6 +18,7 @@ from clinical_deid.dataset_store import (
     CORPUS_JSONL_NAME,
     commit_colocated_dataset,
     list_datasets,
+    validate_name as validate_dataset_name,
 )
 
 logger = logging.getLogger(__name__)
@@ -36,6 +37,11 @@ def generate_dataset(body: GenerateRequest) -> DatasetDetail:
 
     corp = corpora_dir()
     settings = get_settings()
+
+    try:
+        validate_dataset_name(body.output_name)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
     existing = [d.name for d in list_datasets(corp)]
     if body.output_name in existing:

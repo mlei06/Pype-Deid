@@ -45,8 +45,20 @@ def test_openai_from_clinical_deid_env_file(monkeypatch: pytest.MonkeyPatch, tmp
 def test_openai_chat_client_raises_without_key(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("CLINICAL_DEID_OPENAI_API_KEY", raising=False)
+    monkeypatch.setenv("CLINICAL_DEID_ALLOW_EXTERNAL_LLM", "true")
     (tmp_path / ".env").write_text("# no openai key\n", encoding="utf-8")
     monkeypatch.chdir(tmp_path)
     s = Settings()
     with pytest.raises(ValueError, match="OpenAI API key"):
+        s.openai_chat_client()
+
+
+def test_openai_chat_client_blocked_when_external_llm_disabled(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    monkeypatch.delenv("CLINICAL_DEID_ALLOW_EXTERNAL_LLM", raising=False)
+    monkeypatch.chdir(tmp_path)
+    s = Settings()
+    with pytest.raises(ValueError, match="External LLM calls are disabled"):
         s.openai_chat_client()

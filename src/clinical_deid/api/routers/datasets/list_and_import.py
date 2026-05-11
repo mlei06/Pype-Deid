@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 import time
-from pathlib import Path
 from typing import Any
 
 from fastapi import HTTPException, Query
@@ -40,6 +39,7 @@ from clinical_deid.dataset_store import (
     list_datasets,
     list_import_candidates,
     refresh_all_datasets,
+    validate_name as validate_dataset_name,
 )
 
 logger = logging.getLogger(__name__)
@@ -81,6 +81,11 @@ def list_brat_dataset_import_sources() -> BratImportSourcesResponse:
 def _register_jsonl(body: RegisterDatasetRequest) -> DatasetDetail:
     ds_dir = corpora_dir()
 
+    try:
+        validate_dataset_name(body.name)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
     if body.format != "jsonl":
         raise HTTPException(
             status_code=422,
@@ -94,11 +99,13 @@ def _register_jsonl(body: RegisterDatasetRequest) -> DatasetDetail:
     if body.name in existing:
         raise HTTPException(status_code=409, detail=f"Dataset {body.name!r} already exists")
 
+    resolved = resolve_source_under_corpora(body.data_path)
+
     try:
         manifest = import_jsonl_dataset(
             ds_dir,
             body.name,
-            body.data_path,
+            str(resolved),
             description=body.description,
             metadata=body.metadata,
         )
@@ -132,15 +139,22 @@ def import_brat_dataset_route(body: ImportBratRequest) -> DatasetDetail:
     """Convert a BRAT tree (flat or split) into a new JSONL dataset home."""
     ds_dir = corpora_dir()
 
+    try:
+        validate_dataset_name(body.name)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
     existing = [d.name for d in list_datasets(ds_dir)]
     if body.name in existing:
         raise HTTPException(status_code=409, detail=f"Dataset {body.name!r} already exists")
+
+    resolved = resolve_source_under_corpora(body.brat_path)
 
     try:
         manifest = import_brat_to_jsonl(
             ds_dir,
             body.name,
-            Path(body.brat_path),
+            resolved,
             description=body.description,
             metadata=body.metadata,
         )
@@ -177,6 +191,11 @@ def ingest_from_pipeline(body: IngestFromPipelineRequest) -> IngestFromPipelineR
     from clinical_deid.ingest.sink import write_annotated_corpus
 
     ds_dir = corpora_dir()
+
+    try:
+        validate_dataset_name(body.output_name)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
     existing = [d.name for d in list_datasets(ds_dir)]
     if body.output_name in existing:

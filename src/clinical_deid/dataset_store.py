@@ -47,12 +47,19 @@ _SAFE_NAME = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9._-]*$")
 _BRAT_SPLIT_NAMES = frozenset({"train", "valid", "test", "dev", "deploy"})
 
 
-def _validate_name(name: str) -> None:
+def validate_name(name: str) -> None:
+    """Reject dataset names that could escape ``corpora_dir`` or write outside the registry.
+
+    Public so API routes can validate ``output_name`` before any ``mkdir`` runs.
+    """
     if not _SAFE_NAME.match(name) or ".." in name:
         raise ValueError(
             f"Invalid dataset name {name!r}: must match {_SAFE_NAME.pattern} "
             f"and not contain '..'"
         )
+
+
+_validate_name = validate_name  # internal alias (kept for back-compat within this module)
 
 
 def _ensure_corpora_root(corpora_dir: Path) -> None:

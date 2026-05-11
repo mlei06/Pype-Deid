@@ -23,10 +23,16 @@ async def lifespan(_app: FastAPI):
     from clinical_deid.config import get_settings
 
     if not auth_enabled() and get_settings().environment == "production":
+        if not get_settings().auth_disabled:
+            raise RuntimeError(
+                "API auth is DISABLED and CLINICAL_DEID_ENVIRONMENT=production. "
+                "Refusing to start. Either configure CLINICAL_DEID_ADMIN_API_KEYS / "
+                "CLINICAL_DEID_INFERENCE_API_KEYS, or set CLINICAL_DEID_AUTH_DISABLED=true "
+                "to acknowledge an intentionally open deployment."
+            )
         logger.warning(
-            "API auth is DISABLED but CLINICAL_DEID_ENVIRONMENT=production. "
-            "Set CLINICAL_DEID_ADMIN_API_KEYS / CLINICAL_DEID_INFERENCE_API_KEYS "
-            "or change the environment value before exposing this instance."
+            "API auth is DISABLED in production posture (CLINICAL_DEID_AUTH_DISABLED=true). "
+            "Every caller is treated as admin. This deployment is open."
         )
     logger.info("database initialised, API ready")
     try:

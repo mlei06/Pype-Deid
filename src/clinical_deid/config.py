@@ -74,7 +74,8 @@ class Settings(BaseSettings):
         default=["http://localhost:3000", "http://127.0.0.1:3000"],
         description="Allowed CORS origins for the API.",
     )
-    #: API keys with admin scope. When empty AND ``inference_api_keys`` is empty, auth is disabled.
+    #: API keys with admin scope. When empty AND ``inference_api_keys`` is empty, auth is disabled
+    #: (unless ``environment="production"``, which then refuses to start unless ``auth_disabled=true``).
     admin_api_keys: list[str] = Field(
         default_factory=list,
         description=(
@@ -82,12 +83,22 @@ class Settings(BaseSettings):
             "Admin scope covers all mutation routes and also satisfies inference-scoped routes."
         ),
     )
-    #: API keys with inference scope. When empty AND ``admin_api_keys`` is empty, auth is disabled.
+    #: API keys with inference scope. When empty AND ``admin_api_keys`` is empty, auth is disabled
+    #: (subject to the same production-posture guard as ``admin_api_keys``).
     inference_api_keys: list[str] = Field(
         default_factory=list,
         description=(
             "Inference-scope API keys. Accepted as 'Authorization: Bearer <key>' or 'X-API-Key: <key>'. "
             "Inference scope covers /process/* (subject to the deploy allowlist)."
+        ),
+    )
+    #: Explicit opt-in to run with auth disabled in ``environment="production"``. Default ``False``
+    #: makes a misconfigured production deploy refuse to start instead of silently exposing admin.
+    auth_disabled: bool = Field(
+        default=False,
+        description=(
+            "Allow the API to start with no API keys configured even when "
+            "CLINICAL_DEID_ENVIRONMENT=production. Default False: prod refuses to start without keys."
         ),
     )
     #: Reject requests with Content-Length above this (bytes). Defaults to 10 MiB.
@@ -110,6 +121,18 @@ class Settings(BaseSettings):
         ),
     )
 
+    #: Explicit opt-in to send raw document text to an external LLM (OpenAI or compatible).
+    #: Default ``False`` because the platform's primary use case is PHI; sending PHI off-host
+    #: should be a deliberate decision (BAA, on-prem endpoint, synthetic-only data, …).
+    #: Gates both the ``llm_ner`` pipe and ``POST /datasets/generate``.
+    allow_external_llm: bool = Field(
+        default=False,
+        description=(
+            "Allow LLM features (llm_ner pipe, dataset generate) to call out to the configured "
+            "OpenAI-compatible endpoint. Default False; set CLINICAL_DEID_ALLOW_EXTERNAL_LLM=true "
+            "to acknowledge that text passed to those features will leave the host."
+        ),
+    )
     #: For :class:`~clinical_deid.synthesis.client.OpenAICompatibleChatClient`. Loaded from ``.env`` or the environment. Either ``OPENAI_API_KEY`` or ``CLINICAL_DEID_OPENAI_API_KEY`` may be set.
     openai_api_key: str | None = Field(
         default=None,
@@ -169,8 +192,23 @@ class Settings(BaseSettings):
                 return Path(rest)
         return None
 
+    def require_external_llm_allowed(self) -> None:
+        """Raise unless ``allow_external_llm=True``.
+
+        Called from every code path that sends raw user text to an LLM endpoint
+        (``llm_ner`` pipe, ``POST /datasets/generate``). Forces an explicit opt-in
+        so PHI doesn't leave the host by accident.
+        """
+        if not self.allow_external_llm:
+            raise ValueError(
+                "External LLM calls are disabled. Set CLINICAL_DEID_ALLOW_EXTERNAL_LLM=true "
+                "to acknowledge that text passed to llm_ner / dataset generate will be sent "
+                f"to the configured endpoint ({self.openai_base_url or 'https://api.openai.com/v1'})."
+            )
+
     def openai_chat_client(self) -> OpenAICompatibleChatClient:
         """Build a chat client from these settings; raises if no API key is configured."""
+        self.require_external_llm_allowed()
         if not self.openai_api_key:
             raise ValueError(
                 "OpenAI API key is not set. Add OPENAI_API_KEY (or CLINICAL_DEID_OPENAI_API_KEY) "

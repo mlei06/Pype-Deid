@@ -31,7 +31,7 @@ ruff check src/               # lint Python
 cd frontend && npm run lint   # lint frontend
 ```
 
-The base install includes Presidio, HuggingFace inference, and LLM clients. Opt-in extras: `.[dev]` (tests/lint), `.[train]` (fine-tuning: datasets/seqeval/accelerate), `.[scripts]` (pandas/faker for analytics + surrogate mode), `.[parquet]` (pyarrow), `.[all]` (everything). Legacy `.[presidio]`, `.[ner]`, `.[llm]` are kept as no-op back-compat stubs.
+The base install includes Presidio, HuggingFace inference, and LLM clients. Opt-in extras: `.[dev]` (tests/lint), `.[train]` (fine-tuning: datasets/seqeval/accelerate), `.[scripts]` (pandas/faker for analytics + surrogate mode), `.[parquet]` (pyarrow), `.[all]` (everything).
 
 Node.js 20.19+ or 22.12+ required for the frontend (Vite 8).
 
@@ -91,13 +91,13 @@ Select via `CLINICAL_DEID_RISK_PROFILE_NAME` / `Settings.risk_profile_name`. Whe
 ### Pluggable regex pattern + surrogate packs
 
 - **RegexPatternPack** (`clinical_deid.pipes.regex_ner.packs`) — named `label → regex` bundles. Built-ins: `clinical_phi` (default, 22 labels) and `generic_pii` (universal subset: EMAIL, PHONE, URL, IP_ADDRESS, DATE, SSN). Set via `RegexNerConfig.pattern_pack`.
-- **SurrogatePack** (`clinical_deid.pipes.surrogate.packs`) — named `label → strategy` maps over the Faker-backed generators. Built-ins: `clinical_phi` and `generic_pii`. Set via `SurrogateConfig.strategy_pack`.
+- **SurrogatePack** (`clinical_deid.pipes.surrogate.packs`) — named `label → strategy` maps over the Faker-backed generators. Built-ins: `clinical_phi` and `generic_pii`. Active pack is selected via `CLINICAL_DEID_SURROGATE_PACK_NAME` (or `Settings.surrogate_pack_name`); `output_mode='surrogate'` uses that.
 
 Custom packs register via `register_pattern_pack(...)` / `register_surrogate_pack(...)` at startup. `BUILTIN_REGEX_PATTERNS` and `SURROGATE_STRATEGIES` stay as back-compat aliases pointing at the clinical pack.
 
 ### Redaction as an output mode (not a pipe)
 
-Pipelines should only predict spans. Redaction (tag replacement) and surrogate (fake data) are applied at the API layer via `output_mode` parameter (`annotated`, `redacted`, `surrogate`). Legacy redactor pipes (surrogate, presidio_anonymizer) still work in pipelines for backward compat, but the preferred pattern is `output_mode` on process endpoints. The `/process/redact` endpoint accepts text + user-corrected spans for post-editing export. The `/process/scrub` endpoint provides zero-config log cleaning.
+Pipelines only predict spans. Redaction (tag replacement) and surrogate (fake data) are applied at the API layer via `output_mode` parameter (`annotated`, `redacted`, `surrogate`). The `/process/redact` endpoint accepts text + user-corrected spans for post-editing export. The `/process/scrub` endpoint provides zero-config log cleaning. The legacy `surrogate` / `presidio_anonymizer` redactor pipes were removed — the corresponding strategy/operator helpers live in `pipes/surrogate/{packs,strategies,align}.py` (used by `output_mode='surrogate'`) and the `presidio-anonymizer` package is no longer required.
 
 ### Pipe registry
 
@@ -132,15 +132,16 @@ Pipelines are JSON documents with sequential steps — detectors chained into sp
 
 ### Frontend architecture
 
-React 19 + TypeScript + Vite 8 + Tailwind CSS v4. Key libraries:
-- **@xyflow/react** — drag-and-drop pipeline builder canvas
-- **@tanstack/react-query** — all API data fetching (queries + mutations)
-- **zustand** — client-side state (pipeline editor store)
-- **@rjsf/core** — auto-generated config forms from pipe JSON Schema
-- **react-router-dom v7** — SPA routing across 9 Playground views
-- **recharts** — eval dashboard charts
+Two separate React 19 + TypeScript + Vite 8 + Tailwind CSS v4 apps:
 
-The Vite dev server (port 3000) proxies `/api/*` to `localhost:8000` with path rewrite (strips `/api` prefix). Frontend code calls `/api/pipelines`, which hits `localhost:8000/pipelines`.
+- **`frontend/`** — the **Playground**: pipeline builder (`create/`), inference (`inference/`), evaluation (`evaluate/`), datasets (`datasets/`), dictionaries (`dictionaries/`), deploy config (`deploy/`), audit (`audit/`). All admin-scope.
+- **`frontend-production/`** — the trimmed **Production UI**: only `production/` (run-text-through-a-mode), `audit/`, `layout/`, `shared/`. Talks to a narrower API surface.
+
+Both apps share several `lib/` primitives (label colors, span-overlap helpers, span highlighter, etc.). They are currently duplicated rather than consumed from a shared package — keep changes in sync until the two trees are unified.
+
+Key libraries (both apps): **@xyflow/react** (pipeline canvas), **@tanstack/react-query** (data fetching), **zustand** (editor store), **@rjsf/core** (auto-generated config forms), **react-router-dom v7**, **recharts**.
+
+The Vite dev server (port 3000 for Playground) proxies `/api/*` to `localhost:8000` with path rewrite (strips `/api` prefix). Frontend code calls `/api/pipelines`, which hits `localhost:8000/pipelines`.
 
 ### CLI profiles, shipped pipelines, and deploy modes
 
@@ -183,7 +184,6 @@ src/clinical_deid/
     whitelist/           # Dictionary/phrase matching
     blacklist/           # False-positive filtering
     presidio_ner/        # Presidio wrapper (optional)
-    presidio_anonymizer/ # Presidio redaction (optional)
     neuroner_ner/        # NeuroNER LSTM-CRF (Docker HTTP sidecar)
     huggingface_ner/     # Load trained Hugging Face token-classification models from models/huggingface/
     llm_ner.py           # LLM-prompted detection (optional)
@@ -245,6 +245,10 @@ All pipeline routes use **name-based** paths (not UUIDs):
 | `GET` | `/eval/runs` | List eval results |
 | `GET` | `/eval/runs/{id}` | Eval result detail |
 | `POST` | `/eval/compare` | Compare two runs |
+| `GET` | `/inference/runs` | List saved process snapshots (paginated) |
+| `POST` | `/inference/runs` | Persist a process response as a JSON snapshot |
+| `GET` | `/inference/runs/{id}` | Load a saved snapshot |
+| `DELETE` | `/inference/runs/{id}` | Delete a saved snapshot |
 | `GET` | `/datasets` | List datasets (JSONL homes under corpora; lazy `dataset.json`) |
 | `POST` | `/datasets` | Import JSONL copy into `corpora/{name}/` (alias: `POST /datasets/import/jsonl`) |
 | `POST` | `/datasets/import/brat` | Convert BRAT tree on disk → JSONL dataset home |
@@ -320,6 +324,15 @@ The full pipe system (11 cataloged types), CLI, FastAPI, Playground UI (9 views)
 - Optional deps use `try/except ImportError` in `_register_builtins()`
 - Tests use `tmp_path` fixtures for isolated filesystem state
 - Entry points: `clinical-deid` (CLI), `clinical-deid-api` (HTTP server). Production: see [docs/deployment.md](docs/deployment.md) (single image, scoped keys).
+
+## Security gates
+
+Two explicit production-posture guards (both opt-in flags so they don't get in the way locally):
+
+- **`CLINICAL_DEID_AUTH_DISABLED`** (default `False`) — when `environment="production"` AND no API keys are configured, the app refuses to start. Set this flag to `true` to acknowledge an intentionally open deployment.
+- **`CLINICAL_DEID_ALLOW_EXTERNAL_LLM`** (default `False`) — gates `llm_ner` pipe construction and `POST /datasets/generate`. Both call out to the configured OpenAI-compatible endpoint with raw text; flipping the flag is the explicit acknowledgement that text leaves the host.
+
+Path scoping for any client-supplied source path: `POST /datasets`, `/datasets/import/jsonl`, `/datasets/import/brat`, `/datasets/ingest-from-pipeline`, and `/eval/run` all resolve `data_path` / `brat_path` / `source_path` / `dataset_path` through `resolve_source_under_corpora` (or its inline equivalent). Paths must stay under `CORPORA_DIR` (canonical) or `EXPORTS_DIR` (so an exported dataset can be re-imported without manual file moves). Dataset and dictionary names are validated against `^[a-zA-Z0-9][a-zA-Z0-9._-]*$` *before* any `mkdir` / write.
 
 ## Testing
 

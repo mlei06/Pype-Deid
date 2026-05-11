@@ -21,6 +21,7 @@ the store resolves them to file paths.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
@@ -28,6 +29,17 @@ from typing import Literal
 from clinical_deid.pipes.whitelist.lists import parse_list_file
 
 DictKind = Literal["whitelist", "blacklist"]
+
+_SAFE_DICT_NAME = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9._-]*$")
+
+
+def _validate_dict_name(name: str) -> None:
+    """Reject dictionary names that could escape the whitelist/blacklist parent."""
+    if not _SAFE_DICT_NAME.match(name) or ".." in name:
+        raise ValueError(
+            f"Invalid dictionary name {name!r}: must match {_SAFE_DICT_NAME.pattern} "
+            f"and not contain '..'"
+        )
 
 
 @dataclass(frozen=True)
@@ -160,6 +172,7 @@ class DictionaryStore:
         ignored for whitelist (dictionaries are flat).
         """
         _ = label
+        _validate_dict_name(name)
         if kind == "whitelist":
             parent = self._whitelist_dir()
         else:

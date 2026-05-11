@@ -11,7 +11,8 @@ import pytest
 def dataset_with_docs(client, tmp_path):
     """Register a test dataset via the API."""
     # Create a JSONL file with test data
-    jsonl_path = tmp_path / "test_corpus.jsonl"
+    jsonl_path = tmp_path / "data" / "corpora" / "_in" / "test_corpus.jsonl"
+    jsonl_path.parent.mkdir(parents=True, exist_ok=True)
     docs = [
         {
             "document": {"id": "doc1", "text": "Patient John Smith DOB 01/15/1980"},

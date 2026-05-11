@@ -437,8 +437,10 @@ class LlmNerPipe(ConfigurablePipe):
     def _get_client(self) -> Any:
         if self._cached_client is not None:
             return self._cached_client
+        from clinical_deid.config import get_settings
         from clinical_deid.synthesis.client import OpenAIResponsesClient
 
+        get_settings().require_external_llm_allowed()
         api_key = self._resolve_api_key()
         self._cached_client = OpenAIResponsesClient(
             model=self._config.model,
