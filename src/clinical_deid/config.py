@@ -61,6 +61,15 @@ class Settings(BaseSettings):
             "'generic_pii'."
         ),
     )
+    #: Active surrogate strategy pack (see :mod:`clinical_deid.pipes.surrogate.packs`).
+    #: Used by ``output_mode='surrogate'`` when a per-call pack is not supplied.
+    surrogate_pack_name: str = Field(
+        default="clinical_phi",
+        description=(
+            "Name of the registered surrogate pack used to map labels to fake-data "
+            "strategies. Built-ins: 'clinical_phi' (default), 'generic_pii'."
+        ),
+    )
     cors_origins: list[str] = Field(
         default=["http://localhost:3000", "http://127.0.0.1:3000"],
         description="Allowed CORS origins for the API.",

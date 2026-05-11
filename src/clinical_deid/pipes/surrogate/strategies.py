@@ -6,7 +6,17 @@ import random
 
 from faker import Faker
 
-from clinical_deid.pipes.surrogate.packs import CLINICAL_PHI_SURROGATE
+from clinical_deid.pipes.surrogate.packs import get_surrogate_pack
+
+
+def _default_label_to_strategy() -> dict[str, str]:
+    """Read the active surrogate pack from settings (falls back to ``clinical_phi``)."""
+    try:
+        from clinical_deid.config import get_settings
+
+        return dict(get_surrogate_pack(get_settings().surrogate_pack_name).label_to_strategy)
+    except KeyError:
+        return dict(get_surrogate_pack("clinical_phi").label_to_strategy)
 
 
 class SurrogateGenerator:
@@ -16,7 +26,7 @@ class SurrogateGenerator:
     for the lifetime of this generator (or until :meth:`reset` is called).
 
     *label_to_strategy* is the ``label → strategy`` map from a surrogate pack.
-    Defaults to the clinical_phi pack for back-compat.
+    When unset, resolves to the pack named by ``Settings.surrogate_pack_name``.
     """
 
     def __init__(
@@ -31,10 +41,10 @@ class SurrogateGenerator:
             self._faker.seed_instance(seed)
             random.seed(seed)
         self._consistency = consistency
-        self._label_to_strategy = dict(
-            label_to_strategy
+        self._label_to_strategy = (
+            dict(label_to_strategy)
             if label_to_strategy is not None
-            else CLINICAL_PHI_SURROGATE.label_to_strategy
+            else _default_label_to_strategy()
         )
         self._map: dict[tuple[str, str], str] = {}
 
