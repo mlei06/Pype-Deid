@@ -108,10 +108,3 @@ def test_all_detectors_expose_skip_overlapping_in_general(name: str) -> None:
     assert prop.get("ui_advanced") is not True
 
 
-def test_presidio_anonymizer_operator_params_conditional() -> None:
-    from clinical_deid.pipes.presidio_anonymizer.pipe import PresidioAnonymizerConfig
-
-    props = PresidioAnonymizerConfig.model_json_schema()["properties"]
-    assert props["masking_char"]["ui_visible_when"]["equals"] == "mask"
-    assert props["new_value"]["ui_visible_when"]["equals"] == "replace"
-    assert props["key"]["ui_widget"] == "password"

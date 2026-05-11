@@ -23,6 +23,8 @@ from clinical_deid.pipes.blacklist import (
     blacklist_regions_for_text,
 )
 from clinical_deid.pipes.combinators import (
+    LabelFilter,
+    LabelFilterConfig,
     LabelMapper,
     LabelMapperConfig,
     Pipeline,
@@ -70,6 +72,8 @@ __all__ = [
     "Preprocessor",
     "SpanTransformer",
     # Combinators
+    "LabelFilter",
+    "LabelFilterConfig",
     "LabelMapper",
     "LabelMapperConfig",
     "MergeStrategy",

@@ -68,7 +68,7 @@ class PipeCatalogEntry:
 
     name: str
     description: str
-    role: str  # "detector", "span_transformer", "redactor", "preprocessor"
+    role: str  # "detector", "span_transformer", "preprocessor"
     extra: str | None  # pip extra name, e.g. "presidio", or None if always available
     install_hint: str  # human-readable install command
     config_path: str  # "module.path:ConfigClass"
@@ -81,7 +81,7 @@ class PipeCatalogEntry:
     # Only meaningful for detector-role entries.
     default_base_labels_fn: str | None = None  # "module.path:function_name"
     # How the playground discovers this detector's label space:
-    #   "none"    — no label-space UI (span_transformers, redactors)
+    #   "none"    — no label-space UI (span_transformers, preprocessors)
     #   "compute" — POST /pipe-types/{name}/labels with a config
     #   "bundle"  — GET /pipe-types/{name}/label-space-bundle (one fetch, switch models client-side)
     #   "both"    — bundle for fast switching; POST also available
