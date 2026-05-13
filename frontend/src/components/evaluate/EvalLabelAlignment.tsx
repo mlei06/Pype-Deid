@@ -218,7 +218,7 @@ function GoldPipelineDiff({
 
       <p className="text-xs leading-relaxed text-gray-600">
         Evaluation uses <strong>exact</strong> string labels on gold vs predicted spans (and boundaries). It does
-        <strong> not</strong> use <code className="rounded bg-gray-100 px-0.5">CLINICAL_DEID_LABEL_SPACE_NAME</code> at
+        <strong> not</strong> use <code className="rounded bg-gray-100 px-0.5">PYPEDEID_LABEL_SPACE_NAME</code> at
         eval time. If gold and pipeline disagree, add a <strong>label_mapper</strong> (or change the corpus) so
         names match. See the repo&apos;s <code className="rounded bg-gray-100 px-0.5">docs/pipes-and-pipelines.md</code> for
         pipe types.

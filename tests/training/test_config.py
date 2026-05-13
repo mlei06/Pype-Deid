@@ -3,7 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
-from clinical_deid.training.config import TrainingConfig, TrainingHyperparams
+from pypedeid.training.config import TrainingConfig, TrainingHyperparams
 
 
 def test_default_hyperparams():

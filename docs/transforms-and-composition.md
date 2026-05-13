@@ -121,7 +121,7 @@ Weights are normalized to 1. The `deploy` split is an optional held-out bucket. 
 ### Programmatic API
 
 ```python
-from clinical_deid.transform import (
+from pypedeid.transform import (
     run_transform_pipeline,
     filter_labels,
     apply_label_mapping,
@@ -244,7 +244,7 @@ This prevents ID collisions when merging corpora that might share document IDs.
 ### Programmatic API
 
 ```python
-from clinical_deid.compose import (
+from pypedeid.compose import (
     compose_corpora,
     compose_merge,
     compose_interleave,

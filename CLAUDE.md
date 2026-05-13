@@ -15,8 +15,8 @@ The default configuration ships a **clinical de-identification pack** (HIPAA Saf
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"                     # base (presidio + HF + LLM) + tests/lint
 python -m spacy download en_core_web_sm     # required for Presidio pipes
-clinical-deid setup          # verify deps, init DB, smoke test
-clinical-deid serve           # start API on localhost:8000
+pypedeid setup          # verify deps, init DB, smoke test
+pypedeid serve           # start API on localhost:8000
 
 # Frontend (separate terminal)
 cd frontend
@@ -44,13 +44,13 @@ All mutable state lives under `data/` and all model weights live under `models/`
 | What | Storage | Location |
 |------|---------|----------|
 | Pipelines | JSON files | `data/pipelines/{name}.json` (mutable via UI or on disk). **Shipped examples:** `clinical-fast`, `presidio`, `clinical-transformer`, `clinical-transformer-presidio`, `clinical-llm`, `clinical-llm-presidio`, `clinical-ensemble` (tracked JSON). |
-| Eval results | JSON files | `data/evaluations/{pipeline}_{timestamp}.json` (Playground **Evaluate**, `POST /eval/run`, and **`clinical-deid eval`** — all browsable in the UI via `GET /eval/runs`) |
+| Eval results | JSON files | `data/evaluations/{pipeline}_{timestamp}.json` (Playground **Evaluate**, `POST /eval/run`, and **`pypedeid eval`** — all browsable in the UI via `GET /eval/runs`) |
 | Inference runs | JSON files | `data/inference_runs/{pipeline}_{timestamp}.json` |
 | Models | Directories | `models/{framework}/{name}/` |
 | Datasets | JSONL under corpora | `data/corpora/{name}/corpus.jsonl` + `dataset.json` (cached analytics). BRAT is ingest/export only — not stored as the canonical corpus layout |
-| Dataset exports | Filesystem under `data/exports` | `data/exports/{name}/` for materialized BRAT / training exports from `POST /datasets/{name}/export` (`CLINICAL_DEID_EXPORTS_DIR`) |
+| Dataset exports | Filesystem under `data/exports` | `data/exports/{name}/` for materialized BRAT / training exports from `POST /datasets/{name}/export` (`PYPEDEID_EXPORTS_DIR`) |
 | Dictionaries | Term-list files | `data/dictionaries/whitelist/` and `data/dictionaries/blacklist/` (each a flat pool of files; assign names to NER labels in the whitelist pipe) |
-| Deploy config | JSON file | `data/modes.json` (`CLINICAL_DEID_MODES_PATH`; mutable via UI or on disk) |
+| Deploy config | JSON file | `data/modes.json` (`PYPEDEID_MODES_PATH`; mutable via UI or on disk) |
 | Audit log | SQLite (SQLModel) | `data/app.sqlite` — `audit_log` table |
 
 No migrations. Pipelines use git for history. The database stores only the append-only audit trail (`AuditLogRecord` in `tables.py`).
@@ -68,12 +68,12 @@ Subtypes: `Detector` (produces spans), `SpanTransformer` (modifies spans), `Reda
 
 ### Pluggable label space
 
-The canonical entity-label schema is a **LabelSpace** (`clinical_deid.labels.LabelSpace`) — a named, frozen bundle of labels + aliases + fallback. The platform ships two built-in packs:
+The canonical entity-label schema is a **LabelSpace** (`pypedeid.labels.LabelSpace`) — a named, frozen bundle of labels + aliases + fallback. The platform ships two built-in packs:
 
 - **`clinical_phi`** (default) — HIPAA Safe Harbor identifiers plus clinical additions (~40 labels).
 - **`generic_pii`** — minimal general-purpose PII (NAME, EMAIL, PHONE, ADDRESS, DATE, ID, LOCATION, ORGANIZATION, URL, IP_ADDRESS, OTHER).
 
-Select the active pack via `CLINICAL_DEID_LABEL_SPACE_NAME` (or `Settings.label_space_name`). Register custom packs at startup with `register_label_space(LabelSpace(...))` — pipes then use `get_label_space(name).normalize(raw)` to canonicalize detector output.
+Select the active pack via `PYPEDEID_LABEL_SPACE_NAME` (or `Settings.label_space_name`). Register custom packs at startup with `register_label_space(LabelSpace(...))` — pipes then use `get_label_space(name).normalize(raw)` to canonicalize detector output.
 
 Use the label-space API (`get_label_space`, `default_label_space`, `CLINICAL_PHI.normalize`, …) and plain `str` labels — not a special enum. Detectors map internal tags via per-pipe `remap` / `label_mapping` and the active `LabelSpace` normalizes at **inference** (`POST /process/*`) only. **Evaluation** uses raw gold vs raw predicted label strings; align the corpus and pipeline (e.g. a final `label_mapper`) if names differ.
 
@@ -81,17 +81,17 @@ The core span type is `EntitySpan` in `domain.py` (``start``, ``end``, ``label``
 
 ### Pluggable risk profile
 
-Coverage reporting and risk-weighted recall are driven by a **RiskProfile** (`clinical_deid.risk.RiskProfile`) — a named bundle of per-label risk weights plus a coverage scheme (ordered `CoverageIdentifier` list + label→identifier map). Built-in profiles:
+Coverage reporting and risk-weighted recall are driven by a **RiskProfile** (`pypedeid.risk.RiskProfile`) — a named bundle of per-label risk weights plus a coverage scheme (ordered `CoverageIdentifier` list + label→identifier map). Built-in profiles:
 
 - **`clinical_phi`** (default) — HIPAA Safe Harbor's 18 identifiers with clinical-severity weights. Identifier #17 (full-face photographs) is marked non-required (always `n/a` in text).
 - **`generic_pii`** — six categorical identifiers (names, contact, location, id, temporal, network) with uniform weights.
 
-Select via `CLINICAL_DEID_RISK_PROFILE_NAME` / `Settings.risk_profile_name`. When `evaluate_pipeline(...)` is called without `risk_profile=`, it uses `default_risk_profile()` from `clinical_deid.risk` (those settings). `POST /eval/run` accepts optional `risk_profile_name` in the JSON body; `clinical-deid eval` accepts optional `--risk-profile` — each overrides the env default for that run. Persisted eval JSON includes `metrics.risk_profile_name` for the profile used. `eval/risk.py` keeps its module-level API (`risk_weighted_recall`, `hipaa_coverage_report`, `DEFAULT_RISK_WEIGHTS`, `HIPAA_IDENTIFIER_NAMES`, `LABEL_TO_HIPAA`) as a thin shim, still derived from the built-in `clinical_phi` profile for backward compatibility.
+Select via `PYPEDEID_RISK_PROFILE_NAME` / `Settings.risk_profile_name`. When `evaluate_pipeline(...)` is called without `risk_profile=`, it uses `default_risk_profile()` from `pypedeid.risk` (those settings). `POST /eval/run` accepts optional `risk_profile_name` in the JSON body; `pypedeid eval` accepts optional `--risk-profile` — each overrides the env default for that run. Persisted eval JSON includes `metrics.risk_profile_name` for the profile used. `eval/risk.py` keeps its module-level API (`risk_weighted_recall`, `hipaa_coverage_report`, `DEFAULT_RISK_WEIGHTS`, `HIPAA_IDENTIFIER_NAMES`, `LABEL_TO_HIPAA`) as a thin shim, still derived from the built-in `clinical_phi` profile for backward compatibility.
 
 ### Pluggable regex pattern + surrogate packs
 
-- **RegexPatternPack** (`clinical_deid.pipes.regex_ner.packs`) — named `label → regex` bundles. Built-ins: `clinical_phi` (default, 22 labels) and `generic_pii` (universal subset: EMAIL, PHONE, URL, IP_ADDRESS, DATE, SSN). Set via `RegexNerConfig.pattern_pack`.
-- **SurrogatePack** (`clinical_deid.pipes.surrogate.packs`) — named `label → strategy` maps over the Faker-backed generators. Built-ins: `clinical_phi` and `generic_pii`. Active pack is selected via `CLINICAL_DEID_SURROGATE_PACK_NAME` (or `Settings.surrogate_pack_name`); `output_mode='surrogate'` uses that.
+- **RegexPatternPack** (`pypedeid.pipes.regex_ner.packs`) — named `label → regex` bundles. Built-ins: `clinical_phi` (default, 22 labels) and `generic_pii` (universal subset: EMAIL, PHONE, URL, IP_ADDRESS, DATE, SSN). Set via `RegexNerConfig.pattern_pack`.
+- **SurrogatePack** (`pypedeid.pipes.surrogate.packs`) — named `label → strategy` maps over the Faker-backed generators. Built-ins: `clinical_phi` and `generic_pii`. Active pack is selected via `PYPEDEID_SURROGATE_PACK_NAME` (or `Settings.surrogate_pack_name`); `output_mode='surrogate'` uses that.
 
 Custom packs register via `register_pattern_pack(...)` / `register_surrogate_pack(...)` at startup. `BUILTIN_REGEX_PATTERNS` and `SURROGATE_STRATEGIES` stay as back-compat aliases pointing at the clinical pack.
 
@@ -170,7 +170,7 @@ frontend/                # Vite + React + TypeScript playground UI
     layout/              # Shell layout
     shared/              # Reusable components (SpanHighlighter, LabelBadge, etc.)
 
-src/clinical_deid/
+src/pypedeid/
   domain.py              # Document, EntitySpan, AnnotatedDocument
   pipes/                 # All pipe implementations + registry + combinators
     registry.py          # Central registry, JSON load/dump, pipe catalog
@@ -279,26 +279,26 @@ All pipeline routes use **name-based** paths (not UUIDs):
 ## CLI commands
 
 ```
-clinical-deid run [FILES]           # De-identify text from stdin or files
-clinical-deid batch INPUT -o OUT    # Batch process directory or JSONL
-clinical-deid eval --corpus FILE.jsonl  # Gold JSONL only; convert BRAT via dataset import-brat first
-clinical-deid dict list             # List dictionaries
-clinical-deid dict preview KIND NAME  # Preview dictionary terms
-clinical-deid dict import FILE --kind KIND --name NAME  # Import dictionary
-clinical-deid dict delete KIND NAME # Delete dictionary
-clinical-deid dataset list          # List datasets (discovered JSONL homes)
-clinical-deid dataset register PATH --name NAME  # Import a JSONL file into corpora
-clinical-deid dataset import-brat DIR --name NAME  # BRAT (flat or split) → JSONL under corpora
-clinical-deid dataset ingest-run --input PATH --pipeline NAME --output-name OUT  # Run pipeline over raw text → JSONL dataset
-clinical-deid dataset refresh NAME  # Recompute stats from corpus.jsonl
-clinical-deid dataset refresh-all
-clinical-deid dataset show NAME     # Dataset details + analytics
-clinical-deid dataset delete NAME   # Delete dataset directory
-clinical-deid dataset export NAME -o DIR  # conll/spacy/huggingface/jsonl; --format brat defaults to data/exports/…
-clinical-deid audit list            # List audit records
-clinical-deid audit show ID         # Show audit detail
-clinical-deid setup                 # Verify deps, init DB
-clinical-deid serve                 # Start API server
+pypedeid run [FILES]           # De-identify text from stdin or files
+pypedeid batch INPUT -o OUT    # Batch process directory or JSONL
+pypedeid eval --corpus FILE.jsonl  # Gold JSONL only; convert BRAT via dataset import-brat first
+pypedeid dict list             # List dictionaries
+pypedeid dict preview KIND NAME  # Preview dictionary terms
+pypedeid dict import FILE --kind KIND --name NAME  # Import dictionary
+pypedeid dict delete KIND NAME # Delete dictionary
+pypedeid dataset list          # List datasets (discovered JSONL homes)
+pypedeid dataset register PATH --name NAME  # Import a JSONL file into corpora
+pypedeid dataset import-brat DIR --name NAME  # BRAT (flat or split) → JSONL under corpora
+pypedeid dataset ingest-run --input PATH --pipeline NAME --output-name OUT  # Run pipeline over raw text → JSONL dataset
+pypedeid dataset refresh NAME  # Recompute stats from corpus.jsonl
+pypedeid dataset refresh-all
+pypedeid dataset show NAME     # Dataset details + analytics
+pypedeid dataset delete NAME   # Delete dataset directory
+pypedeid dataset export NAME -o DIR  # conll/spacy/huggingface/jsonl; --format brat defaults to data/exports/…
+pypedeid audit list            # List audit records
+pypedeid audit show ID         # Show audit detail
+pypedeid setup                 # Verify deps, init DB
+pypedeid serve                 # Start API server
 ```
 
 Pipeline commands (`run`, `batch`, `eval`) support `--profile` (fast / balanced / accurate), `--pipeline` (saved pipeline name such as `clinical-fast` — **overrides** `--profile`), `--config` (custom JSON file), and `--redactor` (tag/surrogate).
@@ -311,7 +311,7 @@ Also computes: risk-weighted recall (HIPAA severity weights), per-label breakdow
 
 ## Current status
 
-The full pipe system (11 cataloged types), CLI, FastAPI, Playground UI (9 views), and Production UI (`frontend-production/`) are built and functional. Key capabilities: pipeline composition, multi-mode evaluation with HIPAA coverage, training data export, `clinical-deid train run` for HF fine-tuning (`[train]` extra), NeuroNER HTTP sidecar integration, LLM synthesis, optional API key auth, Docker image, and unified audit trail.
+The full pipe system (11 cataloged types), CLI, FastAPI, Playground UI (9 views), and Production UI (`frontend-production/`) are built and functional. Key capabilities: pipeline composition, multi-mode evaluation with HIPAA coverage, training data export, `pypedeid train run` for HF fine-tuning (`[train]` extra), NeuroNER HTTP sidecar integration, LLM synthesis, optional API key auth, Docker image, and unified audit trail.
 
 ## What's not built yet
 
@@ -320,17 +320,17 @@ The full pipe system (11 cataloged types), CLI, FastAPI, Playground UI (9 views)
 ## Conventions
 
 - Python 3.11+, Pydantic v2, FastAPI, SQLModel
-- Config via env vars with `CLINICAL_DEID_` prefix or `.env` file
+- Config via env vars with `PYPEDEID_` prefix or `.env` file
 - Optional deps use `try/except ImportError` in `_register_builtins()`
 - Tests use `tmp_path` fixtures for isolated filesystem state
-- Entry points: `clinical-deid` (CLI), `clinical-deid-api` (HTTP server). Production: see [docs/deployment.md](docs/deployment.md) (single image, scoped keys).
+- Entry points: `pypedeid` (CLI), `pypedeid-api` (HTTP server). Production: see [docs/deployment.md](docs/deployment.md) (single image, scoped keys).
 
 ## Security gates
 
 Two explicit production-posture guards (both opt-in flags so they don't get in the way locally):
 
-- **`CLINICAL_DEID_AUTH_DISABLED`** (default `False`) — when `environment="production"` AND no API keys are configured, the app refuses to start. Set this flag to `true` to acknowledge an intentionally open deployment.
-- **`CLINICAL_DEID_ALLOW_EXTERNAL_LLM`** (default `False`) — gates `llm_ner` pipe construction and `POST /datasets/generate`. Both call out to the configured OpenAI-compatible endpoint with raw text; flipping the flag is the explicit acknowledgement that text leaves the host.
+- **`PYPEDEID_AUTH_DISABLED`** (default `False`) — when `environment="production"` AND no API keys are configured, the app refuses to start. Set this flag to `true` to acknowledge an intentionally open deployment.
+- **`PYPEDEID_ALLOW_EXTERNAL_LLM`** (default `False`) — gates `llm_ner` pipe construction and `POST /datasets/generate`. Both call out to the configured OpenAI-compatible endpoint with raw text; flipping the flag is the explicit acknowledgement that text leaves the host.
 
 Path scoping for any client-supplied source path: `POST /datasets`, `/datasets/import/jsonl`, `/datasets/import/brat`, `/datasets/ingest-from-pipeline`, and `/eval/run` all resolve `data_path` / `brat_path` / `source_path` / `dataset_path` through `resolve_source_under_corpora` (or its inline equivalent). Paths must stay under `CORPORA_DIR` (canonical) or `EXPORTS_DIR` (so an exported dataset can be re-imported without manual file moves). Dataset and dictionary names are validated against `^[a-zA-Z0-9][a-zA-Z0-9._-]*$` *before* any `mkdir` / write.
 

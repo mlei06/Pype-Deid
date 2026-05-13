@@ -6,8 +6,8 @@ import io
 
 import pytest
 
-from clinical_deid.dictionary_store import DictionaryStore
-from clinical_deid.domain import AnnotatedDocument, Document, EntitySpan
+from pypedeid.dictionary_store import DictionaryStore
+from pypedeid.domain import AnnotatedDocument, Document, EntitySpan
 
 
 def _doc(text: str) -> AnnotatedDocument:
@@ -304,14 +304,14 @@ def test_get_dictionary_terms_paginated_not_found(client):
 
 def test_whitelist_pipe_with_dictionary(tmp_path, monkeypatch):
     """Whitelist pipe loads terms from a dictionary in the store."""
-    monkeypatch.setenv("CLINICAL_DEID_DICTIONARIES_DIR", str(tmp_path))
-    from clinical_deid.config import reset_settings
+    monkeypatch.setenv("PYPEDEID_DICTIONARIES_DIR", str(tmp_path))
+    from pypedeid.config import reset_settings
     reset_settings()
 
     store = DictionaryStore(tmp_path)
     store.save("whitelist", "test_hospitals", "Alpha Clinic\n")
 
-    from clinical_deid.pipes.whitelist import WhitelistConfig, WhitelistLabelConfig, WhitelistPipe
+    from pypedeid.pipes.whitelist import WhitelistConfig, WhitelistLabelConfig, WhitelistPipe
 
     config = WhitelistConfig(
         labels={
@@ -329,14 +329,14 @@ def test_whitelist_pipe_with_dictionary(tmp_path, monkeypatch):
 
 def test_blacklist_pipe_with_dictionary(tmp_path, monkeypatch):
     """Blacklist pipe loads terms from a dictionary in the store."""
-    monkeypatch.setenv("CLINICAL_DEID_DICTIONARIES_DIR", str(tmp_path))
-    from clinical_deid.config import reset_settings
+    monkeypatch.setenv("PYPEDEID_DICTIONARIES_DIR", str(tmp_path))
+    from pypedeid.config import reset_settings
     reset_settings()
 
     store = DictionaryStore(tmp_path)
     store.save("blacklist", "safe_words", "PATIENT\n")
 
-    from clinical_deid.pipes.blacklist import BlacklistSpans, BlacklistSpansConfig
+    from pypedeid.pipes.blacklist import BlacklistSpans, BlacklistSpansConfig
 
     text = "seen in PATIENT room"
     spans = [EntitySpan(start=text.index("PATIENT"), end=text.index("PATIENT") + 7, label="NAME")]

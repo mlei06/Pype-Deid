@@ -52,7 +52,7 @@ def _load_label_map(path: Path) -> dict[str, str]:
 
 
 def _write_jsonl(path: Path, docs: list) -> None:
-    from clinical_deid.domain import AnnotatedDocument
+    from pypedeid.domain import AnnotatedDocument
 
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as f:
@@ -106,9 +106,9 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    from clinical_deid.ingest.sink import write_annotated_corpus
-    from clinical_deid.ingest.sources import load_annotated_corpus
-    from clinical_deid.transform.ops import run_transform_pipeline
+    from pypedeid.ingest.sink import write_annotated_corpus
+    from pypedeid.ingest.sources import load_annotated_corpus
+    from pypedeid.transform.ops import run_transform_pipeline
 
     docs = load_annotated_corpus(
         jsonl=args.jsonl,

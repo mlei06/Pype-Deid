@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from clinical_deid.ingest.asq_phi import (
+from pypedeid.ingest.asq_phi import (
     iter_asq_phi_records,
     records_to_annotated_dicts,
     write_asq_phi_brat_corpus,

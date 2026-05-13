@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from clinical_deid.ingest.sources import load_annotated_corpus
+from pypedeid.ingest.sources import load_annotated_corpus
 
 
 def test_load_annotated_corpus_jsonl(tmp_path: Path) -> None:

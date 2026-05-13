@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from clinical_deid.domain import AnnotatedDocument
-from clinical_deid.ingest.sink import write_annotated_corpus
-from clinical_deid.ingest.sources import load_annotated_corpus
-from clinical_deid.pipeline.job import DatasetJob
-from clinical_deid.transform.ops import run_transform_pipeline
+from pypedeid.domain import AnnotatedDocument
+from pypedeid.ingest.sink import write_annotated_corpus
+from pypedeid.ingest.sources import load_annotated_corpus
+from pypedeid.pipeline.job import DatasetJob
+from pypedeid.transform.ops import run_transform_pipeline
 
 
 def test_dataset_job_load_transform_sink(tmp_path: Path) -> None:

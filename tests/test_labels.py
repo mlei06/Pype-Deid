@@ -1,10 +1,10 @@
-"""Tests for the pluggable LabelSpace abstraction in ``clinical_deid.labels``."""
+"""Tests for the pluggable LabelSpace abstraction in ``pypedeid.labels``."""
 
 from __future__ import annotations
 
 import pytest
 
-from clinical_deid.labels import (
+from pypedeid.labels import (
     CLINICAL_PHI,
     GENERIC_PII,
     LabelSpace,
@@ -90,18 +90,18 @@ def test_register_label_space_roundtrip() -> None:
     try:
         assert get_label_space("test_pack_xyz") is space
     finally:
-        from clinical_deid.labels import _REGISTRY  # type: ignore[attr-defined]
+        from pypedeid.labels import _REGISTRY  # type: ignore[attr-defined]
 
         _REGISTRY.pop("test_pack_xyz", None)
 
 
 def test_default_label_space_reads_settings(monkeypatch: pytest.MonkeyPatch) -> None:
-    from clinical_deid.config import reset_settings
+    from pypedeid.config import reset_settings
 
     reset_settings()
     assert default_label_space() is CLINICAL_PHI
 
-    monkeypatch.setenv("CLINICAL_DEID_LABEL_SPACE_NAME", "generic_pii")
+    monkeypatch.setenv("PYPEDEID_LABEL_SPACE_NAME", "generic_pii")
     reset_settings()
     try:
         assert default_label_space() is GENERIC_PII

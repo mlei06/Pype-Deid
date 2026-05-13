@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from clinical_deid.domain import AnnotatedDocument, Document, EntitySpan
-from clinical_deid.eval.runner import evaluate_pipeline
-from clinical_deid.pipes.base import Pipe
-from clinical_deid.risk import CLINICAL_PHI_RISK
+from pypedeid.domain import AnnotatedDocument, Document, EntitySpan
+from pypedeid.eval.runner import evaluate_pipeline
+from pypedeid.pipes.base import Pipe
+from pypedeid.risk import CLINICAL_PHI_RISK
 
 
 class _PhonePred(Pipe):

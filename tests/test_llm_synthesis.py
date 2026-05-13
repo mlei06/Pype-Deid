@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from clinical_deid.domain import AnnotatedDocument, Document
-from clinical_deid.synthesis import (
+from pypedeid.domain import AnnotatedDocument, Document
+from pypedeid.synthesis import (
     CompositePromptParts,
     FewShotExample,
     LLMSynthesizer,
@@ -14,7 +14,7 @@ from clinical_deid.synthesis import (
     phi_dict_to_spans,
     synthesis_result_to_annotated_document,
 )
-from clinical_deid.synthesis.align import drop_overlapping_spans
+from pypedeid.synthesis.align import drop_overlapping_spans
 
 
 def test_parse_response_user_style() -> None:
@@ -115,7 +115,7 @@ def test_synthesis_result_to_annotated_document() -> None:
 
 
 def test_drop_overlapping_spans() -> None:
-    from clinical_deid.domain import EntitySpan
+    from pypedeid.domain import EntitySpan
 
     s = [
         EntitySpan(start=0, end=3, label="A"),

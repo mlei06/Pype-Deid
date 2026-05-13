@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import pytest
 
-from clinical_deid.domain import EntitySpan
+from pypedeid.domain import EntitySpan
 
 faker = pytest.importorskip("faker", reason="surrogate alignment requires faker")
-from clinical_deid.pipes.surrogate.align import surrogate_text_with_spans  # noqa: E402
+from pypedeid.pipes.surrogate.align import surrogate_text_with_spans  # noqa: E402
 
 
 def test_empty_spans_returns_original_text():

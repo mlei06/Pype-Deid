@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from clinical_deid.ingest.brat import load_brat_directory
+from pypedeid.ingest.brat import load_brat_directory
 
 
 def test_load_brat_directory(tmp_path: Path) -> None:

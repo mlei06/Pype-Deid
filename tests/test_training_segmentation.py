@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from clinical_deid.domain import AnnotatedDocument, Document, EntitySpan
-from clinical_deid.training.segmentation import (
+from pypedeid.domain import AnnotatedDocument, Document, EntitySpan
+from pypedeid.training.segmentation import (
     sentence_offsets,
     split_doc_into_sentences,
 )
@@ -183,7 +183,7 @@ def test_empty_doc_produces_no_sentences():
 
 
 def test_training_config_segmentation_default_is_truncate():
-    from clinical_deid.training.config import TrainingConfig
+    from pypedeid.training.config import TrainingConfig
 
     cfg = TrainingConfig(
         base_model="bert-base",
@@ -194,7 +194,7 @@ def test_training_config_segmentation_default_is_truncate():
 
 
 def test_training_config_segmentation_sentence_accepted():
-    from clinical_deid.training.config import TrainingConfig
+    from pypedeid.training.config import TrainingConfig
 
     cfg = TrainingConfig(
         base_model="bert-base",
@@ -206,7 +206,7 @@ def test_training_config_segmentation_sentence_accepted():
 
 
 def test_training_config_rejects_unknown_segmentation():
-    from clinical_deid.training.config import TrainingConfig
+    from pypedeid.training.config import TrainingConfig
     from pydantic import ValidationError
 
     with pytest.raises(ValidationError):
@@ -224,7 +224,7 @@ def test_training_config_rejects_unknown_segmentation():
 
 
 def test_resolve_segmentation_auto_keeps_sentence_when_trained():
-    from clinical_deid.pipes.huggingface_ner.pipe import _resolve_segmentation_mode
+    from pypedeid.pipes.huggingface_ner.pipe import _resolve_segmentation_mode
 
     assert _resolve_segmentation_mode("auto", "sentence", "m") == "sentence"
 
@@ -232,7 +232,7 @@ def test_resolve_segmentation_auto_keeps_sentence_when_trained():
 def test_resolve_segmentation_auto_upgrades_truncate_to_chunk():
     """Auto mode never silently drops PHI past the context window — even
     truncate-trained or older manifests get full-document chunked inference."""
-    from clinical_deid.pipes.huggingface_ner.pipe import _resolve_segmentation_mode
+    from pypedeid.pipes.huggingface_ner.pipe import _resolve_segmentation_mode
 
     assert _resolve_segmentation_mode("auto", "truncate", "m") == "chunk"
     assert _resolve_segmentation_mode("auto", None, "m") == "chunk"
@@ -240,9 +240,9 @@ def test_resolve_segmentation_auto_upgrades_truncate_to_chunk():
 
 def test_resolve_segmentation_mismatch_warns(caplog):
     import logging
-    from clinical_deid.pipes.huggingface_ner.pipe import _resolve_segmentation_mode
+    from pypedeid.pipes.huggingface_ner.pipe import _resolve_segmentation_mode
 
-    with caplog.at_level(logging.WARNING, logger="clinical_deid.pipes.huggingface_ner.pipe"):
+    with caplog.at_level(logging.WARNING, logger="pypedeid.pipes.huggingface_ner.pipe"):
         mode = _resolve_segmentation_mode("sentence", "truncate", "my-model")
     assert mode == "sentence"
     assert any("my-model" in rec.message for rec in caplog.records)
@@ -251,9 +251,9 @@ def test_resolve_segmentation_mismatch_warns(caplog):
 
 def test_resolve_segmentation_match_no_warning(caplog):
     import logging
-    from clinical_deid.pipes.huggingface_ner.pipe import _resolve_segmentation_mode
+    from pypedeid.pipes.huggingface_ner.pipe import _resolve_segmentation_mode
 
-    with caplog.at_level(logging.WARNING, logger="clinical_deid.pipes.huggingface_ner.pipe"):
+    with caplog.at_level(logging.WARNING, logger="pypedeid.pipes.huggingface_ner.pipe"):
         mode = _resolve_segmentation_mode("sentence", "sentence", "m")
     assert mode == "sentence"
     assert not any("segmentation" in rec.message for rec in caplog.records)
@@ -280,7 +280,7 @@ class _FakeHFPipeline:
 
 
 def test_predict_huggingface_by_sentence_remaps_to_doc_coords():
-    from clinical_deid.pipes.huggingface_ner.pipe import _predict_by_sentence
+    from pypedeid.pipes.huggingface_ner.pipe import _predict_by_sentence
 
     # Two sentences. Predictions are *sentence-local*; we assert they land
     # at the correct *document* offsets after remap.
@@ -372,7 +372,7 @@ def test_predict_by_chunks_covers_full_doc_and_remaps_offsets():
     """A doc longer than the model window must be sliced into overlapping
     sub-windows; predictions in *every* sub-window are remapped back to
     document coords."""
-    from clinical_deid.pipes.huggingface_ner.pipe import (
+    from pypedeid.pipes.huggingface_ner.pipe import (
         CHUNK_STRIDE_TOKENS,
         _predict_by_chunks,
     )
@@ -410,7 +410,7 @@ def test_predict_by_chunks_covers_full_doc_and_remaps_offsets():
 
 def test_predict_by_chunks_short_doc_runs_one_pass():
     """If the doc fits in one window, only a single pipeline call is made."""
-    from clinical_deid.pipes.huggingface_ner.pipe import _predict_by_chunks
+    from pypedeid.pipes.huggingface_ner.pipe import _predict_by_chunks
 
     text = "Dr. John Smith was admitted today."
     tokenizer = _FakeWordTokenizer(model_max_length=128)

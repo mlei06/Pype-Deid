@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from clinical_deid.domain import AnnotatedDocument, Document, EntitySpan
-from clinical_deid.eval.matching import compute_metrics
-from clinical_deid.ingest.jsonl import load_annotated_documents_from_jsonl_bytes
-from clinical_deid.pipes.regex_ner import RegexNerPipe
+from pypedeid.domain import AnnotatedDocument, Document, EntitySpan
+from pypedeid.eval.matching import compute_metrics
+from pypedeid.ingest.jsonl import load_annotated_documents_from_jsonl_bytes
+from pypedeid.pipes.regex_ner import RegexNerPipe
 
 
 def test_load_sample_jsonl() -> None:

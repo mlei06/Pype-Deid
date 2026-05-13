@@ -37,8 +37,8 @@ Or use any OpenAI-compatible endpoint (local Ollama, vLLM, etc.) by changing `OP
 ### 2. Generate a note
 
 ```python
-from clinical_deid.config import get_settings
-from clinical_deid.synthesis import (
+from pypedeid.config import get_settings
+from pypedeid.synthesis import (
     LLMSynthesizer,
     FewShotExample,
     default_clinical_note_synthesis_template,
@@ -161,7 +161,7 @@ doc = synthesis_result_to_annotated_document(
 You can inject extra instructions into the prompt (e.g. handling titles):
 
 ```python
-from clinical_deid.synthesis import person_title_fewshot_rules
+from pypedeid.synthesis import person_title_fewshot_rules
 
 template = default_clinical_note_synthesis_template()
 # The special_rules slot accepts any string
@@ -189,9 +189,9 @@ for i in range(100):
     docs.append(doc)
 
 # Write into the colocated corpora layout (same as ``POST /datasets/generate``)
-from clinical_deid.config import get_settings
-from clinical_deid.dataset_store import CORPUS_JSONL_NAME, commit_colocated_dataset
-from clinical_deid.ingest.sink import write_annotated_corpus
+from pypedeid.config import get_settings
+from pypedeid.dataset_store import CORPUS_JSONL_NAME, commit_colocated_dataset
+from pypedeid.ingest.sink import write_annotated_corpus
 
 settings = get_settings()
 output_name = "llm-batch"  # must not already exist under corpora_dir
@@ -211,7 +211,7 @@ commit_colocated_dataset(
 Use `StaticResponseClient` to test synthesis pipelines without hitting an API:
 
 ```python
-from clinical_deid.synthesis import StaticResponseClient
+from pypedeid.synthesis import StaticResponseClient
 
 client = StaticResponseClient(
     response='Clinical Note: "Patient Jane Doe, DOB 01/01/1990."\nPHI: {"PATIENT": ["Jane Doe"], "DATE": ["01/01/1990"]}'

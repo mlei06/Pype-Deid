@@ -29,7 +29,7 @@ import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from clinical_deid.domain import AnnotatedDocument, Document, EntitySpan
+from pypedeid.domain import AnnotatedDocument, Document, EntitySpan
 
 CHATGPT_DIR = (
     Path(__file__).resolve().parents[1]

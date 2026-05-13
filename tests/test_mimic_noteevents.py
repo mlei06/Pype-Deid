@@ -4,13 +4,13 @@ from pathlib import Path
 
 import pytest
 
-from clinical_deid.ingest.mimic.brat_merge import merge_adjacent_names
-from clinical_deid.ingest.mimic.placeholders import extract_placeholders
-from clinical_deid.ingest.mimic.replacement import get_placeholder_entity
-from clinical_deid.ingest.mimic.split import split_brat_directory_to_corpus
+from pypedeid.ingest.mimic.brat_merge import merge_adjacent_names
+from pypedeid.ingest.mimic.placeholders import extract_placeholders
+from pypedeid.ingest.mimic.replacement import get_placeholder_entity
+from pypedeid.ingest.mimic.split import split_brat_directory_to_corpus
 
 pytest.importorskip("faker")
-from clinical_deid.ingest.mimic.pipeline import (  # noqa: E402
+from pypedeid.ingest.mimic.pipeline import (  # noqa: E402
     process_note_text,
     process_noteevents_to_brat_flat,
 )

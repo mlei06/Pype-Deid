@@ -1,4 +1,4 @@
-# Clinical De-Identification Playground — Project Overview
+# PypeDeid — Project Overview
 
 Use this document to understand the full scope of the project before suggesting changes. It covers what exists, what's planned, how the pieces connect, and the key design decisions already made.
 
@@ -59,8 +59,8 @@ FastAPI backend with SQLite for audit only, React + TypeScript frontend. Python 
 
 | Capability | Status |
 |---|---|
-| **Training data export** (CoNLL, spaCy DocBin, Hugging Face JSONL, BRAT) | `clinical-deid dataset export` and `POST /datasets/{name}/export` |
-| **HF fine-tuning CLI** | `clinical-deid train run` (requires `pip install '.[train]'`) |
+| **Training data export** (CoNLL, spaCy DocBin, Hugging Face JSONL, BRAT) | `pypedeid dataset export` and `POST /datasets/{name}/export` |
+| **HF fine-tuning CLI** | `pypedeid train run` (requires `pip install '.[train]'`) |
 | **Runtime HF NER** | `huggingface_ner` pipe + artifacts under `models/huggingface/{name}/` |
 
 ---
@@ -253,7 +253,7 @@ Multiple detectors then consensus merge (no `parallel` pipe type — use a linea
 ## Module structure
 
 ```
-src/clinical_deid/
+src/pypedeid/
   domain.py                  # Document, EntitySpan, AnnotatedDocument
   tables.py                  # AuditLogRecord (only DB table)
   db.py                      # SQLite engine, init_db()
@@ -358,15 +358,15 @@ src/clinical_deid/
 1. Ingest data        -> JSONL, BRAT, ASQ-PHI, MIMIC
 2. Prepare data       -> label remap, compose, augment with LLM synthesis
                          UI: /datasets (register, compose, transform, generate)
-                         CLI: clinical-deid dataset register/list/show
-3. Export             -> clinical-deid dataset export (CoNLL/spaCy/HuggingFace/BRAT)
-4. Train              -> clinical-deid train run (outputs under models/huggingface/)
+                         CLI: pypedeid dataset register/list/show
+3. Export             -> pypedeid dataset export (CoNLL/spaCy/HuggingFace/BRAT)
+4. Train              -> pypedeid train run (outputs under models/huggingface/)
 5. Available          -> model directory scanned, appears in GET /models
 6. Build pipeline     -> UI: /create (visual builder) or POST /pipelines
-7. Evaluate pipeline  -> UI: /evaluate or clinical-deid eval or POST /eval/run
+7. Evaluate pipeline  -> UI: /evaluate or pypedeid eval or POST /eval/run
 8. Try interactively  -> UI: /inference — paste text, see spans + trace
 9. Configure deploy   -> UI: /deploy — map modes to pipelines, set allowlist
 10. Deploy pipeline   -> POST /process/{pipeline_name} (with audit logging)
-11. Monitor           -> UI: /audit or clinical-deid audit list or GET /audit/logs
+11. Monitor           -> UI: /audit or pypedeid audit list or GET /audit/logs
 12. Retrain           -> new data or failed cases -> back to step 2
 ```

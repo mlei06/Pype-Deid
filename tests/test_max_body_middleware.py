@@ -1,11 +1,11 @@
-"""Tests for :class:`~clinical_deid.api.middleware.MaxBodySizeMiddleware`."""
+"""Tests for :class:`~pypedeid.api.middleware.MaxBodySizeMiddleware`."""
 
 from __future__ import annotations
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from clinical_deid.api.middleware import MaxBodySizeMiddleware
+from pypedeid.api.middleware import MaxBodySizeMiddleware
 
 
 def test_rejects_request_when_content_length_exceeds_cap() -> None:

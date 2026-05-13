@@ -2,7 +2,7 @@ import type { EntitySpanResponse } from '../api/types';
 import { entitySpanKey } from '@shared/lib/entitySpanKey';
 
 /**
- * Mirrors ``DEFAULT_LABEL_PRIORITY`` in ``clinical_deid/pipes/span_merge.py``
+ * Mirrors ``DEFAULT_LABEL_PRIORITY`` in ``pypedeid/pipes/span_merge.py``
  * for ``resolve_spans`` with strategy ``label_priority``.
  */
 export const RESOLVE_SPANS_LABEL_PRIORITY: string[] = [

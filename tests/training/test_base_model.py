@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from clinical_deid.training.base_model import ResolvedBaseModel, resolve_base_model
-from clinical_deid.training.errors import BaseModelNotFound, IncompatibleFramework
+from pypedeid.training.base_model import ResolvedBaseModel, resolve_base_model
+from pypedeid.training.errors import BaseModelNotFound, IncompatibleFramework
 
 
 def _write_manifest(model_dir: Path, name: str, framework: str, labels: list[str]) -> None:

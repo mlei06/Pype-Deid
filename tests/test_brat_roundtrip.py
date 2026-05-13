@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from clinical_deid.domain import AnnotatedDocument, Document, EntitySpan
-from clinical_deid.ingest.brat import load_brat_directory
-from clinical_deid.ingest.sink import write_annotated_corpus
+from pypedeid.domain import AnnotatedDocument, Document, EntitySpan
+from pypedeid.ingest.brat import load_brat_directory
+from pypedeid.ingest.sink import write_annotated_corpus
 
 
 def test_brat_flat_roundtrip_text_and_spans(tmp_path: Path) -> None:
@@ -40,7 +40,7 @@ def test_brat_corpus_split_roundtrip(tmp_path: Path) -> None:
     write_annotated_corpus(docs, brat_corpus=root)
     assert (root / "train" / "a.txt").read_text() == "aa"
     assert (root / "valid" / "b.txt").read_text() == "bb"
-    from clinical_deid.ingest.brat import load_brat_corpus_with_splits
+    from pypedeid.ingest.brat import load_brat_corpus_with_splits
 
     loaded = load_brat_corpus_with_splits(root)
     assert {d.document.text for d in loaded} == {"aa", "bb"}

@@ -6,8 +6,8 @@ import json
 
 import pytest
 
-from clinical_deid.domain import AnnotatedDocument
-from clinical_deid.ingest.production_export_jsonl import (
+from pypedeid.domain import AnnotatedDocument
+from pypedeid.ingest.production_export_jsonl import (
     production_export_bytes_to_annotated_jsonl_bytes,
     production_line_to_annotated_document,
 )

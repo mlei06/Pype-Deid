@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from clinical_deid.analytics.stats import (
+from pypedeid.analytics.stats import (
     compute_dataset_analytics,
     compute_split_document_counts,
     has_split_metadata,
     UNSPLIT_BUCKET,
 )
-from clinical_deid.domain import AnnotatedDocument, Document, EntitySpan
+from pypedeid.domain import AnnotatedDocument, Document, EntitySpan
 
 
 def test_analytics_two_docs_overlap_and_cooc() -> None:

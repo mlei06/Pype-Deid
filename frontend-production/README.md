@@ -1,4 +1,4 @@
-# Clinical De-Identification Playground — Production UI
+# PypeDeid — Production UI
 
 **Inference-scoped** SPA for reviewers and consumers. Uses an **inference API key** — cannot create pipelines, modify datasets, or write deploy config. The Playground UI (`frontend/`) is the admin counterpart.
 
@@ -14,7 +14,7 @@ npm run lint         # ESLint
 Requires the API server running at `localhost:8000`:
 
 ```bash
-clinical-deid serve
+pypedeid serve
 ```
 
 Create `.env.local`:

@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from clinical_deid.domain import AnnotatedDocument, Document, EntitySpan
-from clinical_deid.pipes.combinators import ResolveSpans, ResolveSpansConfig
-from clinical_deid.pipes.span_merge import (
+from pypedeid.domain import AnnotatedDocument, Document, EntitySpan
+from pypedeid.pipes.combinators import ResolveSpans, ResolveSpansConfig
+from pypedeid.pipes.span_merge import (
     DEFAULT_LABEL_PRIORITY,
     apply_resolve_spans,
     merge_label_priority,

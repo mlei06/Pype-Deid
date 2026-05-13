@@ -6,8 +6,8 @@ from typing import Any
 
 import pytest
 
-from clinical_deid.domain import AnnotatedDocument, Document
-from clinical_deid.pipes.llm_ner import (
+from pypedeid.domain import AnnotatedDocument, Document
+from pypedeid.pipes.llm_ner import (
     LlmNerConfig,
     LlmNerPipe,
     _build_offset_spans,
@@ -216,7 +216,7 @@ def test_temperature_passed_only_for_non_reasoning_models() -> None:
 
 def test_minimal_effort_is_translated_for_gpt_5_1_plus() -> None:
     """gpt-5.1+ rejects 'minimal'; saved configs must keep working."""
-    from clinical_deid.synthesis.client import _sanitize_reasoning_effort
+    from pypedeid.synthesis.client import _sanitize_reasoning_effort
 
     assert _sanitize_reasoning_effort("gpt-5.5", "minimal") == "low"
     assert _sanitize_reasoning_effort("gpt-5.5-mini", "minimal") == "low"

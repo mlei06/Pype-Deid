@@ -9,8 +9,8 @@ from unittest.mock import patch
 
 import pytest
 
-from clinical_deid.domain import AnnotatedDocument, Document, EntitySpan
-from clinical_deid.pipes.neuroner_ner.pipe import (
+from pypedeid.domain import AnnotatedDocument, Document, EntitySpan
+from pypedeid.pipes.neuroner_ner.pipe import (
     DEFAULT_ENTITY_MAP,
     NeuroNerConfig,
     NeuroNerPipe,
@@ -39,7 +39,7 @@ def test_config_custom_model() -> None:
 
 def test_registry_roundtrip() -> None:
     """Pipe can be loaded from JSON config via the registry."""
-    from clinical_deid.pipes.registry import load_pipe
+    from pypedeid.pipes.registry import load_pipe
 
     spec = {
         "type": "neuroner_ner",
@@ -52,7 +52,7 @@ def test_registry_roundtrip() -> None:
 
 def test_serialization_roundtrip() -> None:
     """Pipe can be serialized back to JSON via the registry."""
-    from clinical_deid.pipes.registry import dump_pipe, load_pipe
+    from pypedeid.pipes.registry import dump_pipe, load_pipe
 
     spec = {
         "type": "neuroner_ner",
@@ -237,13 +237,13 @@ def test_base_labels_after_entity_map_default_model() -> None:
 
 
 def test_neuroner_raw_labels_match_get_model_registry() -> None:
-    """``_raw_entity_labels`` uses the same ``model_manifest.json`` as :func:`~clinical_deid.models.get_model`."""
+    """``_raw_entity_labels`` uses the same ``model_manifest.json`` as :func:`~pypedeid.models.get_model`."""
     from pathlib import Path
 
     import json
 
-    from clinical_deid.config import get_settings
-    from clinical_deid.models import get_model
+    from pypedeid.config import get_settings
+    from pypedeid.models import get_model
 
     root = Path("models/neuroner")
     if not root.is_dir():
@@ -264,7 +264,7 @@ def test_compute_base_labels_differs_between_neuroner_models() -> None:
     """POST /pipelines/pipe-types/neuroner_ner/labels must vary with ``model`` when manifests differ."""
     from pathlib import Path
 
-    from clinical_deid.pipes.registry import compute_base_labels
+    from pypedeid.pipes.registry import compute_base_labels
 
     root = Path("models/neuroner")
     if not (root / "conll_2003_en" / "model_manifest.json").is_file():
@@ -279,7 +279,7 @@ def test_compute_base_labels_differs_between_neuroner_models() -> None:
 
 def test_compute_base_labels_follows_model_manifest(tmp_path) -> None:
     """``compute_base_labels`` reflects the selected model directory's manifest."""
-    from clinical_deid.pipes.registry import compute_base_labels
+    from pypedeid.pipes.registry import compute_base_labels
 
     models = tmp_path / "neuroner"
     models.mkdir()

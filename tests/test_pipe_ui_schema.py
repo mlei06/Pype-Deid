@@ -4,20 +4,20 @@ from __future__ import annotations
 
 import pytest
 
-from clinical_deid.pipes.blacklist.pipe import BlacklistSpansConfig
-from clinical_deid.pipes.combinators import (
+from pypedeid.pipes.blacklist.pipe import BlacklistSpansConfig
+from pypedeid.pipes.combinators import (
     LabelFilterConfig,
     LabelMapperConfig,
     ResolveSpansConfig,
 )
-from clinical_deid.pipes.regex_ner.pipe import RegexNerConfig
-from clinical_deid.pipes.registry import registered_pipes
-from clinical_deid.pipes.ui_schema import pipe_config_json_schema
-from clinical_deid.pipes.whitelist.pipe import WhitelistConfig
+from pypedeid.pipes.regex_ner.pipe import RegexNerConfig
+from pypedeid.pipes.registry import registered_pipes
+from pypedeid.pipes.ui_schema import pipe_config_json_schema
+from pypedeid.pipes.whitelist.pipe import WhitelistConfig
 
 
 def test_pipe_config_json_schema_matches_model_json_schema() -> None:
-    from clinical_deid.pipes.combinators import LabelMapperConfig
+    from pypedeid.pipes.combinators import LabelMapperConfig
 
     assert pipe_config_json_schema(LabelMapperConfig) == LabelMapperConfig.model_json_schema()
 

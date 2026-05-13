@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-from clinical_deid.domain import AnnotatedDocument, Document, EntitySpan
-from clinical_deid.pipes.combinators import LabelMapper, LabelMapperConfig
-from clinical_deid.pipes.detector_label_mapping import (
+from pypedeid.domain import AnnotatedDocument, Document, EntitySpan
+from pypedeid.pipes.combinators import LabelMapper, LabelMapperConfig
+from pypedeid.pipes.detector_label_mapping import (
     apply_detector_label_mapping,
     effective_detector_labels,
 )
-from clinical_deid.pipes.regex_ner import RegexNerConfig, RegexNerPipe
-from clinical_deid.pipes.whitelist import WhitelistConfig, WhitelistLabelConfig, WhitelistPipe
+from pypedeid.pipes.regex_ner import RegexNerConfig, RegexNerPipe
+from pypedeid.pipes.whitelist import WhitelistConfig, WhitelistLabelConfig, WhitelistPipe
 
 
 def _doc(text: str) -> AnnotatedDocument:
@@ -34,7 +34,7 @@ def test_apply_detector_label_mapping_drop() -> None:
 
 
 def test_regex_ner_label_mapping_rename() -> None:
-    from clinical_deid.pipes.regex_ner import RegexLabelSettings
+    from pypedeid.pipes.regex_ner import RegexLabelSettings
 
     pipe = RegexNerPipe(
         RegexNerConfig(
@@ -50,7 +50,7 @@ def test_regex_ner_label_mapping_rename() -> None:
 
 
 def test_regex_ner_label_mapping_null_drops() -> None:
-    from clinical_deid.pipes.regex_ner import RegexLabelSettings
+    from pypedeid.pipes.regex_ner import RegexLabelSettings
 
     pipe = RegexNerPipe(
         RegexNerConfig(labels={"PHONE": RegexLabelSettings(enabled=False)})
@@ -90,8 +90,8 @@ def test_label_mapper_null_drops() -> None:
 
 
 def test_pipeline_json_roundtrip_label_mapping() -> None:
-    from clinical_deid.pipes.regex_ner import RegexLabelSettings
-    from clinical_deid.pipes.registry import dump_pipe, load_pipe
+    from pypedeid.pipes.regex_ner import RegexLabelSettings
+    from pypedeid.pipes.registry import dump_pipe, load_pipe
 
     p1 = RegexNerPipe(
         RegexNerConfig(

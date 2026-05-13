@@ -1,4 +1,4 @@
-# Clinical De-Identification Playground — Playground UI
+# PypeDeid — Playground UI
 
 **Admin / operator** SPA. Requires an **admin API key** when the backend has auth enabled. See [`frontend-production/`](../frontend-production/) for the inference-scoped consumer UI.
 
@@ -14,7 +14,7 @@ npm run lint         # ESLint
 Requires the API server running at `localhost:8000`:
 
 ```bash
-clinical-deid serve
+pypedeid serve
 ```
 
 Set `VITE_API_KEY` (admin key) and optionally `VITE_API_BASE_URL` in `.env.local`.

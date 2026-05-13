@@ -783,7 +783,7 @@ def test_transform_preview_rejects_drop_and_keep(client, tmp_path):
 
 
 def test_store_register_and_load(tmp_path):
-    from clinical_deid.dataset_store import (
+    from pypedeid.dataset_store import (
         delete_dataset,
         list_datasets,
         load_dataset_documents,
@@ -821,19 +821,19 @@ def test_store_register_and_load(tmp_path):
 
 
 def test_corpora_dir_env_primary(tmp_path, monkeypatch, caplog):
-    """CLINICAL_DEID_CORPORA_DIR sets the corpus data root (no deprecation warning)."""
+    """PYPEDEID_CORPORA_DIR sets the corpus data root (no deprecation warning)."""
     import logging
 
-    from clinical_deid.config import Settings, reset_settings
+    from pypedeid.config import Settings, reset_settings
 
     root = tmp_path / "corp-root"
     root.mkdir()
     monkeypatch.chdir(tmp_path)
-    monkeypatch.delenv("CLINICAL_DEID_PROCESSED_DIR", raising=False)
-    monkeypatch.delenv("CLINICAL_DEID_ENV_FILE", raising=False)
-    monkeypatch.setenv("CLINICAL_DEID_CORPORA_DIR", str(root))
+    monkeypatch.delenv("PYPEDEID_PROCESSED_DIR", raising=False)
+    monkeypatch.delenv("PYPEDEID_ENV_FILE", raising=False)
+    monkeypatch.setenv("PYPEDEID_CORPORA_DIR", str(root))
     reset_settings()
-    with caplog.at_level(logging.WARNING, logger="clinical_deid.config"):
+    with caplog.at_level(logging.WARNING, logger="pypedeid.config"):
         settings = Settings()
     assert settings.corpora_dir == root
     assert not any("deprecated" in rec.message.lower() for rec in caplog.records)
@@ -841,19 +841,19 @@ def test_corpora_dir_env_primary(tmp_path, monkeypatch, caplog):
 
 
 def test_legacy_processed_dir_env_still_resolves(tmp_path, monkeypatch, caplog):
-    """CLINICAL_DEID_PROCESSED_DIR still sets corpora_dir but logs a deprecation warning."""
+    """PYPEDEID_PROCESSED_DIR still sets corpora_dir but logs a deprecation warning."""
     import logging
 
-    from clinical_deid.config import Settings, reset_settings
+    from pypedeid.config import Settings, reset_settings
 
     legacy = tmp_path / "old-processed"
     legacy.mkdir()
     monkeypatch.chdir(tmp_path)
-    monkeypatch.delenv("CLINICAL_DEID_CORPORA_DIR", raising=False)
-    monkeypatch.delenv("CLINICAL_DEID_ENV_FILE", raising=False)
-    monkeypatch.setenv("CLINICAL_DEID_PROCESSED_DIR", str(legacy))
+    monkeypatch.delenv("PYPEDEID_CORPORA_DIR", raising=False)
+    monkeypatch.delenv("PYPEDEID_ENV_FILE", raising=False)
+    monkeypatch.setenv("PYPEDEID_PROCESSED_DIR", str(legacy))
     reset_settings()
-    with caplog.at_level(logging.WARNING, logger="clinical_deid.config"):
+    with caplog.at_level(logging.WARNING, logger="pypedeid.config"):
         settings = Settings()
     assert settings.corpora_dir == legacy
     assert any(
@@ -864,7 +864,7 @@ def test_legacy_processed_dir_env_still_resolves(tmp_path, monkeypatch, caplog):
 
 
 def test_store_invalid_name(tmp_path):
-    from clinical_deid.dataset_store import register_dataset
+    from pypedeid.dataset_store import register_dataset
 
     jsonl = _write_sample_jsonl(tmp_path / "incoming" / "corpus.jsonl")
     corpora_dir = tmp_path / "corpora"
@@ -879,7 +879,7 @@ def test_store_invalid_name(tmp_path):
 
 def test_register_rejects_non_jsonl_format(tmp_path):
     """register_dataset is a back-compat shim and must reject BRAT formats."""
-    from clinical_deid.dataset_store import register_dataset
+    from pypedeid.dataset_store import register_dataset
 
     jsonl = _write_sample_jsonl(tmp_path / "incoming" / "corpus.jsonl")
     corpora_dir = tmp_path / "corpora"
@@ -890,7 +890,7 @@ def test_register_rejects_non_jsonl_format(tmp_path):
 
 def test_list_datasets_discovers_jsonl_and_auto_creates_manifest(tmp_path):
     """A bare ``corpus.jsonl`` under a home counts; ``dataset.json`` is lazy."""
-    from clinical_deid.dataset_store import list_datasets
+    from pypedeid.dataset_store import list_datasets
 
     corpora_dir = tmp_path / "corpora"
     (corpora_dir / "handmade").mkdir(parents=True)
@@ -908,7 +908,7 @@ def test_list_datasets_skips_legacy_brat_homes(tmp_path, caplog):
     import json
     import logging
 
-    from clinical_deid.dataset_store import list_datasets
+    from pypedeid.dataset_store import list_datasets
 
     corpora_dir = tmp_path / "corpora"
     legacy = corpora_dir / "oldbrat"
@@ -934,14 +934,14 @@ def test_list_datasets_skips_legacy_brat_homes(tmp_path, caplog):
         encoding="utf-8",
     )
 
-    with caplog.at_level(logging.DEBUG, logger="clinical_deid.dataset_store"):
+    with caplog.at_level(logging.DEBUG, logger="pypedeid.dataset_store"):
         found = list_datasets(corpora_dir)
 
     assert [d.name for d in found] == []
 
 
 def test_import_brat_to_jsonl_unit(tmp_path):
-    from clinical_deid.dataset_store import import_brat_to_jsonl
+    from pypedeid.dataset_store import import_brat_to_jsonl
 
     brat_dir = tmp_path / "brat_flat"
     brat_dir.mkdir()
@@ -1407,7 +1407,7 @@ def test_eval_per_document_default_omits_payload(client, tmp_path):
 def test_eval_per_document_truncates_at_limit(client, tmp_path, monkeypatch):
     _setup_sample_eval(client, tmp_path, count=6, name="eval-perdoc-cap")
 
-    from clinical_deid.config import get_settings
+    from pypedeid.config import get_settings
 
     settings = get_settings()
     monkeypatch.setattr(settings, "eval_per_document_limit", 2)

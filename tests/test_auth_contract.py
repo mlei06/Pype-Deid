@@ -57,25 +57,25 @@ def secured_client(tmp_path, monkeypatch):
     ):
         d.mkdir(parents=True)
 
-    monkeypatch.setenv("CLINICAL_DEID_DATABASE_URL", f"sqlite:///{db_file.as_posix()}")
-    monkeypatch.setenv("CLINICAL_DEID_PIPELINES_DIR", str(pipelines_dir))
-    monkeypatch.setenv("CLINICAL_DEID_MODES_PATH", str(data_dir / "modes.json"))
-    monkeypatch.setenv("CLINICAL_DEID_EVALUATIONS_DIR", str(evaluations_dir))
-    monkeypatch.setenv("CLINICAL_DEID_INFERENCE_RUNS_DIR", str(inference_runs_dir))
-    monkeypatch.setenv("CLINICAL_DEID_CORPORA_DIR", str(corpora_dir))
-    monkeypatch.setenv("CLINICAL_DEID_DICTIONARIES_DIR", str(dictionaries_dir))
+    monkeypatch.setenv("PYPEDEID_DATABASE_URL", f"sqlite:///{db_file.as_posix()}")
+    monkeypatch.setenv("PYPEDEID_PIPELINES_DIR", str(pipelines_dir))
+    monkeypatch.setenv("PYPEDEID_MODES_PATH", str(data_dir / "modes.json"))
+    monkeypatch.setenv("PYPEDEID_EVALUATIONS_DIR", str(evaluations_dir))
+    monkeypatch.setenv("PYPEDEID_INFERENCE_RUNS_DIR", str(inference_runs_dir))
+    monkeypatch.setenv("PYPEDEID_CORPORA_DIR", str(corpora_dir))
+    monkeypatch.setenv("PYPEDEID_DICTIONARIES_DIR", str(dictionaries_dir))
     # pydantic-settings reads list envs as JSON arrays.
-    monkeypatch.setenv("CLINICAL_DEID_ADMIN_API_KEYS", json.dumps([ADMIN_KEY]))
-    monkeypatch.setenv("CLINICAL_DEID_INFERENCE_API_KEYS", json.dumps([INFERENCE_KEY]))
+    monkeypatch.setenv("PYPEDEID_ADMIN_API_KEYS", json.dumps([ADMIN_KEY]))
+    monkeypatch.setenv("PYPEDEID_INFERENCE_API_KEYS", json.dumps([INFERENCE_KEY]))
 
-    from clinical_deid.config import reset_settings
-    from clinical_deid.db import init_db, reset_engine
+    from pypedeid.config import reset_settings
+    from pypedeid.db import init_db, reset_engine
 
     reset_settings()
     reset_engine()
     init_db()
 
-    from clinical_deid.api.app import create_app
+    from pypedeid.api.app import create_app
 
     app = create_app()
     with TestClient(app) as tc:

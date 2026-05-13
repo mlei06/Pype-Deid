@@ -24,7 +24,7 @@ Legacy: **`NEURONER_MODEL_FOLDER`** (full path to one model dir) still works; it
 Point the API at the sidecar (default):
 
 ```bash
-export CLINICAL_DEID_NEURONER_HTTP_URL=http://127.0.0.1:8765
+export PYPEDEID_NEURONER_HTTP_URL=http://127.0.0.1:8765
 ```
 
 Or set `base_url` on the pipe config. Override the port in `compose.yaml` if needed.

@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from clinical_deid.domain import AnnotatedDocument, Document, EntitySpan
-from clinical_deid.eval.matching import macro_average, make_match_result
-from clinical_deid.eval.metrics_json import build_persisted_eval_metrics
-from clinical_deid.eval.runner import evaluate_pipeline
-from clinical_deid.pipes.base import Pipe
+from pypedeid.domain import AnnotatedDocument, Document, EntitySpan
+from pypedeid.eval.matching import macro_average, make_match_result
+from pypedeid.eval.metrics_json import build_persisted_eval_metrics
+from pypedeid.eval.runner import evaluate_pipeline
+from pypedeid.pipes.base import Pipe
 
 
 class _PerfectName(Pipe):

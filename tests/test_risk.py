@@ -1,11 +1,11 @@
-"""Tests for the pluggable RiskProfile abstraction in ``clinical_deid.risk``."""
+"""Tests for the pluggable RiskProfile abstraction in ``pypedeid.risk``."""
 
 from __future__ import annotations
 
 import pytest
 
-from clinical_deid.domain import EntitySpan
-from clinical_deid.risk import (
+from pypedeid.domain import EntitySpan
+from pypedeid.risk import (
     CLINICAL_PHI_RISK,
     GENERIC_PII_RISK,
     CoverageIdentifier,
@@ -125,18 +125,18 @@ def test_register_risk_profile_roundtrip() -> None:
     try:
         assert get_risk_profile("test_profile_xyz") is profile
     finally:
-        from clinical_deid.risk import _REGISTRY  # type: ignore[attr-defined]
+        from pypedeid.risk import _REGISTRY  # type: ignore[attr-defined]
 
         _REGISTRY.pop("test_profile_xyz", None)
 
 
 def test_default_risk_profile_reads_settings(monkeypatch: pytest.MonkeyPatch) -> None:
-    from clinical_deid.config import reset_settings
+    from pypedeid.config import reset_settings
 
     reset_settings()
     assert default_risk_profile() is CLINICAL_PHI_RISK
 
-    monkeypatch.setenv("CLINICAL_DEID_RISK_PROFILE_NAME", "generic_pii")
+    monkeypatch.setenv("PYPEDEID_RISK_PROFILE_NAME", "generic_pii")
     reset_settings()
     try:
         assert default_risk_profile() is GENERIC_PII_RISK
@@ -146,7 +146,7 @@ def test_default_risk_profile_reads_settings(monkeypatch: pytest.MonkeyPatch) ->
 
 def test_legacy_eval_risk_shim_still_works() -> None:
     """The old module-level API in ``eval/risk.py`` continues to function."""
-    from clinical_deid.eval.risk import (
+    from pypedeid.eval.risk import (
         DEFAULT_RISK_WEIGHTS,
         HIPAA_IDENTIFIER_NAMES,
         LABEL_TO_HIPAA,

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from clinical_deid.domain import AnnotatedDocument, Document, EntitySpan
-from clinical_deid.transform.ops import (
+from pypedeid.domain import AnnotatedDocument, Document, EntitySpan
+from pypedeid.transform.ops import (
     apply_label_mapping,
     boost_docs_with_label,
     clone_annotated_document,

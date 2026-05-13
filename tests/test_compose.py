@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from clinical_deid.compose import compose_corpora, flatten_annotated_document
-from clinical_deid.compose.strategies import compose_interleave, compose_proportional
-from clinical_deid.domain import AnnotatedDocument, Document
-from clinical_deid.ingest.brat import load_brat_corpus_with_splits
-from clinical_deid.transform.splits import proportional_integer_counts
+from pypedeid.compose import compose_corpora, flatten_annotated_document
+from pypedeid.compose.strategies import compose_interleave, compose_proportional
+from pypedeid.domain import AnnotatedDocument, Document
+from pypedeid.ingest.brat import load_brat_corpus_with_splits
+from pypedeid.transform.splits import proportional_integer_counts
 
 
 def test_proportional_integer_counts_sums() -> None:

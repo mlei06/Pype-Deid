@@ -2,7 +2,7 @@
 """
 Convert ASQ-PHI ``synthetic_clinical_queries.txt`` into AnnotatedDocument JSONL (and optional BRAT).
 
-See ``clinical_deid.ingest.asq_phi`` for the parser.
+See ``pypedeid.ingest.asq_phi`` for the parser.
 """
 
 from __future__ import annotations
@@ -11,7 +11,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from clinical_deid.ingest.asq_phi import (
+from pypedeid.ingest.asq_phi import (
     iter_asq_phi_records,
     records_to_annotated_dicts,
     write_asq_phi_brat_corpus,

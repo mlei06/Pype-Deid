@@ -5,7 +5,7 @@ Build a synthetic BRAT corpus from MIMIC NOTEEVENTS.csv by replacing [**...**] p
 Ported from ``neuroner-cspmc/scripts/Mimic_Dataset_Generation`` (extract placeholders,
 Faker replacements, adjacent-PATIENT merge, train/valid/test split).
 
-Requires: ``pip install clinical-deid-playground[scripts]`` (pandas + faker).
+Requires: ``pip install pypedeid[scripts]`` (pandas + faker).
 
 Example:
   python scripts/process_mimic_noteevents.py \\
@@ -20,7 +20,7 @@ import logging
 import sys
 from pathlib import Path
 
-from clinical_deid.ingest.mimic.pipeline import run_noteevents_pipeline
+from pypedeid.ingest.mimic.pipeline import run_noteevents_pipeline
 
 
 def main() -> None:

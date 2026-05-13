@@ -77,7 +77,7 @@ export default function UploadJsonlForm({ onRegistered }: UploadJsonlFormProps) 
         />
         <p className="text-[11px] text-gray-500">
           One AnnotatedDocument JSON per line (same as server-side import). Large files may require
-          raising <code className="rounded bg-gray-100 px-1">CLINICAL_DEID_MAX_BODY_BYTES</code>.
+          raising <code className="rounded bg-gray-100 px-1">PYPEDEID_MAX_BODY_BYTES</code>.
         </p>
       </div>
       {error && (

@@ -17,10 +17,10 @@ pytest.importorskip("transformers", reason="requires [train] extra")
 pytest.importorskip("torch", reason="requires [train] extra")
 pytest.importorskip("datasets", reason="requires [train] extra")
 
-from clinical_deid.domain import AnnotatedDocument, Document, EntitySpan
-from clinical_deid.training.config import TrainingConfig, TrainingHyperparams
-from clinical_deid.training.errors import OutputExists
-from clinical_deid.training.runner import run_training
+from pypedeid.domain import AnnotatedDocument, Document, EntitySpan
+from pypedeid.training.config import TrainingConfig, TrainingHyperparams
+from pypedeid.training.errors import OutputExists
+from pypedeid.training.runner import run_training
 
 TINY_MODEL = "hf-internal-testing/tiny-bert-for-token-classification"
 
@@ -45,7 +45,7 @@ def _write_jsonl_dataset(path: Path, docs: list[AnnotatedDocument]) -> None:
 
 
 def _register_dataset(corpora_dir: Path, name: str, docs: list[AnnotatedDocument]) -> None:
-    from clinical_deid.dataset_store import register_dataset
+    from pypedeid.dataset_store import register_dataset
 
     src = corpora_dir.parent / f"_{name}_upload.jsonl"
     _write_jsonl_dataset(src, docs)
@@ -122,11 +122,11 @@ def test_huggingface_ner_loads_and_predicts(trained_model, tmp_path, monkeypatch
     """Trained model is loadable by HuggingfaceNerPipe without errors."""
     _, models_dir, _ = trained_model
 
-    monkeypatch.setenv("CLINICAL_DEID_MODELS_DIR", str(models_dir))
-    from clinical_deid.config import reset_settings
+    monkeypatch.setenv("PYPEDEID_MODELS_DIR", str(models_dir))
+    from pypedeid.config import reset_settings
     reset_settings()
 
-    from clinical_deid.pipes.huggingface_ner.pipe import HuggingfaceNerPipe
+    from pypedeid.pipes.huggingface_ner.pipe import HuggingfaceNerPipe
 
     pipe = HuggingfaceNerPipe({"model": "tiny-phi-v1"})
     doc = AnnotatedDocument(
@@ -237,7 +237,7 @@ def test_atomic_failure_leaves_no_final_dir(tmp_path, monkeypatch):
     models_dir = tmp_path / "models"
     _register_dataset(corpora_dir, "tiny-train", SAMPLE_DOCS)
 
-    import clinical_deid.training.manifest as manifest_mod
+    import pypedeid.training.manifest as manifest_mod
 
     def _explode(*args, **kwargs):
         raise RuntimeError("simulated manifest write failure")

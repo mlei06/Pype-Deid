@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from clinical_deid.domain import AnnotatedDocument, Document, EntitySpan
-from clinical_deid.transform.ops import run_transform_pipeline, strip_split_metadata
-from clinical_deid.transform.splits import reassign_splits
+from pypedeid.domain import AnnotatedDocument, Document, EntitySpan
+from pypedeid.transform.ops import run_transform_pipeline, strip_split_metadata
+from pypedeid.transform.splits import reassign_splits
 
 
 def test_reassign_splits_counts_and_order() -> None:

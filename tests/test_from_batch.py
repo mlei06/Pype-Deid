@@ -5,8 +5,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from clinical_deid.domain import AnnotatedDocument, EntitySpan
-from clinical_deid.ingest.from_batch import (
+from pypedeid.domain import AnnotatedDocument, EntitySpan
+from pypedeid.ingest.from_batch import (
     _iter_text_inputs,
     batch_to_annotated_docs,
 )

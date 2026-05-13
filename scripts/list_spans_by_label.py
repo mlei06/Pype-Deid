@@ -43,7 +43,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    from clinical_deid.ingest.sources import load_annotated_corpus
+    from pypedeid.ingest.sources import load_annotated_corpus
 
     docs = load_annotated_corpus(
         jsonl=args.jsonl,

@@ -3,7 +3,7 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "clinical-deid-playground"
+name = "pypedeid"
 version = "0.1.0"
 description = "Modular research platform for clinical PHI detection and redaction"
 readme = "README.md"
@@ -35,7 +35,7 @@ scripts = [
     "faker>=2.0.0",
 ]
 dev = [
-    "clinical-deid-playground[scripts]",
+    "pypedeid[scripts]",
     "pytest>=8.0.0",
     "pytest-cov>=5.0.0",
     "ruff>=0.6.0",
@@ -43,7 +43,7 @@ dev = [
 parquet = [
     "pyarrow>=14.0.0",
 ]
-# HuggingFace fine-tuning (clinical-deid train run). Inference-only HF use does
+# HuggingFace fine-tuning (pypedeid train run). Inference-only HF use does
 # not need this extra — transformers + torch are in the base install.
 train = [
     "datasets>=2.20.0",
@@ -52,12 +52,12 @@ train = [
 ]
 # Everything except the NeuroNER Docker sidecar (which has no Python deps).
 all = [
-    "clinical-deid-playground[dev,parquet,train]",
+    "pypedeid[dev,parquet,train]",
 ]
 
 [project.scripts]
-clinical-deid = "clinical_deid.cli:main"
-clinical-deid-api = "clinical_deid.__main__:main"
+pypedeid = "pypedeid.cli:main"
+pypedeid-api = "pypedeid.__main__:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

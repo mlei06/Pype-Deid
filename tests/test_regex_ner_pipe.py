@@ -4,15 +4,15 @@ from __future__ import annotations
 
 import io
 
-from clinical_deid.domain import AnnotatedDocument, Document
-from clinical_deid.pipes.combinators import Pipeline
-from clinical_deid.pipes.regex_ner import (
+from pypedeid.domain import AnnotatedDocument, Document
+from pypedeid.pipes.combinators import Pipeline
+from pypedeid.pipes.regex_ner import (
     BUILTIN_REGEX_PATTERNS,
     RegexLabelSettings,
     RegexNerConfig,
     RegexNerPipe,
 )
-from clinical_deid.pipes.whitelist import WhitelistConfig, WhitelistPipe, WhitelistLabelConfig
+from pypedeid.pipes.whitelist import WhitelistConfig, WhitelistPipe, WhitelistLabelConfig
 
 
 def _no_builtin_regex_config() -> RegexNerConfig:

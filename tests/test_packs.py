@@ -4,13 +4,13 @@ from __future__ import annotations
 
 import pytest
 
-from clinical_deid.pipes.regex_ner.packs import (
+from pypedeid.pipes.regex_ner.packs import (
     RegexPatternPack,
     get_pattern_pack,
     list_pattern_packs,
     register_pattern_pack,
 )
-from clinical_deid.pipes.surrogate.packs import (
+from pypedeid.pipes.surrogate.packs import (
     CLINICAL_PHI_SURROGATE,
     GENERIC_PII_SURROGATE,
     SurrogatePack,
@@ -54,7 +54,7 @@ def test_regex_pack_register_roundtrip() -> None:
     try:
         assert get_pattern_pack("test_pattern_pack_xyz") is pack
     finally:
-        from clinical_deid.pipes.regex_ner.packs import _REGISTRY  # type: ignore[attr-defined]
+        from pypedeid.pipes.regex_ner.packs import _REGISTRY  # type: ignore[attr-defined]
 
         _REGISTRY.pop("test_pattern_pack_xyz", None)
 
@@ -66,7 +66,7 @@ def test_regex_pack_unknown_name_error() -> None:
 
 def test_regex_pipe_respects_pattern_pack() -> None:
     """Selecting the generic_pii pack means clinical-only labels don't fire."""
-    from clinical_deid.pipes.regex_ner import RegexNerConfig, RegexNerPipe
+    from pypedeid.pipes.regex_ner import RegexNerConfig, RegexNerPipe
 
     clinical_cfg = RegexNerConfig(pattern_pack="clinical_phi")
     generic_cfg = RegexNerConfig(pattern_pack="generic_pii")
@@ -124,13 +124,13 @@ def test_surrogate_pack_register_roundtrip() -> None:
     try:
         assert get_surrogate_pack("test_surrogate_xyz") is pack
     finally:
-        from clinical_deid.pipes.surrogate.packs import _REGISTRY  # type: ignore[attr-defined]
+        from pypedeid.pipes.surrogate.packs import _REGISTRY  # type: ignore[attr-defined]
 
         _REGISTRY.pop("test_surrogate_xyz", None)
 
 
 def test_surrogate_generator_uses_provided_pack() -> None:
-    from clinical_deid.pipes.surrogate.strategies import SurrogateGenerator
+    from pypedeid.pipes.surrogate.strategies import SurrogateGenerator
 
     # Generic pack doesn't have MRN → falls through to the mask fallback.
     gen = SurrogateGenerator(

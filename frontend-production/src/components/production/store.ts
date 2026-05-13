@@ -218,7 +218,7 @@ function migrateLegacyQueue(legacy: {
 }
 
 const PERSIST_VERSION = 4;
-const PERSIST_KEY = 'clinical-deid-production:v2';
+const PERSIST_KEY = 'pypedeid-production:v2';
 
 interface LegacyV3DatasetFile {
   savedOutput?: unknown;
@@ -257,7 +257,7 @@ function dropSavedOutputs(persisted: PersistedShape): PersistedShape {
 
 let _storage: ReturnType<typeof makeIdbStorage> | null = null;
 function makeIdbStorageSingleton() {
-  if (!_storage) _storage = makeIdbStorage('clinical-deid-production');
+  if (!_storage) _storage = makeIdbStorage('pypedeid-production');
   return _storage;
 }
 

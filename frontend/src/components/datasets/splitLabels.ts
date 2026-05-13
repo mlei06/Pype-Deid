@@ -1,4 +1,4 @@
-/** Matches backend :data:`clinical_deid.analytics.stats.UNSPLIT_BUCKET` */
+/** Matches backend :data:`pypedeid.analytics.stats.UNSPLIT_BUCKET` */
 export const UNSPLIT_BUCKET = '(none)';
 
 export function splitLabelForDisplay(key: string): string {

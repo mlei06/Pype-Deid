@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from clinical_deid.api.schemas import SaveInferenceSnapshotRequest
+from pypedeid.api.schemas import SaveInferenceSnapshotRequest
 
 
 def test_inference_save_list_load_delete(client) -> None:

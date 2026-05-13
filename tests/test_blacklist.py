@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from clinical_deid.domain import AnnotatedDocument, Document, EntitySpan
-from clinical_deid.pipes.blacklist import BlacklistSpans, BlacklistSpansConfig
-from clinical_deid.pipes.registry import load_pipeline
+from pypedeid.domain import AnnotatedDocument, Document, EntitySpan
+from pypedeid.pipes.blacklist import BlacklistSpans, BlacklistSpansConfig
+from pypedeid.pipes.registry import load_pipeline
 
 
 def _doc(text: str, spans: list[EntitySpan]) -> AnnotatedDocument:

@@ -155,7 +155,7 @@ Wraps the Presidio Analyzer for NER-based detection.
 
 Loads checkpoints from `models/huggingface/{name}/` (see [models/README.md](../models/README.md)).
 
-**Requires:** included in the base install (`transformers` and `torch` ship with `pip install -e .`). Add `[train]` only if you also plan to fine-tune via `clinical-deid train run`.
+**Requires:** included in the base install (`transformers` and `torch` ship with `pip install -e .`). Add `[train]` only if you also plan to fine-tune via `pypedeid train run`.
 
 ```json
 {"type": "huggingface_ner", "config": {"model": "my-deid-model"}}
@@ -163,7 +163,7 @@ Loads checkpoints from `models/huggingface/{name}/` (see [models/README.md](../m
 
 #### `llm_ner` — LLM-prompted detection
 
-**Requires:** included in the base install (`httpx` and `openai` ship with `pip install -e .`). Configure an OpenAI-compatible API key in settings (`OPENAI_API_KEY` or `CLINICAL_DEID_OPENAI_API_KEY`).
+**Requires:** included in the base install (`httpx` and `openai` ship with `pip install -e .`). Configure an OpenAI-compatible API key in settings (`OPENAI_API_KEY` or `PYPEDEID_OPENAI_API_KEY`).
 
 #### `neuroner_ner` — NeuroNER (HTTP sidecar)
 
@@ -315,7 +315,7 @@ Adding a detector requires three things: a config, a pipe class, and a registrat
 Create a Pydantic model for your pipe's configuration:
 
 ```python
-# src/clinical_deid/pipes/my_detector/pipe.py
+# src/pypedeid/pipes/my_detector/pipe.py
 from __future__ import annotations
 from pydantic import BaseModel, Field
 
@@ -335,7 +335,7 @@ class MyDetectorConfig(BaseModel):
 ### Step 2: Implement the pipe
 
 ```python
-from clinical_deid.domain import AnnotatedDocument, EntitySpan
+from pypedeid.domain import AnnotatedDocument, EntitySpan
 
 class MyDetectorPipe:
     def __init__(self, config: MyDetectorConfig) -> None:
@@ -382,15 +382,15 @@ PipeCatalogEntry(
     role="detector",
     extra="my_extra",                # None if always available
     install_hint="pip install '.[my_extra]'",
-    config_path="clinical_deid.pipes.my_detector.pipe:MyDetectorConfig",
-    pipe_path="clinical_deid.pipes.my_detector.pipe:MyDetectorPipe",
+    config_path="pypedeid.pipes.my_detector.pipe:MyDetectorConfig",
+    pipe_path="pypedeid.pipes.my_detector.pipe:MyDetectorPipe",
 ),
 ```
 
 **For external/plugin pipes**, call `register()` directly from your package:
 
 ```python
-from clinical_deid.pipes.registry import register
+from pypedeid.pipes.registry import register
 from my_plugin.pipe import MyDetectorConfig, MyDetectorPipe
 
 register("my_detector", MyDetectorConfig, MyDetectorPipe)
@@ -401,7 +401,7 @@ register("my_detector", MyDetectorConfig, MyDetectorPipe)
 If your detector should support label remapping, use the `DetectorWithLabelMapping` protocol and the shared utilities:
 
 ```python
-from clinical_deid.pipes.detector_label_mapping import (
+from pypedeid.pipes.detector_label_mapping import (
     apply_detector_label_mapping,
     detector_label_mapping_field,
 )
@@ -432,8 +432,8 @@ When the API receives `POST /process/{pipeline_name}`:
 The platform auto-generates JSON Schema for each pipe config, enriched with UI hints (`ui_widget`, `ui_placeholder`, etc.). The Playground pipeline builder consumes these schemas for dynamic forms.
 
 ```python
-from clinical_deid.pipes.ui_schema import pipe_config_json_schema
-from clinical_deid.pipes.regex_ner import RegexNerConfig
+from pypedeid.pipes.ui_schema import pipe_config_json_schema
+from pypedeid.pipes.regex_ner import RegexNerConfig
 
 schema = pipe_config_json_schema(RegexNerConfig)
 # Returns JSON Schema dict with ui_* annotations

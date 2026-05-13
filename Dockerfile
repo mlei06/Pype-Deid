@@ -1,16 +1,16 @@
-# Clinical De-Identification API — production image.
+# PypeDeid API — production image.
 #
-# Build:  docker build -t clinical-deid-api .
+# Build:  docker build -t pypedeid-api .
 # Run:    docker run -p 8000:8000 \
 #             -v $(pwd)/data:/app/data \
 #             -v $(pwd)/models:/app/models:ro \
-#             clinical-deid-api
+#             pypedeid-api
 #
 # Default extras: ``parquet`` + ``scripts`` (Faker/pandas for API
 # ``output_mode=surrogate`` / redact). Presidio, spaCy, transformers, torch,
 # and the LLM clients are now in the base install — no extras needed for
 # inference. Add the ``train`` extra (datasets/seqeval/accelerate) only when
-# you plan to fine-tune via ``clinical-deid train run`` inside the image:
+# you plan to fine-tune via ``pypedeid train run`` inside the image:
 #   --build-arg EXTRAS=parquet,scripts,train
 
 FROM python:3.11-slim-bookworm AS base
@@ -56,14 +56,14 @@ WORKDIR /app
 #   /app/data/dictionaries/    → whitelist/blacklist term lists
 #   /app/data/app.sqlite       → SQLite audit DB
 #   /app/models/               → model weights (read-only)
-ENV CLINICAL_DEID_PIPELINES_DIR=/app/data/pipelines \
-    CLINICAL_DEID_MODES_PATH=/app/data/modes.json \
-    CLINICAL_DEID_EVALUATIONS_DIR=/app/data/evaluations \
-    CLINICAL_DEID_INFERENCE_RUNS_DIR=/app/data/inference_runs \
-    CLINICAL_DEID_CORPORA_DIR=/app/data/corpora \
-    CLINICAL_DEID_DICTIONARIES_DIR=/app/data/dictionaries \
-    CLINICAL_DEID_MODELS_DIR=/app/models \
-    CLINICAL_DEID_DATABASE_URL=sqlite:////app/data/app.sqlite
+ENV PYPEDEID_PIPELINES_DIR=/app/data/pipelines \
+    PYPEDEID_MODES_PATH=/app/data/modes.json \
+    PYPEDEID_EVALUATIONS_DIR=/app/data/evaluations \
+    PYPEDEID_INFERENCE_RUNS_DIR=/app/data/inference_runs \
+    PYPEDEID_CORPORA_DIR=/app/data/corpora \
+    PYPEDEID_DICTIONARIES_DIR=/app/data/dictionaries \
+    PYPEDEID_MODELS_DIR=/app/models \
+    PYPEDEID_DATABASE_URL=sqlite:////app/data/app.sqlite
 
 EXPOSE 8000
 
@@ -76,4 +76,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
 # (e.g. during rolling deploys); orchestrators typically allow ~30s before SIGKILL.
 ENV WEB_CONCURRENCY=1 \
     GRACEFUL_SHUTDOWN_SECONDS=30
-CMD ["sh", "-c", "uvicorn clinical_deid.api.app:app --host 0.0.0.0 --port 8000 --workers ${WEB_CONCURRENCY} --timeout-graceful-shutdown ${GRACEFUL_SHUTDOWN_SECONDS}"]
+CMD ["sh", "-c", "uvicorn pypedeid.api.app:app --host 0.0.0.0 --port 8000 --workers ${WEB_CONCURRENCY} --timeout-graceful-shutdown ${GRACEFUL_SHUTDOWN_SECONDS}"]

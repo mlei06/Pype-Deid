@@ -27,11 +27,11 @@ import argparse
 import sys
 from pathlib import Path
 
-from clinical_deid.compose import CompositionStrategy, compose_corpora, load_one_source
+from pypedeid.compose import CompositionStrategy, compose_corpora, load_one_source
 
 
 def _write_jsonl(path: Path, docs: list) -> None:
-    from clinical_deid.domain import AnnotatedDocument
+    from pypedeid.domain import AnnotatedDocument
 
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as f:

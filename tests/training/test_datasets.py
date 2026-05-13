@@ -11,9 +11,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from clinical_deid.domain import AnnotatedDocument, Document, EntitySpan
-from clinical_deid.training.datasets import derive_label_list, tokenize_and_align
-from clinical_deid.training.errors import SlowTokenizerUnsupported
+from pypedeid.domain import AnnotatedDocument, Document, EntitySpan
+from pypedeid.training.datasets import derive_label_list, tokenize_and_align
+from pypedeid.training.errors import SlowTokenizerUnsupported
 
 
 # ---------------------------------------------------------------------------

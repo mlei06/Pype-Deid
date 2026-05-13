@@ -6,8 +6,8 @@ import json
 
 import pytest
 
-from clinical_deid.domain import AnnotatedDocument, Document, EntitySpan
-from clinical_deid.training_export import (
+from pypedeid.domain import AnnotatedDocument, Document, EntitySpan
+from pypedeid.training_export import (
     FORMATS,
     _bio_tags,
     _tokenize,

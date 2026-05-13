@@ -1,8 +1,8 @@
 # Data Ingestion
 
-This guide covers converting raw clinical datasets into the platform's annotated formats (JSONL and BRAT). Each dataset has a dedicated script under `scripts/` and a corresponding parser module under `src/clinical_deid/ingest/`.
+This guide covers converting raw clinical datasets into the platform's annotated formats (JSONL and BRAT). Each dataset has a dedicated script under `scripts/` and a corresponding parser module under `src/pypedeid/ingest/`.
 
-**Datasets tab / registry:** the admin **corpora** root keeps **one canonical layout** — `data/corpora/<name>/corpus.jsonl` plus `dataset.json` (analytics cache). If a script below writes **BRAT** under `data/corpora/...`, use **Convert BRAT → JSONL** in the UI or `clinical-deid dataset import-brat <brat_dir> --name <name>` to produce that JSONL home. Intermediate BRAT trees can stay on disk until you import; materialized tool exports (BRAT, CoNLL, …) go under `data/exports/` by default (`CLINICAL_DEID_EXPORTS_DIR`).
+**Datasets tab / registry:** the admin **corpora** root keeps **one canonical layout** — `data/corpora/<name>/corpus.jsonl` plus `dataset.json` (analytics cache). If a script below writes **BRAT** under `data/corpora/...`, use **Convert BRAT → JSONL** in the UI or `pypedeid dataset import-brat <brat_dir> --name <name>` to produce that JSONL home. Intermediate BRAT trees can stay on disk until you import; materialized tool exports (BRAT, CoNLL, …) go under `data/exports/` by default (`PYPEDEID_EXPORTS_DIR`).
 
 ## Output formats
 
@@ -71,7 +71,7 @@ Split ratios and seed are configurable via `--train`, `--valid`, `--test`, and `
 4. Optionally remaps entity labels.
 5. Splits the flat directory into `train/`, `valid/`, `test/`.
 
-**Parser module:** `clinical_deid.ingest.brat`
+**Parser module:** `pypedeid.ingest.brat`
 
 ---
 
@@ -114,7 +114,7 @@ python scripts/process_asq_phi.py \
 
 ASQ-PHI uses its own label set (`NAME`, `GEOGRAPHIC_LOCATION`, `DATE`, etc.). Spans are aligned by matching each `value` substring in order (first match forward from the previous span).
 
-**Parser module:** `clinical_deid.ingest.asq_phi`
+**Parser module:** `pypedeid.ingest.asq_phi`
 
 ---
 
@@ -154,7 +154,7 @@ python scripts/process_mimic_noteevents.py \
 6. Optionally merges adjacent name spans.
 7. Splits into `train/`, `valid/`, `test/`.
 
-**Parser module:** `clinical_deid.ingest.mimic`
+**Parser module:** `pypedeid.ingest.mimic`
 
 ---
 
@@ -227,13 +227,13 @@ corpus (`corpus.jsonl` + `dataset.json`) under `CORPORA_DIR/<output>`.
 
 ```bash
 # CLI — dir of .txt files (name must match a file under data/pipelines/<name>.json, not a /process mode alias)
-clinical-deid dataset ingest-run \
+pypedeid dataset ingest-run \
   --input data/corpora/raw_txts \
   --pipeline clinical-fast \
   --output-name raw_txts_clinical_fast_silver
 
 # CLI — one-off file (no registration)
-clinical-deid dataset ingest-run \
+pypedeid dataset ingest-run \
   --input notes.jsonl \
   --pipeline clinical-fast \
   --output-jsonl /tmp/out.jsonl
@@ -262,7 +262,7 @@ moving a dataset across environments.
 
 ```bash
 # CLI
-clinical-deid dataset export i2b2-2014 -o data/exports/i2b2-2014 --format jsonl
+pypedeid dataset export i2b2-2014 -o data/exports/i2b2-2014 --format jsonl
 
 # API
 curl -X POST http://localhost:8000/datasets/i2b2-2014/export \
@@ -271,7 +271,7 @@ curl -X POST http://localhost:8000/datasets/i2b2-2014/export \
 ```
 
 The response `path` points at a `train.jsonl` under the configured exports
-directory (`CLINICAL_DEID_EXPORTS_DIR`, default `data/exports/<name>/`). Override
+directory (`PYPEDEID_EXPORTS_DIR`, default `data/exports/<name>/`). Override
 the filename with `--filename` / `"filename": "..."`.
 
 ### Surrogate-aligned exports
@@ -290,7 +290,7 @@ endpoint).
 All ingest functionality is available as a Python library:
 
 ```python
-from clinical_deid.ingest import (
+from pypedeid.ingest import (
     load_annotated_corpus,          # unified loader
     load_annotated_documents_from_jsonl_bytes,
     load_brat_directory,

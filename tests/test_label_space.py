@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from clinical_deid.pipes.label_space import (
+from pypedeid.pipes.label_space import (
     effective_output_labels_from_pipeline,
     try_effective_input_labels_before_step,
     try_effective_output_labels_from_config,
 )
-from clinical_deid.pipes.registry import load_pipeline
+from pypedeid.pipes.registry import load_pipeline
 
 
 def test_label_mapper_renames_phone() -> None:

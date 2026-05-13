@@ -6,8 +6,8 @@ import json
 
 import pytest
 
-from clinical_deid.domain import AnnotatedDocument, Document
-from clinical_deid.pipes.huggingface_ner.pipe import (
+from pypedeid.domain import AnnotatedDocument, Document
+from pypedeid.pipes.huggingface_ner.pipe import (
     HuggingfaceNerConfig,
     HuggingfaceNerPipe,
     build_huggingface_label_space_bundle,
@@ -35,8 +35,8 @@ def hf_models_dir(tmp_path, monkeypatch):
         "framework": "huggingface",
         "labels": ["NAME", "DATE", "PHONE"],
     }))
-    monkeypatch.setenv("CLINICAL_DEID_MODELS_DIR", str(models_dir))
-    from clinical_deid.config import reset_settings
+    monkeypatch.setenv("PYPEDEID_MODELS_DIR", str(models_dir))
+    from pypedeid.config import reset_settings
     reset_settings()
     return models_dir
 
@@ -70,7 +70,7 @@ def test_config_rejects_unknown_segmentation():
 
 
 def test_huggingface_ner_in_catalog():
-    from clinical_deid.pipes.registry import pipe_catalog
+    from pypedeid.pipes.registry import pipe_catalog
 
     entry = next((e for e in pipe_catalog() if e.name == "huggingface_ner"), None)
     assert entry is not None
@@ -80,14 +80,14 @@ def test_huggingface_ner_in_catalog():
 
 
 def test_huggingface_ner_registered():
-    from clinical_deid.pipes.registry import registered_pipes
+    from pypedeid.pipes.registry import registered_pipes
 
     assert "huggingface_ner" in registered_pipes()
 
 
 def test_old_custom_ner_removed():
     """The legacy ``custom_ner`` entry should be gone — no two HF entry points."""
-    from clinical_deid.pipes.registry import pipe_catalog, registered_pipes
+    from pypedeid.pipes.registry import pipe_catalog, registered_pipes
 
     names = {e.name for e in pipe_catalog()}
     assert "custom_ner" not in names
@@ -119,8 +119,8 @@ def test_label_space_bundle(hf_models_dir):
 
 
 def test_label_space_bundle_empty_registry(tmp_path, monkeypatch):
-    monkeypatch.setenv("CLINICAL_DEID_MODELS_DIR", str(tmp_path / "models"))
-    from clinical_deid.config import reset_settings
+    monkeypatch.setenv("PYPEDEID_MODELS_DIR", str(tmp_path / "models"))
+    from pypedeid.config import reset_settings
     reset_settings()
 
     bundle = build_huggingface_label_space_bundle()
@@ -150,8 +150,8 @@ def test_label_space_bundle_model_info_reads_training_max_length(tmp_path, monke
     }))
     (model_dir / "config.json").write_text(json.dumps({"max_position_embeddings": 512}))
 
-    monkeypatch.setenv("CLINICAL_DEID_MODELS_DIR", str(models_dir))
-    from clinical_deid.config import reset_settings
+    monkeypatch.setenv("PYPEDEID_MODELS_DIR", str(models_dir))
+    from pypedeid.config import reset_settings
     reset_settings()
 
     bundle = build_huggingface_label_space_bundle()
@@ -164,7 +164,7 @@ def test_label_space_bundle_model_info_reads_training_max_length(tmp_path, monke
 
 
 def test_resolve_dynamic_options_routes_to_huggingface_models(hf_models_dir):
-    from clinical_deid.pipes.registry import resolve_dynamic_options
+    from pypedeid.pipes.registry import resolve_dynamic_options
 
     assert resolve_dynamic_options("huggingface_models") == ["phi-a", "phi-b"]
 
@@ -216,8 +216,8 @@ def test_framework_mismatch_raises(tmp_path, monkeypatch):
         "framework": "spacy",
         "labels": ["PERSON"],
     }))
-    monkeypatch.setenv("CLINICAL_DEID_MODELS_DIR", str(models_dir))
-    from clinical_deid.config import reset_settings
+    monkeypatch.setenv("PYPEDEID_MODELS_DIR", str(models_dir))
+    from pypedeid.config import reset_settings
     reset_settings()
 
     pipe = HuggingfaceNerPipe(HuggingfaceNerConfig(model="spacy-only"))
@@ -243,7 +243,7 @@ def test_dependencies_flag_missing_model(hf_models_dir):
 
 
 def test_load_pipe_huggingface_ner():
-    from clinical_deid.pipes.registry import load_pipe
+    from pypedeid.pipes.registry import load_pipe
 
     pipe = load_pipe({
         "type": "huggingface_ner",
@@ -253,7 +253,7 @@ def test_load_pipe_huggingface_ner():
 
 
 def test_dump_pipe_huggingface_ner(hf_models_dir):
-    from clinical_deid.pipes.registry import dump_pipe
+    from pypedeid.pipes.registry import dump_pipe
 
     pipe = HuggingfaceNerPipe(HuggingfaceNerConfig(model="phi-a"))
     dumped = dump_pipe(pipe)

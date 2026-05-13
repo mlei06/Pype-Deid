@@ -145,7 +145,7 @@ export function makeIdbStorage(dbName: string): StateStorage {
       const stored = await kv.getItem(key);
       if (stored != null) return stored;
       // One-shot migration read from the legacy localStorage blob.
-      if (key === 'clinical-deid-production:v2') {
+      if (key === 'pypedeid-production:v2') {
         try {
           const legacy = localStorage.getItem('production-queue');
           if (legacy) return legacy;

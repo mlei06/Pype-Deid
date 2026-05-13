@@ -137,7 +137,7 @@ Place `.txt` files in a `deploy/` subfolder of the dataset directory. Results ar
 
 ### Via Clinical Deid pipeline
 
-The `neuroner_ner` pipe calls the **NeuroNER HTTP sidecar** (see `neuroner-cspmc/sidecar/`). Set `CLINICAL_DEID_NEURONER_HTTP_URL` (default `http://127.0.0.1:8765`) or the pipe `base_url` if the sidecar listens elsewhere.
+The `neuroner_ner` pipe calls the **NeuroNER HTTP sidecar** (see `neuroner-cspmc/sidecar/`). Set `PYPEDEID_NEURONER_HTTP_URL` (default `http://127.0.0.1:8765`) or the pipe `base_url` if the sidecar listens elsewhere.
 
 **Pipeline JSON:**
 ```json
@@ -163,7 +163,7 @@ Common config fields:
 |---|---|---|
 | `model` | `i2b2_2014_glove_spacy_bioes` | Subdirectory name under `models/neuroner/`; sent to the sidecar so it loads or switches checkpoints (must exist on disk) |
 | `models_dir` | `models/neuroner` | Parent directory for models (used for manifests / label UI) |
-| `base_url` | *(empty)* | Sidecar base URL; empty uses `CLINICAL_DEID_NEURONER_HTTP_URL` |
+| `base_url` | *(empty)* | Sidecar base URL; empty uses `PYPEDEID_NEURONER_HTTP_URL` |
 | `startup_timeout` | `120` | Seconds to wait for `/health` |
 | `predict_timeout` | `60` | Seconds per `/v1/predict` request |
 

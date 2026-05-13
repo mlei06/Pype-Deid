@@ -1,29 +1,29 @@
 # Deployment (single API)
 
-One FastAPI application serves the Playground, automation, and the Production UI. There is no separate `clinical-deid-production` binary.
+One FastAPI application serves the Playground, automation, and the Production UI. There is no separate `pypedeid-production` binary.
 
 For a step-by-step Docker bring-up (build, volumes, env vars, frontends), see [docker-quickstart.md](docker-quickstart.md).
 
-**Dedicated production Compose:** [compose.prod.yaml](../compose.prod.yaml) is a **pull-only** file (no `build:`) so you can deploy a registry image with `CLINICAL_DEID_DOCKER_IMAGE`, default `WEB_CONCURRENCY=1`, and host overrides for data/model paths. Local iteration stays on [compose.yaml](../compose.yaml) (`docker compose up --build`).
+**Dedicated production Compose:** [compose.prod.yaml](../compose.prod.yaml) is a **pull-only** file (no `build:`) so you can deploy a registry image with `PYPEDEID_DOCKER_IMAGE`, default `WEB_CONCURRENCY=1`, and host overrides for data/model paths. Local iteration stays on [compose.yaml](../compose.yaml) (`docker compose up --build`).
 
 ## Production checklist
 
-- **Secrets:** Set `CLINICAL_DEID_ADMIN_API_KEYS` and `CLINICAL_DEID_INFERENCE_API_KEYS` as JSON arrays (see [Configuration — Authentication](configuration.md#authentication)). Never commit real keys. With root `compose.yaml`, copy [`.env.example`](../.env.example) to `.env` and define keys there — the Compose file does not hard-code empty key lists, so your `.env` values are not overridden.
-- **CORS:** `CLINICAL_DEID_CORS_ORIGINS` must list **every** browser origin that will call the API (scheme + host + port), including the Playground and Production UI. Values in the Compose `environment` block override the same variables from `.env`; adjust one or the other so they stay in sync.
-- **SQLite and workers:** The default audit store is SQLite (`CLINICAL_DEID_DATABASE_URL`). Each Uvicorn worker is a separate process; concurrent audit writes can produce intermittent **database is locked** errors when `WEB_CONCURRENCY` > 1. Prefer **`WEB_CONCURRENCY=1`** for SQLite-only deployments. For several workers and heavy concurrent audit traffic, point `CLINICAL_DEID_DATABASE_URL` at a client–server database and add the matching SQLAlchemy driver to your image.
+- **Secrets:** Set `PYPEDEID_ADMIN_API_KEYS` and `PYPEDEID_INFERENCE_API_KEYS` as JSON arrays (see [Configuration — Authentication](configuration.md#authentication)). Never commit real keys. With root `compose.yaml`, copy [`.env.example`](../.env.example) to `.env` and define keys there — the Compose file does not hard-code empty key lists, so your `.env` values are not overridden.
+- **CORS:** `PYPEDEID_CORS_ORIGINS` must list **every** browser origin that will call the API (scheme + host + port), including the Playground and Production UI. Values in the Compose `environment` block override the same variables from `.env`; adjust one or the other so they stay in sync.
+- **SQLite and workers:** The default audit store is SQLite (`PYPEDEID_DATABASE_URL`). Each Uvicorn worker is a separate process; concurrent audit writes can produce intermittent **database is locked** errors when `WEB_CONCURRENCY` > 1. Prefer **`WEB_CONCURRENCY=1`** for SQLite-only deployments. For several workers and heavy concurrent audit traffic, point `PYPEDEID_DATABASE_URL` at a client–server database and add the matching SQLAlchemy driver to your image.
 - **Compose `env_file`:** Optional `.env` loading uses the `path` / `required: false` form (Docker Compose **v2.24+**). On older Compose, remove the `env_file` block from `compose.yaml` or keep a (possibly empty) `.env` file if your version requires it.
 - **Load balancer:** Point HTTP health checks at `GET /health` (returns 200 when the app is up). Terminate TLS and apply rate limits at the proxy.
 - **SPAs:** Build each frontend with `VITE_API_BASE_URL` and `VITE_API_KEY` set for the target API (variables are fixed at **build** time). Restrict Production UI callers with **inference** keys; reserve **admin** keys for operators.
 
 ## Topology
 
-- **API:** `clinical-deid-api` → `uvicorn clinical_deid.api.app:app` (see root `Dockerfile` and `compose.yaml`).
+- **API:** `pypedeid-api` → `uvicorn pypedeid.api.app:app` (see root `Dockerfile` and `compose.yaml`).
 - **Playground UI** (`frontend/`) and **Production UI** (`frontend-production/`) are static SPAs. They call the API using `VITE_API_BASE_URL` and optional `VITE_API_KEY` (see each app’s `.env.example`).
-- **Mutable config after deploy:** Pipeline definitions (`CLINICAL_DEID_PIPELINES_DIR`, default `data/pipelines`) and deploy/mode mapping (`CLINICAL_DEID_MODES_PATH`, default `data/modes.json`) are **meant to change in production** without rebuilding the image. Operators can use the full **admin** Playground UI (pipeline builder, **Deploy** view) or **edit the JSON files on the instance** (bind-mount or volume). The API re-reads `modes.json` on each request that needs it; pipeline JSON is read from disk per request when loading a pipeline. The **tracked** seed maps mode aliases to shipped pipelines (e.g. `fast` → `clinical-fast`, **`default_mode`**: `fast`); that is **not** the same as the CLI’s `--profile` `balanced` / `accurate` — see [Configuration — Deploy configuration](configuration.md#deploy-configuration) and the main [README](../README.md#evaluation).
+- **Mutable config after deploy:** Pipeline definitions (`PYPEDEID_PIPELINES_DIR`, default `data/pipelines`) and deploy/mode mapping (`PYPEDEID_MODES_PATH`, default `data/modes.json`) are **meant to change in production** without rebuilding the image. Operators can use the full **admin** Playground UI (pipeline builder, **Deploy** view) or **edit the JSON files on the instance** (bind-mount or volume). The API re-reads `modes.json` on each request that needs it; pipeline JSON is read from disk per request when loading a pipeline. The **tracked** seed maps mode aliases to shipped pipelines (e.g. `fast` → `clinical-fast`, **`default_mode`**: `fast`); that is **not** the same as the CLI’s `--profile` `balanced` / `accurate` — see [Configuration — Deploy configuration](configuration.md#deploy-configuration) and the main [README](../README.md#evaluation).
 - **Two volumes** — everything mutable lives under `./data` (pipelines, modes, evaluations, inference runs, corpora, exports, dictionaries, SQLite audit log); model weights live under `./models` and are read-only at runtime. This is the full mount story — see `compose.yaml`:
     - `./data:/app/data` (read-write)
     - `./models:/app/models:ro`
-- **NeuroNER:** Optional HTTP sidecar (`neuroner-cspmc/sidecar/`); set `CLINICAL_DEID_NEURONER_HTTP_URL`.
+- **NeuroNER:** Optional HTTP sidecar (`neuroner-cspmc/sidecar/`); set `PYPEDEID_NEURONER_HTTP_URL`.
 
 ## Modes are the client contract — not pipelines
 
@@ -46,7 +46,7 @@ So the contract is: **mode name + response schema**. Treat mode names as a versi
 
 ## Authentication
 
-When `CLINICAL_DEID_ADMIN_API_KEYS` and `CLINICAL_DEID_INFERENCE_API_KEYS` are both empty, auth is **off** (local dev). When either list is non-empty, clients must send `Authorization: Bearer <key>` or `X-API-Key: <key>`.
+When `PYPEDEID_ADMIN_API_KEYS` and `PYPEDEID_INFERENCE_API_KEYS` are both empty, auth is **off** (local dev). When either list is non-empty, clients must send `Authorization: Bearer <key>` or `X-API-Key: <key>`.
 
 Scopes are documented in [Configuration — Authentication](configuration.md#authentication). Inference keys are limited to `/process/*`, label-space compute, `GET /deploy/health`, and audit reads; admin keys have full access.
 
@@ -54,7 +54,7 @@ OpenAPI (`/docs`, `/redoc`, `/openapi.json`) is **disabled** for anonymous clien
 
 ## Hardening
 
-- **`CLINICAL_DEID_MAX_BODY_BYTES`** — rejects oversized `Content-Length` with `413` (see [Configuration](configuration.md#request-body-limits)).
+- **`PYPEDEID_MAX_BODY_BYTES`** — rejects oversized `Content-Length` with `413` (see [Configuration](configuration.md#request-body-limits)).
 - **Rate limits and TLS** — use your reverse proxy or load balancer (recommended), not only the app.
 
 ## Smoke test

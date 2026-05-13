@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from clinical_deid.eval.redaction import compute_redaction_metrics
+from pypedeid.eval.redaction import compute_redaction_metrics
 
 
 def test_perfect_redaction():

@@ -10,8 +10,8 @@ from __future__ import annotations
 
 import random
 
-from clinical_deid.domain import EntitySpan
-from clinical_deid.pipes.span_merge import reconcile_overlapping_spans
+from pypedeid.domain import EntitySpan
+from pypedeid.pipes.span_merge import reconcile_overlapping_spans
 
 
 def _span(start: int, end: int, label: str, confidence: float | None = None) -> EntitySpan:

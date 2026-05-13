@@ -14,7 +14,7 @@ build/
 .env
 .env.local
 # Legacy DB location — the default moved to data/app.sqlite. These rules catch
-# any stray files left behind by old checkouts or custom CLINICAL_DEID_DATABASE_URL.
+# any stray files left behind by old checkouts or custom PYPEDEID_DATABASE_URL.
 var/*.sqlite
 var/*.sqlite-journal
 # Data workspace — keep layout, ignore user files.

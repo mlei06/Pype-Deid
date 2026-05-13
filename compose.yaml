@@ -17,7 +17,7 @@ services:
         # Presidio, spaCy, transformers/torch, and LLM clients are in the base install.
         # Append ``train`` (datasets/seqeval/accelerate) only for fine-tuning inside the container.
         EXTRAS: parquet,scripts
-    image: clinical-deid-api:latest
+    image: pypedeid-api:latest
     ports:
       - "8000:8000"
     # Optional: copy ``.env.example`` → ``.env`` and set keys, CORS, etc. Keys are not set in this file
@@ -27,27 +27,27 @@ services:
         required: false
     environment:
       # CORS — JSON array. Include every browser origin that will call the API (Playground :3000, prod UI :3001).
-      CLINICAL_DEID_CORS_ORIGINS: '["http://localhost:3000","http://127.0.0.1:3000","http://localhost:3001","http://127.0.0.1:3001"]'
+      PYPEDEID_CORS_ORIGINS: '["http://localhost:3000","http://127.0.0.1:3000","http://localhost:3001","http://127.0.0.1:3001"]'
 
       # 10 MiB default — tune for batch workloads if needed.
-      CLINICAL_DEID_MAX_BODY_BYTES: "10485760"
+      PYPEDEID_MAX_BODY_BYTES: "10485760"
 
       # NeuroNER sidecar URL — only used when a pipeline uses the neuroner_ner pipe.
-      CLINICAL_DEID_NEURONER_HTTP_URL: http://neuroner:8765
+      PYPEDEID_NEURONER_HTTP_URL: http://neuroner:8765
 
       # All mutable state under /app/data; model weights under /app/models. These
       # match the in-code defaults — set explicitly so operators can grep for paths.
-      CLINICAL_DEID_DATABASE_URL: sqlite:///./data/app.sqlite
-      CLINICAL_DEID_PIPELINES_DIR: /app/data/pipelines
-      CLINICAL_DEID_MODES_PATH: /app/data/modes.json
-      CLINICAL_DEID_EVALUATIONS_DIR: /app/data/evaluations
-      CLINICAL_DEID_INFERENCE_RUNS_DIR: /app/data/inference_runs
-      CLINICAL_DEID_CORPORA_DIR: /app/data/corpora
-      CLINICAL_DEID_DICTIONARIES_DIR: /app/data/dictionaries
-      CLINICAL_DEID_MODELS_DIR: /app/models
+      PYPEDEID_DATABASE_URL: sqlite:///./data/app.sqlite
+      PYPEDEID_PIPELINES_DIR: /app/data/pipelines
+      PYPEDEID_MODES_PATH: /app/data/modes.json
+      PYPEDEID_EVALUATIONS_DIR: /app/data/evaluations
+      PYPEDEID_INFERENCE_RUNS_DIR: /app/data/inference_runs
+      PYPEDEID_CORPORA_DIR: /app/data/corpora
+      PYPEDEID_DICTIONARIES_DIR: /app/data/dictionaries
+      PYPEDEID_MODELS_DIR: /app/models
 
       # Default audit DB is SQLite. Multiple workers increase concurrent writes to ``app.sqlite``; use ``1``
-      # for fewer "database is locked" surprises, or point ``CLINICAL_DEID_DATABASE_URL`` at PostgreSQL.
+      # for fewer "database is locked" surprises, or point ``PYPEDEID_DATABASE_URL`` at PostgreSQL.
       WEB_CONCURRENCY: "2"
     volumes:
       # All runtime state — edit pipelines/modes via the Playground admin UI

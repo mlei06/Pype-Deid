@@ -69,8 +69,8 @@ The registry scans `models/{framework}/{name}/model_manifest.json` on each call:
 ```python
 from pathlib import Path
 
-from clinical_deid.config import get_settings
-from clinical_deid.models import list_models, get_model
+from pypedeid.config import get_settings
+from pypedeid.models import list_models, get_model
 
 models_dir = get_settings().models_dir  # or Path("models")
 
@@ -83,7 +83,7 @@ info = get_model(models_dir, "deid-roberta-i2b2")
 print(info.path)
 ```
 
-Override the directory with `CLINICAL_DEID_MODELS_DIR` or `Settings.models_dir`.
+Override the directory with `PYPEDEID_MODELS_DIR` or `Settings.models_dir`.
 
 ## Using models in pipes
 
@@ -122,8 +122,8 @@ For local models, point Presidio at the model path directly via the Presidio con
 The registry is the output target for the training loop:
 
 1. **Prepare data** — Use [data ingestion](data-ingestion.md) and [transforms](transforms-and-composition.md) to build a training corpus.
-2. **Export** — `clinical-deid dataset export NAME -o DIR --format huggingface|conll|spacy` (or use the dataset export API from the Playground).
-3. **Train** — `clinical-deid train run` (requires `pip install '.[train]'`) writes a full directory under `models/huggingface/{output_name}/` including `model_manifest.json`. You can also train with Hugging Face Trainer externally and copy artifacts in manually.
+2. **Export** — `pypedeid dataset export NAME -o DIR --format huggingface|conll|spacy` (or use the dataset export API from the Playground).
+3. **Train** — `pypedeid train run` (requires `pip install '.[train]'`) writes a full directory under `models/huggingface/{output_name}/` including `model_manifest.json`. You can also train with Hugging Face Trainer externally and copy artifacts in manually.
 4. **Refresh** — `GET /models/refresh` or restart the server so `scan_models` picks up new directories.
 5. **Use** — Reference the model directory name in `huggingface_ner` as `"model": "<name>"`.
 

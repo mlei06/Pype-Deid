@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from clinical_deid.domain import AnnotatedDocument, Document, EntitySpan
-from clinical_deid.pipes.detector_label_mapping import accumulate_spans
-from clinical_deid.pipes.combinators import Pipeline
-from clinical_deid.pipes.regex_ner import RegexNerConfig, RegexNerPipe
-from clinical_deid.pipes.whitelist import WhitelistConfig, WhitelistPipe
+from pypedeid.domain import AnnotatedDocument, Document, EntitySpan
+from pypedeid.pipes.detector_label_mapping import accumulate_spans
+from pypedeid.pipes.combinators import Pipeline
+from pypedeid.pipes.regex_ner import RegexNerConfig, RegexNerPipe
+from pypedeid.pipes.whitelist import WhitelistConfig, WhitelistPipe
 
 
 def _doc(text: str, spans: list[EntitySpan] | None = None) -> AnnotatedDocument:

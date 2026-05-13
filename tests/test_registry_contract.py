@@ -11,7 +11,7 @@ import importlib
 
 import pytest
 
-from clinical_deid.pipes.registry import (
+from pypedeid.pipes.registry import (
     PipeCatalogEntry,
     pipe_availability,
     pipe_catalog,

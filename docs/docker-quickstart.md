@@ -26,18 +26,18 @@ those keys.
 ## 1. Build the backend image
 
 The `Dockerfile` at the repo root is the single production image
-(`clinical-deid-api`). Extras are selected at build time via the `EXTRAS`
+(`pypedeid-api`). Extras are selected at build time via the `EXTRAS`
 build arg.
 
 ```bash
 # Default extras: parquet + scripts (Faker/pandas for surrogate output).
 # Presidio, spaCy, transformers/torch, and the LLM clients are now in the
 # base install — no extras needed for inference. Add `train` only if you
-# plan to run `clinical-deid train run` (datasets/seqeval/accelerate).
-docker build -t clinical-deid-api .
+# plan to run `pypedeid train run` (datasets/seqeval/accelerate).
+docker build -t pypedeid-api .
 
 # Add `train` for HuggingFace fine-tuning inside the container.
-docker build -t clinical-deid-api \
+docker build -t pypedeid-api \
     --build-arg EXTRAS=parquet,scripts,train .
 ```
 
@@ -50,13 +50,13 @@ in `Dockerfile`). The settings you actually need to think about:
 
 | Variable | When to set | Notes |
 |----------|-------------|-------|
-| `CLINICAL_DEID_CORS_ORIGINS` | Any browser SPA hits the API | JSON array. In-app default (no env) is `localhost:3000` and `127.0.0.1:3000` only; root `compose.yaml` also lists `:3001` for both SPAs. Add every real origin you use. |
-| `CLINICAL_DEID_ADMIN_API_KEYS` | Any shared/production host | JSON array. Full access (pipeline edits, deploy config, audit). |
-| `CLINICAL_DEID_INFERENCE_API_KEYS` | Production UI / inference callers | JSON array. Limited to `/process/*`, label-space compute, `GET /deploy/health`, audit reads. |
-| `CLINICAL_DEID_MAX_BODY_BYTES` | Batch / large-document workloads | Default `10485760` (10 MiB). Requests above this return `413`. |
-| `CLINICAL_DEID_NEURONER_HTTP_URL` | A pipeline uses `neuroner_ner` | URL of the optional sidecar (e.g. `http://neuroner:8765`). |
+| `PYPEDEID_CORS_ORIGINS` | Any browser SPA hits the API | JSON array. In-app default (no env) is `localhost:3000` and `127.0.0.1:3000` only; root `compose.yaml` also lists `:3001` for both SPAs. Add every real origin you use. |
+| `PYPEDEID_ADMIN_API_KEYS` | Any shared/production host | JSON array. Full access (pipeline edits, deploy config, audit). |
+| `PYPEDEID_INFERENCE_API_KEYS` | Production UI / inference callers | JSON array. Limited to `/process/*`, label-space compute, `GET /deploy/health`, audit reads. |
+| `PYPEDEID_MAX_BODY_BYTES` | Batch / large-document workloads | Default `10485760` (10 MiB). Requests above this return `413`. |
+| `PYPEDEID_NEURONER_HTTP_URL` | A pipeline uses `neuroner_ner` | URL of the optional sidecar (e.g. `http://neuroner:8765`). |
 | `WEB_CONCURRENCY` | Tune for host | Uvicorn workers. Default `1` in the image, `2` in `compose.yaml`. With the default **SQLite** audit DB, `1` avoids most concurrent-write lock errors; see [deployment.md](deployment.md#production-checklist). |
-| `OPENAI_API_KEY` | `llm_ner` pipe or LLM dataset synthesis | Or `CLINICAL_DEID_OPENAI_API_KEY`. `OPENAI_BASE_URL` / `OPENAI_MODEL` for non-default endpoints. |
+| `OPENAI_API_KEY` | `llm_ner` pipe or LLM dataset synthesis | Or `PYPEDEID_OPENAI_API_KEY`. `OPENAI_BASE_URL` / `OPENAI_MODEL` for non-default endpoints. |
 
 Auth is **off** only when both key lists are empty or unset. When either is
 non-empty, clients must send `Authorization: Bearer <key>` or
@@ -88,11 +88,11 @@ results, and persists pipeline/deploy edits made in the Playground UI.
 docker run --rm -p 8000:8000 \
     -v "$(pwd)/data:/app/data" \
     -v "$(pwd)/models:/app/models:ro" \
-    -e CLINICAL_DEID_CORS_ORIGINS='["http://localhost:3000","http://localhost:3001"]' \
-    -e CLINICAL_DEID_ADMIN_API_KEYS='["change-me-admin"]' \
-    -e CLINICAL_DEID_INFERENCE_API_KEYS='["change-me-inference"]' \
+    -e PYPEDEID_CORS_ORIGINS='["http://localhost:3000","http://localhost:3001"]' \
+    -e PYPEDEID_ADMIN_API_KEYS='["change-me-admin"]' \
+    -e PYPEDEID_INFERENCE_API_KEYS='["change-me-inference"]' \
     -e WEB_CONCURRENCY=2 \
-    clinical-deid-api
+    pypedeid-api
 ```
 
 Verify:
@@ -107,7 +107,7 @@ curl -fsS -H "X-API-Key: change-me-admin" http://localhost:8000/pipelines
 
 Only needed if a deployed pipeline uses the `neuroner_ner` pipe. The sidecar
 image (`neuroner-cspmc/sidecar/Dockerfile`) is commented out in `compose.yaml`
-— uncomment that block and set `CLINICAL_DEID_NEURONER_HTTP_URL` on the API
+— uncomment that block and set `PYPEDEID_NEURONER_HTTP_URL` on the API
 service. End-to-end build/deploy steps: [neuroner-setup.md](neuroner-setup.md).
 
 ## 6. Point a frontend at the API
@@ -128,7 +128,7 @@ VITE_API_KEY=                                # admin key for Playground, inferen
 - `VITE_API_KEY` is sent as `X-API-Key` on every request. Omit when the API
   has auth disabled.
 - Whatever origin the SPA serves from must be in the backend's
-  `CLINICAL_DEID_CORS_ORIGINS` — this is the most common first-boot 4xx.
+  `PYPEDEID_CORS_ORIGINS` — this is the most common first-boot 4xx.
 
 Dev:
 

@@ -1,7 +1,7 @@
 # NeuroNER HTTP sidecar — run from repository root:
 #   docker compose -f neuroner-cspmc/sidecar/compose.yaml up -d --build
 #
-# Host app: CLINICAL_DEID_NEURONER_HTTP_URL=http://127.0.0.1:8765 (neuroner_ner pipe)
+# Host app: PYPEDEID_NEURONER_HTTP_URL=http://127.0.0.1:8765 (neuroner_ner pipe)
 #
 # Models, GloVe embeddings, and deploy tokenizer data are LOCAL paths on the host,
 # mounted read-only — not baked into the image. Only the Python/TF runtime is in the image.

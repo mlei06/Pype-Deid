@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from clinical_deid.domain import AnnotatedDocument, Document
-from clinical_deid.pipes.registry import dump_pipeline, load_pipeline
+from pypedeid.domain import AnnotatedDocument, Document
+from pypedeid.pipes.registry import dump_pipeline, load_pipeline
 def _doc(text: str) -> AnnotatedDocument:
     return AnnotatedDocument(document=Document(id="d", text=text), spans=[])
 

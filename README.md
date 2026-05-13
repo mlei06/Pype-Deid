@@ -1,4 +1,4 @@
-# Clinical-Deidentification-Playground
+# PypeDeid
 
 ## What It Does
 
@@ -16,7 +16,7 @@ Ships with a **clinical de-identification pack** (HIPAA Safe Harbor label space,
 - **Tracked teaching corpora** under `data/corpora/`: `sample_notes` (15 annotated production-export notes) and `sample_notes_surrogated` (same notes with synthesized PHI surrogates)
 - Dataset tools: JSONL/BRAT import, compose, transform, LLM synthesis, export to CoNLL/spaCy/HuggingFace/BRAT
 - **CLI and HTTP API** — same features as the UIs for scripting and automation (see [CLI](#cli) and [docs/api.md](docs/api.md))
-- HuggingFace fine-tuning pipeline (`clinical-deid train run`)
+- HuggingFace fine-tuning pipeline (`pypedeid train run`)
 - Full audit trail (SQLite) on every inference call
 
 ## Quick Start
@@ -26,8 +26,8 @@ Ships with a **clinical de-identification pack** (HIPAA Safe Harbor label space,
 python -m venv .venv && source .venv/bin/activate
 pip install -e .                            # all NER pipes (presidio, HF, LLM) included
 python -m spacy download en_core_web_sm     # required for Presidio pipes
-clinical-deid setup          # verify deps, init DB
-clinical-deid serve           # API on http://localhost:8000
+pypedeid setup          # verify deps, init DB
+pypedeid serve           # API on http://localhost:8000
 
 # Frontends (separate terminals; need Node 20.19+ or 22.12+)
 cd frontend && npm install && npm run dev                 # Playground — http://localhost:3000
@@ -46,7 +46,7 @@ https://youtu.be/iKYWic1IqJQ
 
 Three concepts overlap in name but are stored differently:
 
-1. **CLI `--profile`** (`src/clinical_deid/profiles.py`) — in-memory configs **`fast`**, **`balanced`**, **`accurate`** (regex-only → +Presidio → +consistency/resolve). Default for `clinical-deid run|batch|eval` is **`balanced`** when you don’t pass `--pipeline` or `--config`.
+1. **CLI `--profile`** (`src/pypedeid/profiles.py`) — in-memory configs **`fast`**, **`balanced`**, **`accurate`** (regex-only → +Presidio → +consistency/resolve). Default for `pypedeid run|batch|eval` is **`balanced`** when you don’t pass `--pipeline` or `--config`.
 2. **Saved pipeline JSON** (`data/pipelines/<name>.json`) — the repo ships **`clinical-fast`**, **`presidio`**, **`clinical-transformer`**, **`clinical-transformer-presidio`**, **`clinical-llm`**, **`clinical-llm-presidio`**, and **`clinical-ensemble`** (name = file stem). Use **`--pipeline <name>`** or pick them in the Playground.
 3. **Deploy mode aliases** (`data/modes.json`) — map a short **mode** string to a saved pipeline for **`POST /process/<mode>`** and the Production UIs. Seeded defaults:
 
@@ -72,10 +72,10 @@ Four evaluation modes supported: **strict** (exact span + label), **exact bounda
 
 ```bash
 # Evaluate a saved pipeline against a gold JSONL corpus
-clinical-deid eval --corpus data/corpora/sample_notes/corpus.jsonl --pipeline clinical-fast
+pypedeid eval --corpus data/corpora/sample_notes/corpus.jsonl --pipeline clinical-fast
 
 # Or use a CLI profile (default profile is balanced)
-clinical-deid eval --corpus data/corpora/sample_notes/corpus.jsonl --profile fast
+pypedeid eval --corpus data/corpora/sample_notes/corpus.jsonl --profile fast
 ```
 
 **Tracked teaching corpora** (under `data/corpora/`):
@@ -85,7 +85,7 @@ clinical-deid eval --corpus data/corpora/sample_notes/corpus.jsonl --profile fas
 
 Both ship in git so Evaluate and the CLI work out of the box.
 
-**Where eval results are stored:** Every run from **Playground → Evaluate** or **`POST /eval/run`**, and every **`clinical-deid eval`**, writes a JSON file under **`data/evaluations/`** (default; override with `CLINICAL_DEID_EVALUATIONS_DIR`). Files are named **`{pipeline_name}_{YYYYMMDD_HHMMSS}.json`** (UTC). The **Evaluate** view lists and opens past runs from that folder via `GET /eval/runs` — so CLI and UI runs share the same history.
+**Where eval results are stored:** Every run from **Playground → Evaluate** or **`POST /eval/run`**, and every **`pypedeid eval`**, writes a JSON file under **`data/evaluations/`** (default; override with `PYPEDEID_EVALUATIONS_DIR`). Files are named **`{pipeline_name}_{YYYYMMDD_HHMMSS}.json`** (UTC). The **Evaluate** view lists and opens past runs from that folder via `GET /eval/runs` — so CLI and UI runs share the same history.
 
 > The same eval can be run from **Playground → Evaluate** or the CLI; HTTP details are in [docs/api.md](docs/api.md).
 
@@ -93,7 +93,7 @@ Both ship in git so Evaluate and the CLI work out of the box.
 
 ---
 
-**End-to-end flow:** train or import data → save models under [`models/`](./models/README.md) → compose pipelines in `data/pipelines/` (Playground, CLI, or API) → run inference and evaluation → optional SQLite **audit** on every process call. Pack selection (label space, risk profile, etc.) is env-driven; see [docs/configuration.md](docs/configuration.md) (`CLINICAL_DEID_LABEL_SPACE_NAME`, …).
+**End-to-end flow:** train or import data → save models under [`models/`](./models/README.md) → compose pipelines in `data/pipelines/` (Playground, CLI, or API) → run inference and evaluation → optional SQLite **audit** on every process call. Pack selection (label space, risk profile, etc.) is env-driven; see [docs/configuration.md](docs/configuration.md) (`PYPEDEID_LABEL_SPACE_NAME`, …).
 
 **Developer note:** new pipes are a Pydantic config + `forward` + `register()`. **Documentation index:** [docs/README.md](docs/README.md), [docs/ui.md](docs/ui.md) (both web apps), [PROJECT_OVERVIEW.md](./PROJECT_OVERVIEW.md), [docs/deployment.md](docs/deployment.md), [docs/api.md](docs/api.md).
 
@@ -117,7 +117,7 @@ All mutable runtime state lives under `data/`; model weights live under `models/
 
 ## Security notice
 
-**Optional API keys** (`CLINICAL_DEID_ADMIN_API_KEYS` / `CLINICAL_DEID_INFERENCE_API_KEYS`): when both lists are empty, the API is open (typical local dev). For any shared or production host, set keys, TLS at the reverse proxy, and rate limits. See [docs/configuration.md](docs/configuration.md#authentication) and [docs/deployment.md](docs/deployment.md).
+**Optional API keys** (`PYPEDEID_ADMIN_API_KEYS` / `PYPEDEID_INFERENCE_API_KEYS`): when both lists are empty, the API is open (typical local dev). For any shared or production host, set keys, TLS at the reverse proxy, and rate limits. See [docs/configuration.md](docs/configuration.md#authentication) and [docs/deployment.md](docs/deployment.md).
 
 ## Setup
 
@@ -126,7 +126,7 @@ python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -e .                            # core + presidio + HF + LLM
 python -m spacy download en_core_web_sm     # required for Presidio
-clinical-deid setup          # verify deps, init DB
+pypedeid setup          # verify deps, init DB
 ```
 
 The base install covers all inference pipes. Opt-in extras: `[dev]` (tests + lint), `[train]` (HuggingFace fine-tuning), `[parquet]` (Parquet export), `[scripts]` (analytics + surrogate output), `[all]` (everything). The legacy `[presidio]`, `[ner]`, `[llm]` extras still resolve as no-ops for back-compat.
@@ -144,7 +144,7 @@ cd frontend && npm install && npm run dev              # Playground — http://l
 cd frontend-production && npm install && npm run dev   # Production UI — http://localhost:3001
 ```
 
-Set `VITE_API_BASE_URL` and `VITE_API_KEY` in each app’s `frontend` / `frontend-production` `.env.local` as needed. Dev servers proxy `/api` to `localhost:8000` by default. Large dataset uploads need a high enough `CLINICAL_DEID_MAX_BODY_BYTES` on the API (otherwise **413**).
+Set `VITE_API_BASE_URL` and `VITE_API_KEY` in each app’s `frontend` / `frontend-production` `.env.local` as needed. Dev servers proxy `/api` to `localhost:8000` by default. Large dataset uploads need a high enough `PYPEDEID_MAX_BODY_BYTES` on the API (otherwise **413**).
 
 ### Playground — `frontend/` (admin)
 
@@ -181,38 +181,38 @@ The CLI exposes the same backend as the UIs: pipelines, process, eval, datasets,
 
 ```bash
 # De-identify text
-echo "Patient John Smith DOB 01/15/1980" | clinical-deid run
-clinical-deid run --profile fast notes.txt
-clinical-deid run --pipeline clinical-fast notes.txt
-clinical-deid run --redactor surrogate notes.txt
+echo "Patient John Smith DOB 01/15/1980" | pypedeid run
+pypedeid run --profile fast notes.txt
+pypedeid run --pipeline clinical-fast notes.txt
+pypedeid run --redactor surrogate notes.txt
 
 # Batch process
-clinical-deid batch notes_dir/ -o output/ --format jsonl
-clinical-deid batch corpus.jsonl -o output/ --pipeline clinical-fast
+pypedeid batch notes_dir/ -o output/ --format jsonl
+pypedeid batch corpus.jsonl -o output/ --pipeline clinical-fast
 
 # Evaluate against gold standard
-clinical-deid eval --corpus data.jsonl --profile balanced
-clinical-deid eval --corpus data.jsonl --pipeline clinical-fast
+pypedeid eval --corpus data.jsonl --profile balanced
+pypedeid eval --corpus data.jsonl --pipeline clinical-fast
 
 # Dictionary management
-clinical-deid dict list
-clinical-deid dict preview whitelist hospitals --label HOSPITAL
-clinical-deid dict import terms.txt --kind whitelist --name hospitals --label HOSPITAL
-clinical-deid dict delete whitelist hospitals
+pypedeid dict list
+pypedeid dict preview whitelist hospitals --label HOSPITAL
+pypedeid dict import terms.txt --kind whitelist --name hospitals --label HOSPITAL
+pypedeid dict delete whitelist hospitals
 
 # Dataset management
-clinical-deid dataset list
-clinical-deid dataset register data/corpus.jsonl --name i2b2-2014
-clinical-deid dataset import-brat data/brat/ --name physionet
-clinical-deid dataset show i2b2-2014
-clinical-deid dataset delete i2b2-2014
+pypedeid dataset list
+pypedeid dataset register data/corpus.jsonl --name i2b2-2014
+pypedeid dataset import-brat data/brat/ --name physionet
+pypedeid dataset show i2b2-2014
+pypedeid dataset delete i2b2-2014
 
 # Audit trail
-clinical-deid audit list
-clinical-deid audit show <record-id>
+pypedeid audit list
+pypedeid audit show <record-id>
 
 # Server
-clinical-deid serve --port 8000 --reload
+pypedeid serve --port 8000 --reload
 ```
 
 Pipeline commands (`run`, `batch`, `eval`) support `--profile` (fast / balanced / accurate), `--pipeline` (saved pipeline JSON name such as `clinical-fast`), `--config` (custom JSON file), and `--redactor` (tag/surrogate). **`--pipeline` wins** over `--profile` when both are set.
@@ -220,12 +220,12 @@ Pipeline commands (`run`, `batch`, `eval`) support `--profile` (fast / balanced 
 ## Run the API
 
 ```bash
-clinical-deid serve
-# or: clinical-deid-api
-# or: uvicorn clinical_deid.api.app:app --reload
+pypedeid serve
+# or: pypedeid-api
+# or: uvicorn pypedeid.api.app:app --reload
 ```
 
-Default SQLite database: `./data/app.sqlite` (audit log only). Override with `CLINICAL_DEID_DATABASE_URL`.
+Default SQLite database: `./data/app.sqlite` (audit log only). Override with `PYPEDEID_DATABASE_URL`.
 
 ### HTTP API
 

@@ -38,7 +38,7 @@ pip install -e ".[dev]"
 ### 3. Initialize the database and verify dependencies
 
 ```bash
-clinical-deid setup
+pypedeid setup
 ```
 
 This creates `data/app.sqlite` (audit log), verifies optional dependencies, and downloads the default spaCy model if needed.
@@ -46,10 +46,10 @@ This creates `data/app.sqlite` (audit log), verifies optional dependencies, and 
 ### 4. Start the API server
 
 ```bash
-clinical-deid serve              # http://localhost:8000
+pypedeid serve              # http://localhost:8000
 # or equivalently:
-clinical-deid-api
-uvicorn clinical_deid.api.app:app --reload
+pypedeid-api
+uvicorn pypedeid.api.app:app --reload
 ```
 
 The API is unauthenticated by default (local dev). See [docs/configuration.md](docs/configuration.md#authentication) to enable API keys.
@@ -150,7 +150,7 @@ The base install includes Presidio, HuggingFace inference, and LLM clients. The 
 |-------|--------------|------------------|
 | `.[dev]` | `pytest`, `pytest-cov`, `ruff`, `pandas`, `faker` | Running tests + lint locally |
 | `.[scripts]` | `pandas`, `faker` | Analytics and dataset-transform scripts; surrogate output mode |
-| `.[train]` | `datasets`, `seqeval`, `accelerate` | HuggingFace fine-tuning (`clinical-deid train run`) |
+| `.[train]` | `datasets`, `seqeval`, `accelerate` | HuggingFace fine-tuning (`pypedeid train run`) |
 | `.[parquet]` | `pyarrow` | Parquet export format |
 | `.[all]` | `dev` + `train` + `parquet` | Full toolchain |
 
@@ -177,16 +177,16 @@ See [docs/docker-quickstart.md](docs/docker-quickstart.md) and [docs/deployment.
 
 ## Configuration
 
-All settings are controlled via environment variables with the `CLINICAL_DEID_` prefix (or a `.env` file at the repo root):
+All settings are controlled via environment variables with the `PYPEDEID_` prefix (or a `.env` file at the repo root):
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `CLINICAL_DEID_LABEL_SPACE_NAME` | `clinical_phi` | Active label space pack |
-| `CLINICAL_DEID_RISK_PROFILE_NAME` | `clinical_phi` | Active risk profile |
-| `CLINICAL_DEID_DATABASE_URL` | `sqlite:///./data/app.sqlite` | Audit DB connection |
-| `CLINICAL_DEID_PIPELINES_DIR` | `data/pipelines` | Pipeline JSON storage |
-| `CLINICAL_DEID_CORPORA_DIR` | `data/corpora` | Dataset storage |
-| `CLINICAL_DEID_MODELS_DIR` | `models` | Model artifact storage |
-| `CLINICAL_DEID_MAX_BODY_BYTES` | `10485760` (10 MB) | Max API request body size |
+| `PYPEDEID_LABEL_SPACE_NAME` | `clinical_phi` | Active label space pack |
+| `PYPEDEID_RISK_PROFILE_NAME` | `clinical_phi` | Active risk profile |
+| `PYPEDEID_DATABASE_URL` | `sqlite:///./data/app.sqlite` | Audit DB connection |
+| `PYPEDEID_PIPELINES_DIR` | `data/pipelines` | Pipeline JSON storage |
+| `PYPEDEID_CORPORA_DIR` | `data/corpora` | Dataset storage |
+| `PYPEDEID_MODELS_DIR` | `models` | Model artifact storage |
+| `PYPEDEID_MAX_BODY_BYTES` | `10485760` (10 MB) | Max API request body size |
 
 Full reference: [docs/configuration.md](docs/configuration.md).

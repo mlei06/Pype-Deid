@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from clinical_deid.domain import EntitySpan
-from clinical_deid.eval.runner import _build_confusion_matrix
+from pypedeid.domain import EntitySpan
+from pypedeid.eval.runner import _build_confusion_matrix
 
 
 def _span(start: int, end: int, label: str) -> EntitySpan:

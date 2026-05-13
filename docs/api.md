@@ -1,20 +1,20 @@
 # HTTP API reference
 
-The FastAPI app is `clinical_deid.api.app:app`.
+The FastAPI app is `pypedeid.api.app:app`.
 
 ```bash
-clinical-deid-api
-# or: uvicorn clinical_deid.api.app:app --reload --host 127.0.0.1 --port 8000
+pypedeid-api
+# or: uvicorn pypedeid.api.app:app --reload --host 127.0.0.1 --port 8000
 ```
 
 Default base URL: `http://127.0.0.1:8000`.
 
 ## Security and documentation
 
-- **Optional API keys** — When `CLINICAL_DEID_ADMIN_API_KEYS` and `CLINICAL_DEID_INFERENCE_API_KEYS` are both empty, the API accepts unauthenticated requests (local dev). When either list is set, send `Authorization: Bearer <key>` or `X-API-Key: <key>`. Scopes and route policy: [Configuration — Authentication](configuration.md#authentication).
+- **Optional API keys** — When `PYPEDEID_ADMIN_API_KEYS` and `PYPEDEID_INFERENCE_API_KEYS` are both empty, the API accepts unauthenticated requests (local dev). When either list is set, send `Authorization: Bearer <key>` or `X-API-Key: <key>`. Scopes and route policy: [Configuration — Authentication](configuration.md#authentication).
 - **OpenAPI** — `/docs`, `/redoc`, and `/openapi.json` are available when auth is **off**; they are **removed** when auth is **on** (no anonymous schema).
-- **CORS** — `CLINICAL_DEID_CORS_ORIGINS` (JSON array). Defaults allow local Playground origins.
-- **Body size** — Requests with `Content-Length` above `CLINICAL_DEID_MAX_BODY_BYTES` receive `413` before handlers run. Chunked requests without `Content-Length` are not capped by this middleware.
+- **CORS** — `PYPEDEID_CORS_ORIGINS` (JSON array). Defaults allow local Playground origins.
+- **Body size** — Requests with `Content-Length` above `PYPEDEID_MAX_BODY_BYTES` receive `413` before handlers run. Chunked requests without `Content-Length` are not capped by this middleware.
 
 Do not expose the service to the public internet without TLS, auth, and rate limiting at the edge.
 
@@ -26,7 +26,7 @@ Do not expose the service to the public internet without TLS, auth, and rate lim
 
 Liveness. Always unauthenticated.
 
-**Response:** `status`, `label_space_name` (active `CLINICAL_DEID_LABEL_SPACE_NAME` — used for `POST /process` span label normalization), `risk_profile_name` (default for eval risk-weighted metrics when not overridden), and optional `api_key_scope` (`"admin"` \| `"inference"` \| `null`). When auth is enabled, send the same `X-API-Key` the browser uses; the field reflects that key’s scope so SPAs can enable admin-only actions (e.g. dataset register). When auth is disabled, `api_key_scope` is `"admin"`. Example: `{"status":"ok","label_space_name":"clinical_phi","risk_profile_name":"clinical_phi","api_key_scope":"admin"}`.
+**Response:** `status`, `label_space_name` (active `PYPEDEID_LABEL_SPACE_NAME` — used for `POST /process` span label normalization), `risk_profile_name` (default for eval risk-weighted metrics when not overridden), and optional `api_key_scope` (`"admin"` \| `"inference"` \| `null`). When auth is enabled, send the same `X-API-Key` the browser uses; the field reflects that key’s scope so SPAs can enable admin-only actions (e.g. dataset register). When auth is disabled, `api_key_scope` is `"admin"`. Example: `{"status":"ok","label_space_name":"clinical_phi","risk_profile_name":"clinical_phi","api_key_scope":"admin"}`.
 
 ---
 
@@ -126,7 +126,7 @@ Base path: `/inference`. Saved runs under `data/inference_runs/` — list, get, 
 
 Base path: `/eval` — `POST /eval/run`, list/detail/compare runs (admin when auth is on).
 
-Each `POST /eval/run` **persists** a JSON file under `CLINICAL_DEID_EVALUATIONS_DIR` (default `data/evaluations/`) as `{pipeline_name}_{timestamp}.json`. `GET /eval/runs` reads that directory (the Playground **Evaluate** run history). **`clinical-deid eval` uses the same store**, so CLI-created files show up in the list too.
+Each `POST /eval/run` **persists** a JSON file under `PYPEDEID_EVALUATIONS_DIR` (default `data/evaluations/`) as `{pipeline_name}_{timestamp}.json`. `GET /eval/runs` reads that directory (the Playground **Evaluate** run history). **`pypedeid eval` uses the same store**, so CLI-created files show up in the list too.
 
 ### `POST /eval/run`
 
@@ -148,7 +148,7 @@ When sampled, the saved eval JSON and `GET /eval/runs/{id}` include `metrics.sam
 {"save_sample_as": {"dataset_name": "train_valid_sample_500", "description": "Optional"}}
 ```
 
-On success, the new dataset is materialized under `CLINICAL_DEID_CORPORA_DIR/<name>/` with `metadata.provenance` recording `derived_from` (parent dataset name or path), `sample_seed`, `sample_size`, `sample_of_total`, `source_eval_pipeline`, and `source_splits`. The response's `metrics.sample.saved_dataset_name` echoes the new name. Collisions with an existing dataset return **409**; using `save_sample_as` with `eval_mode == "full"` returns **422**.
+On success, the new dataset is materialized under `PYPEDEID_CORPORA_DIR/<name>/` with `metadata.provenance` recording `derived_from` (parent dataset name or path), `sample_seed`, `sample_size`, `sample_of_total`, `source_eval_pipeline`, and `source_splits`. The response's `metrics.sample.saved_dataset_name` echoes the new name. Collisions with an existing dataset return **409**; using `save_sample_as` with `eval_mode == "full"` returns **422**.
 
 **Per-document inspection** (response-only — never persisted to the eval JSON):
 
@@ -157,7 +157,7 @@ On success, the new dataset is materialized under `CLINICAL_DEID_CORPORA_DIR/<na
 | `include_per_document` | `bool` | Default `false`. Adds `metrics.document_level` to the HTTP response with one item per document (`document_id`, full `metrics`, `risk_weighted_recall`, `false_positive_count`, `false_negative_count`), sorted worst strict-F1 first. |
 | `include_per_document_spans` | `bool` | Default `false`. Implies `include_per_document`; each item additionally carries `text`, `gold_spans`, `pred_spans`, `false_positives`, `false_negatives` — useful for side-by-side review in the UI, but the payload includes raw document text (admin only). |
 
-The payload is capped at `Settings.eval_per_document_limit` (default **500**, env var `CLINICAL_DEID_EVAL_PER_DOCUMENT_LIMIT`); overflow is flagged via `metrics.document_level_truncated`. Fetching a run via `GET /eval/runs/{id}` will **not** return per-document data — re-run with the flag to inspect again.
+The payload is capped at `Settings.eval_per_document_limit` (default **500**, env var `PYPEDEID_EVAL_PER_DOCUMENT_LIMIT`); overflow is flagged via `metrics.document_level_truncated`. Fetching a run via `GET /eval/runs/{id}` will **not** return per-document data — re-run with the flag to inspect again.
 
 ---
 
@@ -177,11 +177,11 @@ Multipart form (`Content-Type: multipart/form-data` — do **not** set `Content-
 | `metadata` | no | JSON **object** as a string (e.g. `{"k":"v"}`) — invalid JSON or non-object → 422. |
 | `line_format` | no | `annotated_jsonl` (default) — one Pydantic `AnnotatedDocument` per line. `production_v1` — each line is a Production UI export line (`schema_version: 1`); the server normalizes to `AnnotatedDocument` before import. |
 
-Returns **201** and the same **DatasetDetail** as `POST /datasets`. Rejects with **409** if the name exists, **422** for invalid corpus or name, **413** if the request exceeds `CLINICAL_DEID_MAX_BODY_BYTES` (and `Content-Length` is set — see [configuration](configuration.md)). Large JSONL in the browser may require raising that cap on the API.
+Returns **201** and the same **DatasetDetail** as `POST /datasets`. Rejects with **409** if the name exists, **422** for invalid corpus or name, **413** if the request exceeds `PYPEDEID_MAX_BODY_BYTES` (and `Content-Length` is set — see [configuration](configuration.md)). Large JSONL in the browser may require raising that cap on the API.
 
 ### `POST /datasets/preview-labels`
 
-Body: `{"path": "relative/or/absolute/under/corpora/corpus.jsonl"}`. Resolves a gold JSONL the same way as `POST /eval/run` with `dataset_path` (must stay under `CLINICAL_DEID_CORPORA_DIR`); returns sorted unique span label strings, `document_count`, and `resolved_path`. Used by the Evaluate UI in “Path on server” mode (no full dataset registration required for the label alignment panel).
+Body: `{"path": "relative/or/absolute/under/corpora/corpus.jsonl"}`. Resolves a gold JSONL the same way as `POST /eval/run` with `dataset_path` (must stay under `PYPEDEID_CORPORA_DIR`); returns sorted unique span label strings, `document_count`, and `resolved_path`. Used by the Evaluate UI in “Path on server” mode (no full dataset registration required for the label alignment panel).
 
 ### `POST /datasets/ingest-from-pipeline`
 
@@ -253,11 +253,11 @@ Records carry a `source` field distinguishing callers: `api-admin` (admin-scoped
 | Text length | 500,000 characters | `ProcessRequest` / batch items (`schemas.py`) |
 | Batch size | 100 items | `MAX_BATCH_SIZE` in `schemas.py` |
 | Dictionary / list upload | 2 MB per file | Pipeline helper uploads |
-| HTTP body | `CLINICAL_DEID_MAX_BODY_BYTES` (default 10 MiB) | Middleware `Content-Length` check |
+| HTTP body | `PYPEDEID_MAX_BODY_BYTES` (default 10 MiB) | Middleware `Content-Length` check |
 | Ingest documents | `max_documents` (default 10,000, max 1,000,000) | `IngestFromPipelineRequest` cap for `/datasets/ingest-from-pipeline` |
 
 ---
 
 ## Database
 
-SQLite (default `./data/app.sqlite`) holds **only** the append-only **`audit_log`** table. Pipelines, eval results, and models live on the filesystem. Override with `CLINICAL_DEID_DATABASE_URL`.
+SQLite (default `./data/app.sqlite`) holds **only** the append-only **`audit_log`** table. Pipelines, eval results, and models live on the filesystem. Override with `PYPEDEID_DATABASE_URL`.
