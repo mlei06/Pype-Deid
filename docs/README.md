@@ -1,5 +1,7 @@
 # Documentation index
 
+PypeDeid is a **deployable de-identification service** — a self-hosted FastAPI app, packaged via Docker, that operators run inside their own trust boundary. The deployment-track docs ([deployment.md](deployment.md), [docker-quickstart.md](docker-quickstart.md), [configuration.md](configuration.md)) cover production setup; the rest describe the feature surface that service exposes.
+
 | Document | Contents |
 |----------|----------|
 | [../README.md](../README.md) | Repo quick start, **CLI profiles vs `data/pipelines` vs `modes.json`**, layout, API table |

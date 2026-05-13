@@ -1,6 +1,6 @@
 # Setup Guide
 
-Step-by-step installation for the NER pipeline platform (backend + frontend).
+Step-by-step installation for PypeDeid — the de-identification service (backend + frontend). This guide covers the local development install; for self-hosted production deployment in your own infrastructure, see [docs/deployment.md](docs/deployment.md) and [docs/docker-quickstart.md](docs/docker-quickstart.md).
 
 ## Requirements
 

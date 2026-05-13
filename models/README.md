@@ -1,6 +1,6 @@
 # Models Directory
 
-**Local training and checkpoints** for detectors you want to use in pipelines belong here. Train or fine-tune on your machine (spaCy, HuggingFace, etc.), then drop artifacts into the layout below and reference them from pipe configuration once a loader pipe is wired to the manifest convention.
+**Trained detector artifacts** for pipelines belong here. Train or fine-tune inside your own environment (spaCy, HuggingFace, etc.) so weights stay within your trust boundary, then drop artifacts into the layout below and reference them from pipe configuration once a loader pipe is wired to the manifest convention. In a self-hosted deployment, this directory is bind-mounted into the API container read-only (`./models:/app/models:ro`) — see [docs/deployment.md](../docs/deployment.md).
 
 The directory structure groups models by their inference framework:
 

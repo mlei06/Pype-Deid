@@ -1,6 +1,6 @@
 # Deployment (single API)
 
-One FastAPI application serves the Playground, automation, and the Production UI. There is no separate `pypedeid-production` binary.
+PypeDeid is designed to run as a **self-hosted service inside the operator's own infrastructure** — text never leaves the boundary you control (unless you explicitly opt into the LLM pipe via `PYPEDEID_ALLOW_EXTERNAL_LLM`). One FastAPI application serves the Playground, automation, and the Production UI. There is no separate `pypedeid-production` binary.
 
 For a step-by-step Docker bring-up (build, volumes, env vars, frontends), see [docker-quickstart.md](docker-quickstart.md).
 

@@ -6,13 +6,13 @@ Use this document to understand the full scope of the project before suggesting 
 
 ## What this project does
 
-A **local-first platform** for clinical text de-identification. Three complementary threads:
+A **deployable de-identification service** for clinical text. The system is built to run as a self-hosted container (FastAPI + SQLite audit, packaged via the bundled `Dockerfile` / `compose.yaml`) inside the operator's own infrastructure, so PHI and model artifacts never cross the trust boundary. Three complementary threads:
 
-1. **Local training** — Prepare annotated data, export to your trainer (spaCy, HuggingFace, etc.), and train or fine-tune models **on your machines**. Artifacts live under `models/` (see `models/README.md`) and are referenced from pipe configs so detectors stay reproducible.
+1. **In-cluster training** — Prepare annotated data, export to your trainer (spaCy, HuggingFace, etc.), and train or fine-tune models inside your own environment. Artifacts live under `models/` (see `models/README.md`) and are referenced from pipe configs so detectors stay reproducible.
 
 2. **Pipeline composition** — Configure **pipes** (regex, whitelist, Presidio, LLM, HuggingFace, combinators, redactors) and compose them into named **pipelines** (JSON files in `data/pipelines/`, registry-backed). The API supports creating/updating pipelines, validation, and machine-readable config schemas with `ui_*` hints for building forms.
 
-3. **Inference for services** — Expose **HTTP endpoints** so upstream systems send text (or batch items) and receive de-identified output plus **auditable** metadata: `request_id`, spans, timings, pipeline name, and optional **intermediary traces** when the pipeline enables step capture. All operations are logged to a unified SQLite audit trail.
+3. **Service-mode inference** — Expose **HTTP endpoints** so upstream systems send text (or batch items) and receive de-identified output plus **auditable** metadata: `request_id`, spans, timings, pipeline name, and optional **intermediary traces** when the pipeline enables step capture. All operations are logged to a unified SQLite audit trail. Production posture is enforced via explicit gates (`PYPEDEID_AUTH_DISABLED`, `PYPEDEID_ALLOW_EXTERNAL_LLM`) so an unconfigured deployment refuses to start.
 
 4. **Playground UI** — A **React + TypeScript web UI** (Vite, Tailwind CSS) with nine views: **(a)** visual pipeline builder, **(b)** pipeline catalog, **(c)** inference with span highlighting and step trace, **(d)** eval dashboard with metrics/confusion matrix/comparison, **(e)** dataset management (register, compose, transform, generate), **(f)** dictionary management, **(g)** deploy configuration (inference modes, pipeline allowlist), **(h)** audit log viewer with stats, **(i)** production NER workspace.
 
@@ -23,7 +23,7 @@ A **local-first platform** for clinical text de-identification. Three complement
 1. **Minimal setup for new pipes (highest)** — Adding a detector, transformer, or redactor should stay a **small, local change**: Pydantic config + `forward` implementation + **one `register()` call** (and optionally one **catalog** line for install hints / role). Pipes should not require edits to the process router, pipeline loader, or UI beyond what JSON Schema + `ui_*` hints already provide.
 2. **Composable pipelines** — JSON-defined sequential and parallel graphs, validation before save.
 3. **Observable inference** — Rich process responses, persistent audit trail, eval metrics.
-4. **Training + eval loop** — Local training artifacts, eval on disk or uploads, compare runs over time.
+4. **Training + eval loop** — In-environment training artifacts, eval on disk or uploads, compare runs over time.
 
 ---
 

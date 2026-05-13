@@ -1,6 +1,6 @@
 # Configuration
 
-All configuration is managed through environment variables, with sensible defaults for local development.
+All configuration is managed through environment variables. Defaults work out of the box for local development; for self-hosted production deployment, set the `PYPEDEID_*` variables documented below — and the production posture gates `PYPEDEID_AUTH_DISABLED` and `PYPEDEID_ALLOW_EXTERNAL_LLM` (the API refuses to start when `environment=production` and no API keys are configured unless the former is explicitly set; the latter must be opt-in before any LLM pipe or `/datasets/generate` call). See [deployment.md](deployment.md) for the full production checklist.
 
 ## Environment variables
 

@@ -2,7 +2,7 @@
 
 ## What It Does
 
-A **local-first NER pipeline platform**: compose modular detectors (regex, Presidio, HuggingFace, LLM) into named pipelines, evaluate against gold corpora with multi-mode metrics, generate and manage training datasets, and serve auditable inference via HTTP API.
+A **deployable de-identification service**: compose modular detectors (regex, Presidio, HuggingFace, LLM) into named pipelines, evaluate against gold corpora with multi-mode metrics, generate and manage training datasets, and serve auditable inference via HTTP API. Ship the bundled Docker image into your own infrastructure — PHI never leaves the boundary you control.
 
 Ships with a **clinical de-identification pack** (HIPAA Safe Harbor label space, regex patterns, surrogate strategies, risk/coverage profile) as the default configuration — so it works out of the box for PHI detection. The clinical domain is a *pack*, not a baked-in assumption. Swap the label space, pattern pack, surrogate pack, and risk profile to target any NER task. A minimal `generic_pii` pack ships alongside; custom packs register at startup.
 
